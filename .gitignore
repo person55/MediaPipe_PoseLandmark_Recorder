@@ -1,5 +1,6 @@
 bazel-*
 .DS_Store
+**/.DS_Store
 mediapipe/MediaPipe.xcodeproj
 mediapipe/MediaPipe.tulsiproj/*.tulsiconf-user
 mediapipe/provisioning_profile.mobileprovision
@@ -18,7 +19,13 @@ projects/pose_landmark_recorder/examples/output/*
 !projects/pose_landmark_recorder/examples/output/.gitkeep
 projects/pose_landmark_recorder/examples/input/*.mp4
 projects/pose_landmark_recorder/examples/input/*.mov
+projects/pose_landmark_recorder/examples/input/*.m4v
+projects/pose_landmark_recorder/examples/input/*.avi
+projects/pose_landmark_recorder/examples/input/*.mkv
 projects/pose_landmark_recorder/examples/input/**/*.mp4
 projects/pose_landmark_recorder/examples/input/**/*.mov
+projects/pose_landmark_recorder/examples/input/**/*.m4v
+projects/pose_landmark_recorder/examples/input/**/*.avi
+projects/pose_landmark_recorder/examples/input/**/*.mkv
 __pycache__/
 *.py[cod]
