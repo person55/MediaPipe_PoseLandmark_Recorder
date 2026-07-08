@@ -1,7 +1,24 @@
 bazel-*
+.DS_Store
 mediapipe/MediaPipe.xcodeproj
 mediapipe/MediaPipe.tulsiproj/*.tulsiconf-user
 mediapipe/provisioning_profile.mobileprovision
 node_modules/
 .configure.bazelrc
 .user.bazelrc
+
+# Pose Landmark Recorder local artifacts
+projects/pose_landmark_recorder/.venv/
+projects/pose_landmark_recorder/.pytest_cache/
+projects/pose_landmark_recorder/build/
+projects/pose_landmark_recorder/dist/
+projects/pose_landmark_recorder/*.egg-info/
+projects/pose_landmark_recorder/src/*.egg-info/
+projects/pose_landmark_recorder/examples/output/*
+!projects/pose_landmark_recorder/examples/output/.gitkeep
+projects/pose_landmark_recorder/examples/input/*.mp4
+projects/pose_landmark_recorder/examples/input/*.mov
+projects/pose_landmark_recorder/examples/input/**/*.mp4
+projects/pose_landmark_recorder/examples/input/**/*.mov
+__pycache__/
+*.py[cod]
