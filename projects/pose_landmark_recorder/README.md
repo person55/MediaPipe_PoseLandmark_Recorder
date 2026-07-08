@@ -78,6 +78,8 @@ See [`docs/quality_flags.md`](docs/quality_flags.md) for the meaning of each `qu
 
 See [`docs/segment_refinement.md`](docs/segment_refinement.md) for the optional second-pass segment re-detection workflow.
 
+See [`docs/skeleton_optimization.md`](docs/skeleton_optimization.md) for the optional skeleton constraint and optimization workflow.
+
 ## Current cleaning baseline
 
 The current baseline preset is conservative. It keeps raw extraction and cleaned data separate, interpolates short missing-frame gaps, and avoids turning long or uncertain outlier runs into plausible-looking motion.

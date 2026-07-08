@@ -1,0 +1,114 @@
+angle_constraints:
+  left_elbow:
+    points: [left_shoulder, left_elbow, left_wrist]
+    hard_min_deg: 15
+    hard_max_deg: 180
+    adaptive_margin_deg: 10
+    action: flag_first
+
+  right_elbow:
+    points: [right_shoulder, right_elbow, right_wrist]
+    hard_min_deg: 15
+    hard_max_deg: 180
+    adaptive_margin_deg: 10
+    action: flag_first
+
+  left_knee:
+    points: [left_hip, left_knee, left_ankle]
+    hard_min_deg: 20
+    hard_max_deg: 180
+    adaptive_margin_deg: 10
+    action: flag_first
+
+  right_knee:
+    points: [right_hip, right_knee, right_ankle]
+    hard_min_deg: 20
+    hard_max_deg: 180
+    adaptive_margin_deg: 10
+    action: flag_first
+
+bone_constraints:
+  left_upper_arm:
+    points: [left_shoulder, left_elbow]
+    min_ratio: 0.45
+    max_ratio: 1.75
+
+  left_lower_arm:
+    points: [left_elbow, left_wrist]
+    min_ratio: 0.45
+    max_ratio: 1.75
+
+  right_upper_arm:
+    points: [right_shoulder, right_elbow]
+    min_ratio: 0.45
+    max_ratio: 1.75
+
+  right_lower_arm:
+    points: [right_elbow, right_wrist]
+    min_ratio: 0.45
+    max_ratio: 1.75
+
+  left_upper_leg:
+    points: [left_hip, left_knee]
+    min_ratio: 0.45
+    max_ratio: 1.75
+
+  left_lower_leg:
+    points: [left_knee, left_ankle]
+    min_ratio: 0.45
+    max_ratio: 1.75
+
+  right_upper_leg:
+    points: [right_hip, right_knee]
+    min_ratio: 0.45
+    max_ratio: 1.75
+
+  right_lower_leg:
+    points: [right_knee, right_ankle]
+    min_ratio: 0.45
+    max_ratio: 1.75
+
+reachability_constraints:
+  left_arm:
+    root: left_shoulder
+    mid: left_elbow
+    end: left_wrist
+    length_margin_ratio: 0.10
+
+  right_arm:
+    root: right_shoulder
+    mid: right_elbow
+    end: right_wrist
+    length_margin_ratio: 0.10
+
+  left_leg:
+    root: left_hip
+    mid: left_knee
+    end: left_ankle
+    length_margin_ratio: 0.10
+
+  right_leg:
+    root: right_hip
+    mid: right_knee
+    end: right_ankle
+    length_margin_ratio: 0.10
+
+quality_policy:
+  reliable_flags:
+    - measured
+    - refined_measured
+    - low_visibility_leg_kept
+
+  uncertain_flags:
+    - interpolated_short_gap
+    - interpolated_outlier_removed
+    - estimated_occluded_arm
+
+  protected_flags:
+    - unreliable
+    - missing_long_gap
+    - review_only
+
+  never_auto_correct_flags:
+    - missing_long_gap
+    - review_only

@@ -13,6 +13,7 @@ from dance_pose_recorder.video_input import VideoFileReader
 
 COLOR_MEASURED = (0, 255, 0)
 COLOR_REFINED = (80, 255, 80)
+COLOR_OPTIMIZED = (255, 0, 200)
 COLOR_INTERPOLATED = (0, 255, 255)
 COLOR_OUTLIER_INTERPOLATED = (255, 180, 0)
 COLOR_OCCLUDED_ARM = (255, 0, 255)
@@ -67,10 +68,13 @@ def _draw_frame(image: object, frame_df: pd.DataFrame | None, status: dict) -> N
             continue
         if pd.isna(row.x) or pd.isna(row.y):
             continue
+        display_quality = _display_quality(row)
+        if display_quality in {"review_only", "optimization_unreliable"}:
+            continue
         x = int(round(float(row.x) * width))
         y = int(round(float(row.y) * height))
         points[int(row.landmark_id)] = (x, y)
-        qualities[int(row.landmark_id)] = row.quality_flag
+        qualities[int(row.landmark_id)] = display_quality
 
     hide_torso_side = _should_hide_torso_side(points)
     for start, end in POSE_CONNECTIONS:
@@ -80,10 +84,24 @@ def _draw_frame(image: object, frame_df: pd.DataFrame | None, status: dict) -> N
             cv2.line(image, points[start], points[end], _connection_color(qualities.get(start), qualities.get(end)), 2)
     for landmark_id, point in points.items():
         cv2.circle(image, point, 3, _point_color(qualities.get(landmark_id)), -1)
-    if "refined_measured" in set(qualities.values()):
+    if "optimized_constrained" in set(qualities.values()):
+        cv2.putText(image, "OPTIMIZED", (24, 42), cv2.FONT_HERSHEY_SIMPLEX, 1.0, COLOR_OPTIMIZED, 2)
+    elif "refined_measured" in set(qualities.values()):
         cv2.putText(image, "REFINED", (24, 42), cv2.FONT_HERSHEY_SIMPLEX, 1.0, COLOR_REFINED, 2)
     if not points:
         cv2.putText(image, "NO VALID POSE", (24, 42), cv2.FONT_HERSHEY_SIMPLEX, 1.0, COLOR_INVALID, 2)
+
+
+def _display_quality(row: object) -> str:
+    optimizer_status = getattr(row, "optimizer_status", "")
+    quality_flag = getattr(row, "quality_flag", None)
+    if optimizer_status == "optimized_constrained":
+        return "optimized_constrained"
+    if optimizer_status == "flagged":
+        return "optimizer_flagged"
+    if optimizer_status in {"review_only", "optimization_unreliable"}:
+        return str(optimizer_status)
+    return str(quality_flag)
 
 
 def _should_hide_torso_side(points: dict[int, tuple[int, int]]) -> bool:
@@ -100,6 +118,10 @@ def _point_distance(start: tuple[int, int], end: tuple[int, int]) -> float:
 
 
 def _point_color(quality_flag: str | None) -> tuple[int, int, int]:
+    if quality_flag == "optimized_constrained":
+        return COLOR_OPTIMIZED
+    if quality_flag == "optimizer_flagged":
+        return COLOR_INVALID
     if quality_flag == "refined_measured":
         return COLOR_REFINED
     if quality_flag == "interpolated_short_gap":
@@ -116,6 +138,10 @@ def _point_color(quality_flag: str | None) -> tuple[int, int, int]:
 
 
 def _connection_color(start_quality: str | None, end_quality: str | None) -> tuple[int, int, int]:
+    if "optimized_constrained" in {start_quality, end_quality}:
+        return COLOR_OPTIMIZED
+    if "optimizer_flagged" in {start_quality, end_quality}:
+        return COLOR_INVALID
     if "refined_measured" in {start_quality, end_quality}:
         return COLOR_REFINED
     if "estimated_occluded_arm" in {start_quality, end_quality}:
