@@ -76,6 +76,8 @@ Long missing ranges are not interpolated. Short gaps up to `--max-interpolate-ga
 
 See [`docs/quality_flags.md`](docs/quality_flags.md) for the meaning of each `quality_flag` and suggested downstream visualization behavior.
 
+See [`docs/segment_refinement.md`](docs/segment_refinement.md) for the optional second-pass segment re-detection workflow.
+
 ## Current cleaning baseline
 
 The current baseline preset is conservative. It keeps raw extraction and cleaned data separate, interpolates short missing-frame gaps, and avoids turning long or uncertain outlier runs into plausible-looking motion.

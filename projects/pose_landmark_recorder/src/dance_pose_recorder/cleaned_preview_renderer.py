@@ -12,6 +12,7 @@ from dance_pose_recorder.landmark_schema import POSE_CONNECTIONS
 from dance_pose_recorder.video_input import VideoFileReader
 
 COLOR_MEASURED = (0, 255, 0)
+COLOR_REFINED = (80, 255, 80)
 COLOR_INTERPOLATED = (0, 255, 255)
 COLOR_OUTLIER_INTERPOLATED = (255, 180, 0)
 COLOR_OCCLUDED_ARM = (255, 0, 255)
@@ -79,6 +80,8 @@ def _draw_frame(image: object, frame_df: pd.DataFrame | None, status: dict) -> N
             cv2.line(image, points[start], points[end], _connection_color(qualities.get(start), qualities.get(end)), 2)
     for landmark_id, point in points.items():
         cv2.circle(image, point, 3, _point_color(qualities.get(landmark_id)), -1)
+    if "refined_measured" in set(qualities.values()):
+        cv2.putText(image, "REFINED", (24, 42), cv2.FONT_HERSHEY_SIMPLEX, 1.0, COLOR_REFINED, 2)
     if not points:
         cv2.putText(image, "NO VALID POSE", (24, 42), cv2.FONT_HERSHEY_SIMPLEX, 1.0, COLOR_INVALID, 2)
 
@@ -97,6 +100,8 @@ def _point_distance(start: tuple[int, int], end: tuple[int, int]) -> float:
 
 
 def _point_color(quality_flag: str | None) -> tuple[int, int, int]:
+    if quality_flag == "refined_measured":
+        return COLOR_REFINED
     if quality_flag == "interpolated_short_gap":
         return COLOR_INTERPOLATED
     if quality_flag == "interpolated_outlier_removed":
@@ -111,6 +116,8 @@ def _point_color(quality_flag: str | None) -> tuple[int, int, int]:
 
 
 def _connection_color(start_quality: str | None, end_quality: str | None) -> tuple[int, int, int]:
+    if "refined_measured" in {start_quality, end_quality}:
+        return COLOR_REFINED
     if "estimated_occluded_arm" in {start_quality, end_quality}:
         return COLOR_OCCLUDED_ARM
     if "interpolated_outlier_removed" in {start_quality, end_quality}:
