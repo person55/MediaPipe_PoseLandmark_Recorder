@@ -116,3 +116,20 @@ Baseline policy:
 - Raw files are never overwritten.
 
 MediaPipe `pose_world_landmarks` are model-estimated 3D coordinates from a single RGB source. They are useful for trajectory and visual experiments, but should not be treated as calibrated stage coordinates.
+
+## Documentation
+
+This project uses lightweight documentation files to reduce Codex CLI context usage.
+
+Recommended context files:
+
+- [`AGENTS.md`](AGENTS.md)
+- [`CURRENT_STATE.md`](CURRENT_STATE.md)
+- [`docs/codex_context_min.md`](docs/codex_context_min.md)
+- [`docs/README.md`](docs/README.md)
+
+For next development priorities, see:
+
+- [`docs/next_development_plan.md`](docs/next_development_plan.md)
+
+Long notes and archived planning documents should live under `docs/archive/` and should not be read by Codex unless explicitly needed.

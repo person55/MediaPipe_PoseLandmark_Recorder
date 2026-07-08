@@ -1,0 +1,339 @@
+# Next Development Plan
+
+## Current Assessment
+
+The current pipeline has reached the limit of simple interpolation and conservative skeleton optimization.
+
+Segment re-detection can recover only a small number of better candidates when the source video still contains usable visual evidence.
+
+Skeleton optimization is useful as a diagnostic and flagging layer, but it should not be treated as a reconstruction engine.
+It cannot reliably recover long occlusion, missing body parts, or frame-out motion.
+
+Therefore, the next core improvement should be:
+
+```text
+Outlier Minimizer v2
+```
+
+After that, introduce:
+
+```text
+Motion Profile Builder
+```
+
+as a lightweight prior system.
+
+## Priority 1 - Outlier Minimizer v2
+
+### Purpose
+
+Reduce visual and temporal outliers without generating new motion.
+
+This module should improve downstream Blender visualization by minimizing spikes, breaking unreliable trajectories, and applying confidence-aware filtering.
+
+### Input
+
+```text
+refined_pose.csv
+or
+optimized_pose.csv
+metadata.json
+optional: refine_report.json
+optional: optimization_report.json
+optional: motion_profile.json
+```
+
+### Output
+
+```text
+outlier_minimized_pose.csv
+outlier_minimized_pose.jsonl
+outlier_report.json
+temporal_spike_report.csv
+trajectory_breaks.csv
+```
+
+### Core Ideas
+
+```text
+1. confidence-aware filtering
+2. velocity / acceleration / jerk outlier detection
+3. landmark-group-specific policy
+4. short spike correction
+5. long unreliable run hiding / trajectory break
+6. no generated motion
+```
+
+### Proposed Script
+
+```text
+scripts/minimize_pose_outliers.py
+```
+
+### Proposed Modules
+
+```text
+src/dance_pose_recorder/outlier_minimizer.py
+src/dance_pose_recorder/temporal_features.py
+src/dance_pose_recorder/confidence_filters.py
+```
+
+### Quality Flag Policy
+
+Do not erase uncertainty.
+
+Suggested additional flags:
+
+```text
+outlier_minimized
+trajectory_break
+held_previous_stable
+hidden_unreliable
+```
+
+Existing flags must remain distinguishable:
+
+```text
+measured
+refined_measured
+optimized_constrained
+interpolated_short_gap
+interpolated_outlier_removed
+estimated_occluded_arm
+low_visibility_leg_kept
+unreliable
+review_only
+missing_long_gap
+```
+
+### Landmark Group Policy
+
+```text
+torso:
+  preserve strongly; minimal filtering.
+
+shoulder/hip:
+  conservative filtering only.
+
+elbow/knee:
+  allow short spike correction.
+
+wrist/ankle:
+  allow confidence-aware smoothing and short interpolation.
+
+thumb/index/pinky:
+  do not force reconstruction; hide or show as uncertain unless confidence is high.
+
+heel/foot_index:
+  allow filtering, but preserve trajectory breaks when confidence is low.
+```
+
+### Temporal Features
+
+Calculate:
+
+```text
+position
+velocity
+acceleration
+jerk
+```
+
+Outlier candidates:
+
+```text
+temporal_position_jump
+temporal_velocity_spike
+temporal_acceleration_spike
+temporal_jerk_spike
+```
+
+### Filtering Candidates
+
+Use lightweight filters first:
+
+```text
+median filter
+Hampel-style outlier detection
+confidence-aware Savitzky-Golay smoothing
+confidence-aware Kalman filter as optional later
+```
+
+Initial implementation should avoid heavy dependencies.
+Prefer NumPy/Pandas-based logic.
+
+### Acceptance Policy
+
+Only apply correction when:
+
+```text
+- gap/spike is short
+- stable neighbors exist
+- correction improves temporal continuity
+- correction does not cross review_only or missing_long_gap regions
+```
+
+Do not correct:
+
+```text
+- long unreliable runs
+- missing_long_gap
+- review_only
+- frame-out regions
+- hand proxy landmarks with long instability
+```
+
+## Priority 2 - Motion Profile Builder
+
+### Purpose
+
+Introduce a lightweight prior system without training a model.
+
+Instead of using heavy pretrained generative models, build a project-specific statistical motion profile from stable frames across multiple sessions.
+
+### Input
+
+```text
+cleaned_pose.csv
+refined_pose.csv
+optimized_pose.csv
+outlier_minimized_pose.csv
+```
+
+from multiple sessions.
+
+### Output
+
+```text
+configs/motion_profile_default.json
+motion_profile_report.md
+```
+
+### Proposed Script
+
+```text
+scripts/build_motion_profile.py
+```
+
+### Proposed Modules
+
+```text
+src/dance_pose_recorder/motion_profile.py
+src/dance_pose_recorder/temporal_features.py
+```
+
+### Motion Profile Content
+
+For each landmark:
+
+```text
+median_velocity
+p95_velocity
+p99_velocity
+median_acceleration
+p95_acceleration
+p99_acceleration
+median_jerk
+p95_jerk
+p99_jerk
+max_safe_gap_fill_sec
+```
+
+For each bone:
+
+```text
+median_length
+p01_length
+p99_length
+safe_min_ratio
+safe_max_ratio
+```
+
+For each quality group:
+
+```text
+recommended_filter_strength
+recommended_visibility_threshold
+recommended_presence_threshold
+```
+
+### Use
+
+Future cleaning/outlier minimization can read:
+
+```text
+--motion-profile configs/motion_profile_default.json
+```
+
+and adapt thresholds by session type.
+
+### Important Distinction
+
+This is not generated motion.
+
+It is a statistical prior used to guide outlier detection and safe interpolation thresholds.
+
+## Priority 3 - Blender Importer
+
+Blender importer should read the final selected layer:
+
+```text
+outlier_minimized_pose.csv
+or
+optimized_pose.csv
+```
+
+and display uncertainty.
+
+Required display policy:
+
+```text
+measured: solid
+refined_measured: green
+optimized_constrained: purple
+outlier_minimized: cyan
+interpolated_short_gap: yellow dotted
+interpolated_outlier_removed: blue dotted
+estimated_occluded_arm: translucent
+low_visibility_leg_kept: dim
+unreliable: hidden by default
+review_only: hidden or translucent
+trajectory_break: break line connection
+generated_motion: separate color/layer only
+```
+
+## Deferred Research Backends
+
+Do not add these to the core lightweight pipeline yet:
+
+```text
+VideoPose3D
+PoseFormerV2
+MotionBERT
+HuMoR
+WHAM
+4DHumans
+GVHMR
+motion diffusion
+```
+
+These can be explored later as `research_backends/`.
+
+Their outputs must be treated as candidates or generated layers, not measured data.
+
+## Recommended Next Implementation Order
+
+```text
+1. Add documentation/lightweight context structure
+2. Implement Outlier Minimizer v2
+3. Add Motion Profile Builder
+4. Use motion_profile.json to adapt thresholds
+5. Implement Blender importer with quality_flag display
+6. Consider learned prior backends only after the lightweight pipeline is stable
+```
+
+## Core Principle
+
+Do not make uncertain motion look certain.
+
+The project should prioritize trustworthy, inspectable, lightweight pose data over visually plausible but unmarked reconstruction.
