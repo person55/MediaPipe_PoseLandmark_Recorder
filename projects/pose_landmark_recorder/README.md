@@ -74,4 +74,41 @@ Cleaned outputs:
 
 Long missing ranges are not interpolated. Short gaps up to `--max-interpolate-gap` are linearly interpolated and marked with `quality_flag` so downstream tools can distinguish measured values from corrected values.
 
+See [`docs/quality_flags.md`](docs/quality_flags.md) for the meaning of each `quality_flag` and suggested downstream visualization behavior.
+
+## Current cleaning baseline
+
+The current baseline preset is conservative. It keeps raw extraction and cleaned data separate, interpolates short missing-frame gaps, and avoids turning long or uncertain outlier runs into plausible-looking motion.
+
+Recommended baseline options:
+
+```bash
+python scripts/clean_pose_data.py \
+  --input-video examples/input/dance_take_002.mov \
+  --input-csv examples/output/session_gpu_002/raw_pose.csv \
+  --input-jsonl examples/output/session_gpu_002/raw_pose.jsonl \
+  --metadata examples/output/session_gpu_002/metadata.json \
+  --output examples/output/session_gpu_002/cleaned_arm55_legkeep_outlier3 \
+  --max-interpolate-gap 15 \
+  --visibility-threshold 0.5 \
+  --presence-threshold 0.5 \
+  --jump-threshold-multiplier 6.0 \
+  --smoothing-window 7 \
+  --outlier-max-gap 3 \
+  --arm-occlusion-max-gap 55 \
+  --leg-salvage-min-visibility 0.15 \
+  --save-csv \
+  --save-jsonl \
+  --save-preview
+```
+
+Baseline policy:
+
+- Missing-frame gaps up to 15 frames are linearly interpolated.
+- Recoverable spike-like outliers are interpolated only up to 3 frames.
+- Longer outlier runs are left as `unreliable`.
+- Bounded elbow/wrist occlusion runs can be estimated as `estimated_occluded_arm`.
+- Stable low-visibility leg measurements can be kept as `low_visibility_leg_kept`.
+- Raw files are never overwritten.
+
 MediaPipe `pose_world_landmarks` are model-estimated 3D coordinates from a single RGB source. They are useful for trajectory and visual experiments, but should not be treated as calibrated stage coordinates.

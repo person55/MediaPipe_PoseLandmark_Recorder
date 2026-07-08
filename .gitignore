@@ -15,8 +15,16 @@ projects/pose_landmark_recorder/build/
 projects/pose_landmark_recorder/dist/
 projects/pose_landmark_recorder/*.egg-info/
 projects/pose_landmark_recorder/src/*.egg-info/
+
+# Pose Landmark Recorder model files
+projects/pose_landmark_recorder/models/*.task
+!projects/pose_landmark_recorder/models/README.md
+
+# Pose Landmark Recorder generated data
 projects/pose_landmark_recorder/examples/output/*
 !projects/pose_landmark_recorder/examples/output/.gitkeep
+
+# Pose Landmark Recorder input videos
 projects/pose_landmark_recorder/examples/input/*.mp4
 projects/pose_landmark_recorder/examples/input/*.mov
 projects/pose_landmark_recorder/examples/input/*.m4v
