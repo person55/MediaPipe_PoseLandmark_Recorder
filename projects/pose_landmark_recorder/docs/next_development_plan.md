@@ -1,5 +1,27 @@
 # Next Development Plan
 
+## Current Direction Update
+
+The project is currently visualization-oriented.
+
+Skeleton optimization has been tested and found useful mainly as a diagnostic/reporting layer. It is not the preferred default path for final visualization because conservative flags such as `review_only` and `optimization_unreliable` can make the skeleton appear incomplete when hidden downstream.
+
+Therefore, do not prioritize stronger skeleton optimization unless the project explicitly shifts toward learned motion reconstruction or generated interpolation.
+
+The next implementation priority is:
+
+```text
+Outlier Minimizer v2
+```
+
+The default visualization-oriented path should be:
+
+```text
+refined_pose.csv
+-> outlier_minimized_pose.csv
+-> Blender importer
+```
+
 ## Current Assessment
 
 The current pipeline has reached the limit of simple interpolation and conservative skeleton optimization.
@@ -23,6 +45,26 @@ Motion Profile Builder
 
 as a lightweight prior system.
 
+## Skeleton Optimizer Role
+
+Skeleton Optimizer should remain in the repository, but its role is diagnostic.
+
+It can produce:
+
+- `optimization_report.json`
+- `bone_length_report.csv`
+- `joint_angle_report.csv`
+- `optimization_segments.csv`
+
+It should not be the default final data source for visualization.
+
+Recommended use:
+
+```text
+Use refined or outlier-minimized coordinates for visual continuity.
+Use optimizer reports as overlays, warnings, or review guides.
+```
+
 ## Priority 1 - Outlier Minimizer v2
 
 ### Purpose
@@ -31,12 +73,23 @@ Reduce visual and temporal outliers without generating new motion.
 
 This module should improve downstream Blender visualization by minimizing spikes, breaking unreliable trajectories, and applying confidence-aware filtering.
 
+Outlier Minimizer v2 should become the next core visualization-oriented improvement.
+
+Its purpose is not to generate missing motion, but to reduce visual spikes and preserve readable trajectories.
+
+It should support:
+
+- confidence-aware filtering
+- velocity / acceleration / jerk spike detection
+- landmark-group-specific policy
+- trajectory break handling
+- short spike correction only when stable neighbors exist
+- no generated motion
+
 ### Input
 
 ```text
 refined_pose.csv
-or
-optimized_pose.csv
 metadata.json
 optional: refine_report.json
 optional: optimization_report.json
@@ -280,7 +333,7 @@ Blender importer should read the final selected layer:
 ```text
 outlier_minimized_pose.csv
 or
-optimized_pose.csv
+refined_pose.csv
 ```
 
 and display uncertainty.
@@ -324,12 +377,11 @@ Their outputs must be treated as candidates or generated layers, not measured da
 ## Recommended Next Implementation Order
 
 ```text
-1. Add documentation/lightweight context structure
+1. Keep Skeleton Optimizer as optional diagnostic layer
 2. Implement Outlier Minimizer v2
-3. Add Motion Profile Builder
-4. Use motion_profile.json to adapt thresholds
-5. Implement Blender importer with quality_flag display
-6. Consider learned prior backends only after the lightweight pipeline is stable
+3. Implement Blender importer using refined/outlier-minimized data
+4. Add Motion Profile Builder for lightweight statistical prior
+5. Consider learned or generated motion backends only as separate research modules
 ```
 
 ## Core Principle

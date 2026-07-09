@@ -30,6 +30,20 @@ Task-specific documents should be read only when needed.
 | [`skeleton_optimization.md`](skeleton_optimization.md) | Conservative skeleton diagnostics |
 | [`next_development_plan.md`](next_development_plan.md) | Next planned modules and priorities |
 
+Skeleton optimization is not the default final visualization stage.
+For visualization-first work, prefer the refined/outlier-minimized path and use skeleton optimization as diagnostic context.
+
+## Recommended Reading by Task
+
+| Task | Read |
+|---|---|
+| Basic extraction | `codex_context_min.md`, main README |
+| Cleaning and interpolation | `quality_flags.md`, `current_pipeline.md` if available |
+| Segment re-detection | `segment_refinement.md` |
+| Visualization-oriented cleanup | `next_development_plan.md`, future `outlier_minimization.md` |
+| Skeleton diagnostics | `skeleton_optimization.md` |
+| Blender import | future `blender_importer.md` |
+
 ## Sample Reports
 
 | Document | Purpose |

@@ -31,9 +31,16 @@ Push only to `origin master`. Never push to `upstream`.
 record_from_video.py
 -> clean_pose_data.py
 -> refine_pose_segments.py
--> optimize_pose_skeleton.py
--> outlier minimization planned
+-> minimize_pose_outliers.py planned
 -> Blender importer planned
+```
+
+Optional diagnostic branch:
+
+```text
+refined_pose.csv
+-> optimize_pose_skeleton.py
+-> optimization reports / diagnostic overlay
 ```
 
 ## Data policy
@@ -41,8 +48,8 @@ record_from_video.py
 - `raw_pose` preserves direct MediaPipe measurements.
 - `cleaned_pose` applies validation, short interpolation, smoothing, and quality flags.
 - `refined_pose` accepts only better re-detected candidates.
-- `optimized_pose` applies conservative skeleton diagnostics and very limited correction.
 - future `outlier_minimized_pose` should reduce visual/temporal spikes without generating motion.
+- `optimized_pose` is an optional diagnostic layer for conservative skeleton checks, not the default final visualization layer.
 - generated motion must be explicitly separated from measured/refined/optimized data.
 
 ## Default reading policy

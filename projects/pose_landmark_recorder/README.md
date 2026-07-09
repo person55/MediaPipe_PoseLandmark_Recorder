@@ -80,6 +80,29 @@ See [`docs/segment_refinement.md`](docs/segment_refinement.md) for the optional 
 
 See [`docs/skeleton_optimization.md`](docs/skeleton_optimization.md) for the optional skeleton constraint and optimization workflow.
 
+## Recommended pipeline
+
+### Visualization-first path
+
+```text
+record_from_video.py
+-> clean_pose_data.py
+-> refine_pose_segments.py
+-> minimize_pose_outliers.py planned
+-> Blender importer planned
+```
+
+### Optional diagnostic path
+
+```text
+refine_pose_segments.py
+-> optimize_pose_skeleton.py
+-> optimization reports
+```
+
+Skeleton optimization is useful for diagnostics, but it is not the default final visualization layer.
+For visual continuity, use `refined_pose.csv` or the future `outlier_minimized_pose.csv`.
+
 ## Current cleaning baseline
 
 The current baseline preset is conservative. It keeps raw extraction and cleaned data separate, interpolates short missing-frame gaps, and avoids turning long or uncertain outlier runs into plausible-looking motion.
