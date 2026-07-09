@@ -302,6 +302,7 @@ def _apply_candidates(
         "pose_world": median_bone_lengths(cleaned, "pose_world"),
     }
     stable_cache: dict[tuple[str, int], pd.DataFrame] = {}
+    median_motion_cache: dict[tuple[str, int], float] = {}
     score_rows: list[dict] = []
     segment_summaries: list[dict] = []
 
@@ -330,6 +331,7 @@ def _apply_candidates(
             stable_key = (source, landmark_id)
             if stable_key not in stable_cache:
                 stable_cache[stable_key] = stable_landmark_series(cleaned, source, landmark_id)
+                median_motion_cache[stable_key] = _median_motion_for_series(stable_cache[stable_key], source)
 
             before_frame_rows = cleaned_frame_cache.get((frame, source), pd.DataFrame())
             before_score = score_row(
@@ -338,6 +340,7 @@ def _apply_candidates(
                 before_frame_rows,
                 median_bones.get(source, {}),
                 source=source,
+                median_motion=median_motion_cache[stable_key],
             ).total
 
             if candidate_row is None:
@@ -353,6 +356,7 @@ def _apply_candidates(
                 candidate_frame_rows,
                 median_bones.get(source, {}),
                 source=source,
+                median_motion=median_motion_cache[stable_key],
             ).total
             decision = decide_candidate(
                 cleaned_score=before_score,
@@ -419,6 +423,21 @@ def _frame_source_cache(frame_rows: pd.DataFrame) -> dict[tuple[int, str], pd.Da
         (int(frame), str(source)): group.copy()
         for (frame, source), group in frame_rows.groupby(["frame", "source"], sort=False)
     }
+
+
+def _median_motion_for_series(stable_series: pd.DataFrame, source: str) -> float:
+    if stable_series.empty:
+        return 1.0
+    fields = ["tx", "ty", "tz"] if source == "pose_world" else ["x", "y"]
+    usable = stable_series.dropna(subset=fields).sort_values("frame")
+    if len(usable) < 2:
+        return 1.0
+    coords = usable[fields].to_numpy(dtype=float)
+    distances = np.linalg.norm(np.diff(coords, axis=0), axis=1)
+    if len(distances) == 0:
+        return 1.0
+    median = float(np.median(distances))
+    return median if median > 0 else 1.0
 
 
 def _accept_candidate(

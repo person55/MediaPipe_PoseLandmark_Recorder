@@ -17,10 +17,12 @@ Outlier Minimizer v2
 The default visualization-oriented path should be:
 
 ```text
-refined_pose.csv
+crop_refined_pose.csv
 -> outlier_minimized_pose.csv
 -> Blender importer
 ```
+
+Before Outlier Minimizer v2, crop refinement should be tested as a lightweight way to improve MediaPipe input quality on problematic segments. The current crop refine default is limited to selected `mixed_problem_segment` regions and excludes long unreliable or `missing_long_gap` ranges.
 
 ## Current Assessment
 
@@ -89,8 +91,11 @@ It should support:
 ### Input
 
 ```text
+crop_refined_pose.csv
+or
 refined_pose.csv
 metadata.json
+optional: crop_refine_report.json
 optional: refine_report.json
 optional: optimization_report.json
 optional: motion_profile.json
@@ -117,6 +122,24 @@ trajectory_breaks.csv
 6. no generated motion
 ```
 
+### Current Crop Refine Handoff
+
+```text
+cleaned_pose.csv
+-> crop_refine_pose.py
+-> crop_refined_pose.csv
+-> minimize_pose_outliers.py
+```
+
+Crop refine should not spend default compute on:
+
+```text
+long_unreliable_run
+review_only
+missing_long_gap
+segments longer than 100 frames
+```
+
 ### Proposed Script
 
 ```text
@@ -128,7 +151,8 @@ scripts/minimize_pose_outliers.py
 ```text
 src/dance_pose_recorder/outlier_minimizer.py
 src/dance_pose_recorder/temporal_features.py
-src/dance_pose_recorder/confidence_filters.py
+src/dance_pose_recorder/trajectory_policy.py
+src/dance_pose_recorder/outlier_report.py
 ```
 
 ### Quality Flag Policy
@@ -378,10 +402,11 @@ Their outputs must be treated as candidates or generated layers, not measured da
 
 ```text
 1. Keep Skeleton Optimizer as optional diagnostic layer
-2. Implement Outlier Minimizer v2
-3. Implement Blender importer using refined/outlier-minimized data
-4. Add Motion Profile Builder for lightweight statistical prior
-5. Consider learned or generated motion backends only as separate research modules
+2. Limit crop refinement to selected short/mixed problem segments
+3. Implement Outlier Minimizer v2
+4. Implement trajectory export and Blender/TouchDesigner importer using crop-refined/outlier-minimized data
+5. Add Motion Profile Builder for lightweight statistical prior
+6. Consider learned or generated motion backends only as separate research modules
 ```
 
 ## Core Principle

@@ -13,6 +13,7 @@ from dance_pose_recorder.video_input import VideoFileReader
 
 COLOR_MEASURED = (0, 255, 0)
 COLOR_REFINED = (80, 255, 80)
+COLOR_CROP_REFINED = (80, 220, 255)
 COLOR_OPTIMIZED = (255, 0, 200)
 COLOR_INTERPOLATED = (0, 255, 255)
 COLOR_OUTLIER_INTERPOLATED = (255, 180, 0)
@@ -86,6 +87,8 @@ def _draw_frame(image: object, frame_df: pd.DataFrame | None, status: dict) -> N
         cv2.circle(image, point, 3, _point_color(qualities.get(landmark_id)), -1)
     if "optimized_constrained" in set(qualities.values()):
         cv2.putText(image, "OPTIMIZED", (24, 42), cv2.FONT_HERSHEY_SIMPLEX, 1.0, COLOR_OPTIMIZED, 2)
+    elif "crop_refined_measured" in set(qualities.values()):
+        cv2.putText(image, "CROP", (24, 42), cv2.FONT_HERSHEY_SIMPLEX, 1.0, COLOR_CROP_REFINED, 2)
     elif "refined_measured" in set(qualities.values()):
         cv2.putText(image, "REFINED", (24, 42), cv2.FONT_HERSHEY_SIMPLEX, 1.0, COLOR_REFINED, 2)
     if not points:
@@ -124,6 +127,8 @@ def _point_color(quality_flag: str | None) -> tuple[int, int, int]:
         return COLOR_INVALID
     if quality_flag == "refined_measured":
         return COLOR_REFINED
+    if quality_flag == "crop_refined_measured":
+        return COLOR_CROP_REFINED
     if quality_flag == "interpolated_short_gap":
         return COLOR_INTERPOLATED
     if quality_flag == "interpolated_outlier_removed":
@@ -144,6 +149,8 @@ def _connection_color(start_quality: str | None, end_quality: str | None) -> tup
         return COLOR_INVALID
     if "refined_measured" in {start_quality, end_quality}:
         return COLOR_REFINED
+    if "crop_refined_measured" in {start_quality, end_quality}:
+        return COLOR_CROP_REFINED
     if "estimated_occluded_arm" in {start_quality, end_quality}:
         return COLOR_OCCLUDED_ARM
     if "interpolated_outlier_removed" in {start_quality, end_quality}:

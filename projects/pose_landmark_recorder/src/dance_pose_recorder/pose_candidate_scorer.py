@@ -25,7 +25,7 @@ BONE_PAIRS = [
     (26, 28, "right_lower_leg"),
 ]
 
-STABLE_FLAGS = {"measured", "low_visibility_leg_kept", "refined_measured"}
+STABLE_FLAGS = {"measured", "low_visibility_leg_kept", "crop_refined_measured", "refined_measured"}
 EPSILON = 1e-6
 
 
@@ -124,10 +124,11 @@ def score_row(
     median_bone_lengths: dict[str, float],
     source: str = "pose",
     continuity_score_value: float = 0.5,
+    median_motion: float | None = None,
 ) -> ScoreBreakdown:
     return ScoreBreakdown(
         confidence_score=confidence_score(row),
-        temporal_score=temporal_score(row, stable_series, source=source),
+        temporal_score=temporal_score(row, stable_series, median_motion=median_motion, source=source),
         bone_score=bone_score(row, frame_rows, median_bone_lengths, source=source),
         continuity_score=continuity_score_value,
     )

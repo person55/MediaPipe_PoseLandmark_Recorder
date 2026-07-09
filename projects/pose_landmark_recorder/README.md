@@ -76,6 +76,116 @@ Long missing ranges are not interpolated. Short gaps up to `--max-interpolate-ga
 
 See [`docs/quality_flags.md`](docs/quality_flags.md) for the meaning of each `quality_flag` and suggested downstream visualization behavior.
 
+## Crop refine
+
+Crop refinement is an optional post-cleaning step before full-frame segment refinement. It detects problematic cleaned segments, creates torso-centered person crops from the original video, runs MediaPipe again on those crops, restores crop coordinates to the original frame, and accepts only crop candidates that score better than cleaned values.
+
+The current crop baseline keeps the torso as the crop center and uses hands/feet only to expand crop size. It does not generate motion or fill long missing ranges. By default, it only attempts selected `mixed_problem_segment` ranges and skips `review_only`, `missing_long_gap`, and overlong segments.
+
+```bash
+python scripts/crop_refine_pose.py \
+  --input-video examples/input/dance_take_004.mp4 \
+  --input-cleaned-csv examples/output/session_gpu_004/cleaned_arm55_legkeep_outlier3/cleaned_pose.csv \
+  --metadata examples/output/session_gpu_004/metadata.json \
+  --quality-report examples/output/session_gpu_004/cleaned_arm55_legkeep_outlier3/quality_report.json \
+  --output examples/output/session_gpu_004/crop_refine_v1 \
+  --model models/pose_landmarker.task \
+  --delegate gpu \
+  --running-mode video \
+  --crop-source torso \
+  --target-flags unreliable,interpolated_outlier_removed,estimated_occluded_arm \
+  --target-segment-types mixed_problem_segment \
+  --max-segment-length 100 \
+  --segment-margin 12 \
+  --accept-score-margin 0.06 \
+  --save-candidates \
+  --save-refined \
+  --save-report \
+  --save-jsonl \
+  --save-preview \
+  --save-debug-images
+```
+
+Default crop settings:
+
+```text
+crop_margin_ratio: 1.65
+full_body_margin_ratio: 1.45
+crop_min_size: 480 px
+target_segment_types: mixed_problem_segment
+max_segment_length: 100 frames
+```
+
+Crop outputs:
+
+- `crop_refined_pose.csv`
+- `crop_refined_pose.jsonl`
+- `crop_refine_report.json`
+- `crop_candidates.csv`
+- `crop_candidate_scores.csv`
+- `crop_segments.csv`
+- `crop_refined_preview.mp4`
+- `crop_debug_images/`
+
+See [`docs/crop_refinement.md`](docs/crop_refinement.md) for the crop-based post-cleaning refinement workflow.
+
+## Outlier minimization
+
+Outlier minimization is the visualization-oriented step after crop refinement. It keeps all rows, corrects only short temporal spikes when stable neighbors exist, and writes trajectory display columns so Blender or TouchDesigner can avoid drawing false lines through unreliable coordinates.
+
+```bash
+python scripts/minimize_pose_outliers.py \
+  --input-pose-csv examples/output/session_gpu_004/crop_refine_v1/crop_refined_pose.csv \
+  --metadata examples/output/session_gpu_004/metadata.json \
+  --crop-refine-report examples/output/session_gpu_004/crop_refine_v1/crop_refine_report.json \
+  --output examples/output/session_gpu_004/outlier_minimized_v1 \
+  --source pose_world \
+  --position-fields tx,ty,tz \
+  --max-correction-gap-sec 0.12 \
+  --max-break-gap-sec 0.20 \
+  --velocity-threshold-multiplier 6.0 \
+  --acceleration-threshold-multiplier 6.0 \
+  --jerk-threshold-multiplier 8.0 \
+  --min-stable-neighbors 2 \
+  --preserve-quality-flags \
+  --save-csv \
+  --save-report \
+  --save-trajectory-breaks
+```
+
+Outlier minimization outputs:
+
+- `outlier_minimized_pose.csv`
+- `outlier_report.json`
+- `temporal_spike_report.csv`
+- `trajectory_breaks.csv`
+
+See [`docs/outlier_minimization.md`](docs/outlier_minimization.md) for the visualization-oriented outlier minimization workflow.
+
+## Segment refine
+
+Full-frame segment refinement can be run after crop refinement. Use `crop_refined_pose.csv` as the input cleaned CSV so crop-accepted rows remain part of the downstream scoring context.
+
+```bash
+python scripts/refine_pose_segments.py \
+  --input-video examples/input/dance_take_004.mp4 \
+  --input-cleaned-csv examples/output/session_gpu_004/crop_refine_v1/crop_refined_pose.csv \
+  --input-raw-csv examples/output/session_gpu_004/raw_pose.csv \
+  --metadata examples/output/session_gpu_004/metadata.json \
+  --frame-status examples/output/session_gpu_004/cleaned_arm55_legkeep_outlier3/frame_status.csv \
+  --quality-report examples/output/session_gpu_004/cleaned_arm55_legkeep_outlier3/quality_report.json \
+  --output examples/output/session_gpu_004/refined_after_crop_v1 \
+  --delegate gpu \
+  --target-landmarks arms,hands,feet \
+  --min-cluster-length 2 \
+  --max-cluster-length 90 \
+  --segment-margin 12 \
+  --accept-score-margin 0.08 \
+  --save-csv \
+  --save-jsonl \
+  --save-preview
+```
+
 See [`docs/segment_refinement.md`](docs/segment_refinement.md) for the optional second-pass segment re-detection workflow.
 
 See [`docs/skeleton_optimization.md`](docs/skeleton_optimization.md) for the optional skeleton constraint and optimization workflow.
@@ -87,9 +197,10 @@ See [`docs/skeleton_optimization.md`](docs/skeleton_optimization.md) for the opt
 ```text
 record_from_video.py
 -> clean_pose_data.py
--> refine_pose_segments.py
--> minimize_pose_outliers.py planned
--> Blender importer planned
+-> crop_refine_pose.py
+-> minimize_pose_outliers.py
+-> trajectory_export.py planned
+-> Blender / TouchDesigner importer planned
 ```
 
 ### Optional diagnostic path
@@ -101,7 +212,7 @@ refine_pose_segments.py
 ```
 
 Skeleton optimization is useful for diagnostics, but it is not the default final visualization layer.
-For visual continuity, use `refined_pose.csv` or the future `outlier_minimized_pose.csv`.
+For current visualization-first work, prefer `crop_refined_pose.csv` followed by `outlier_minimized_pose.csv`.
 
 ## Current cleaning baseline
 

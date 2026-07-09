@@ -2,12 +2,11 @@
 
 ## Purpose
 
-This project is a lightweight MediaPipe-based pose landmark recorder for dance/movement video experiments.
+This is a lightweight MediaPipe-based pose landmark recorder for dance/movement video experiments. It is not a full motion-capture replacement.
 
-It is not a full motion-capture replacement.
-It preserves measured data, separates corrected/refined/optimized data, and keeps uncertainty visible through quality flags.
+The project preserves measured data, separates corrected/refined/optimized data, and keeps uncertainty visible through quality flags and trajectory display columns.
 
-## Folder Scope
+## Scope
 
 Main project folder:
 
@@ -24,66 +23,52 @@ record_from_video.py
 -> raw_pose.csv / raw_pose.jsonl / metadata.json / preview.mp4
 
 clean_pose_data.py
--> cleaned_pose.csv / cleaned_pose.jsonl
--> quality_report.json / interpolation_report.json / frame_status.csv
--> corrected_preview.mp4
+-> cleaned_pose.csv / quality_report.json / interpolation_report.json
 
-refine_pose_segments.py
--> refined_pose.csv / refined_pose.jsonl
--> refine_report.json / candidate_segments.csv / candidate_scores.csv
+crop_refine_pose.py
+-> crop_refined_pose.csv / crop_refine_report.json / crop_segments.csv
 
-planned:
 minimize_pose_outliers.py
 -> outlier_minimized_pose.csv / outlier_report.json
+-> temporal_spike_report.csv / trajectory_breaks.csv
 
 planned:
+trajectory_export.py
 build_motion_profile.py
--> motion_profile.json
 
-optional diagnostic branch:
-refined_pose.csv
--> optimize_pose_skeleton.py
--> optimization_report.json / bone_length_report.csv / joint_angle_report.csv
--> diagnostic overlay / review
+optional:
+refine_pose_segments.py
+optimize_pose_skeleton.py
 ```
 
 ## Data Layers
 
 ```text
-raw:
-  direct MediaPipe output
-
-cleaned:
-  validation, short interpolation, smoothing, quality flags
-
-refined:
-  segment re-detection result; accepts only better measurement candidates
-
-outlier_minimized:
-  planned default visualization layer for reducing spikes and preserving visual continuity without generating motion
-
-optimized:
-  optional diagnostic layer; conservative skeleton constraints and limited correction; not the default final visualization layer
-
-generated:
-  future optional layer only; must never be mixed with measured data
+raw: direct MediaPipe output
+cleaned: validation, short interpolation, smoothing, quality flags
+crop_refined: torso-centered crop re-detection; accepts only better crop candidates
+refined: full-frame segment re-detection; optional after crop refinement
+outlier_minimized: default visualization layer for spike reduction and trajectory breaks
+optimized: optional diagnostic skeleton-constraint layer
+generated: future optional layer only; never mix with measured data
 ```
 
-## Current Default Path
+## Default Path
 
 ```text
 raw_pose
 -> cleaned_pose
--> refined_pose
+-> crop_refined_pose
 -> outlier_minimized_pose
--> Blender
+-> trajectory_export planned
+-> Blender / TouchDesigner
 ```
 
-## Optional Diagnostic Path
+## Diagnostic Path
 
 ```text
-refined_pose
--> optimized_pose
+refined_pose or crop_refined_pose
+-> optimize_pose_skeleton.py
 -> optimization_report
 -> diagnostic overlay
 ```
@@ -97,46 +82,59 @@ interpolated_outlier_removed
 estimated_occluded_arm
 low_visibility_leg_kept
 unreliable
+missing_long_gap
+review_only
+crop_refined_measured
 refined_measured
 optimized_constrained
-review_only
 generated_motion
+```
+
+Outlier minimization adds display/status columns:
+
+```text
+outlier_corrected
+trajectory_break
+trajectory_visible
+trajectory_connect
+trajectory_alpha
 ```
 
 ## Current Design Principle
 
 Do not make uncertain motion look certain.
 
-Long unreliable regions should not be automatically filled.
-They should be hidden, marked as review-only, or handled later by a clearly separated generated-motion layer.
+Long unreliable regions should not be automatically filled. They should be hidden, marked as review-only, disconnected with trajectory breaks, or handled later by a clearly separated generated-motion layer.
 
-Skeleton optimization should not make uncertain data disappear by default in visualization.
+For visualization-first workflows, use crop-refined or outlier-minimized pose data as the primary coordinate source. Use skeleton optimization as a diagnostic overlay, not as the default final pose layer.
 
-For visualization-first workflows, use refined or outlier-minimized pose data as the primary coordinate source. Use skeleton optimization as a diagnostic overlay, not as the default final pose layer.
+## Current Crop Policy
 
-If optimizer output is used in Blender, `review_only` and `optimization_unreliable` should be treated as display states, not automatic deletion. Prefer translucent points, line breaks, or diagnostic overlays over complete hiding.
+Crop refinement should be limited by default to selected short/mixed problem regions:
 
-## Current Best Next Direction
+```text
+target_segment_types: mixed_problem_segment
+max_segment_length: 100
+exclude_review_only: true
+exclude_missing_long_gap: true
+```
 
-Skeleton optimization has limited reconstruction value.
-The next core improvement should be Outlier Minimizer v2.
+## Outlier Minimizer Direction
 
-Outlier Minimizer v2 should focus on:
+Outlier Minimizer v2 focuses on:
 
 ```text
 confidence-aware filtering
-velocity / acceleration / jerk outlier detection
+velocity / acceleration / jerk spike detection
 landmark-group-specific policies
 trajectory break handling
-safe short-gap correction
+safe short-spike correction
 no generated motion
 ```
 
 ## Future Prior Strategy
 
-Use motion profiles before learned generation.
-
-Preferred lightweight prior:
+Use motion profiles before learned generation:
 
 ```text
 multiple stable sessions
@@ -145,5 +143,4 @@ multiple stable sessions
 -> safer filtering/interpolation rules
 ```
 
-Avoid adding heavy pretrained/generative models to the core pipeline.
-If used later, they should live in a separate research backend.
+Avoid adding heavy pretrained/generative models to the core pipeline. If used later, they should live in a separate research backend.
