@@ -14,12 +14,13 @@ scripts/clean_pose_data.py
 scripts/crop_refine_pose.py
 scripts/refine_pose_segments.py
 scripts/minimize_pose_outliers.py
+scripts/export_trajectory.py
 scripts/optimize_pose_skeleton.py
 ```
 
 ## Main outputs
 
-`raw_pose`, `cleaned_pose`, `crop_refined_pose`, `refined_pose`, `outlier_minimized_pose`, and optional diagnostic `optimized_pose` CSV/JSONL files, plus `metadata.json`, `quality_report.json`, `interpolation_report.json`, `crop_refine_report.json`, `refine_report.json`, `outlier_report.json`, and optimization diagnostic reports.
+`raw_pose`, `cleaned_pose`, `crop_refined_pose`, `refined_pose`, `outlier_minimized_pose`, Blender trajectory points/segments, and optional diagnostic `optimized_pose` files, plus related metadata/report files.
 
 ## Current decision
 
@@ -30,7 +31,7 @@ raw_pose
 -> cleaned_pose
 -> crop_refined_pose
 -> outlier_minimized_pose
--> trajectory_export planned
+-> trajectory_export
 -> Blender
 ```
 
@@ -38,10 +39,8 @@ Optional diagnostic path: `refined_pose -> optimize_pose_skeleton.py -> optimiza
 
 ## Interpretation
 
-- `refined_pose.csv` is better for visual continuity; `optimized_pose.csv` is better for diagnostics.
-- Crop refinement is the preferred lightweight improvement after cleaning.
-- Full-frame segment refinement remains available, but the visualization-first path now moves from `crop_refined_pose.csv` to `outlier_minimized_pose.csv`.
-- Skeleton optimization should not be strengthened as the main recovery method unless the project moves toward learned or generated reconstruction.
+- Visualization-first path: `crop_refined_pose.csv -> outlier_minimized_pose.csv -> trajectory export`.
+- Full-frame segment refinement remains optional; skeleton optimization remains diagnostic.
 ## Current baseline
 
 ```text
@@ -58,6 +57,8 @@ crop_target_segment_types: mixed_problem_segment
 crop_max_segment_length: 100 frames
 crop_accept_score_margin: 0.06
 segment_refine_accept_score_margin: 0.08
+trajectory_coordinate_mode: screen_bottom_origin
+trajectory_origin: screen bottom center (x=0.5, y=1.0)
 ```
 
 ## Findings
@@ -70,6 +71,7 @@ segment_refine_accept_score_margin: 0.08
 - Segment re-detection helps short problem regions but cannot recover long unreliable runs without visual evidence.
 - Skeleton optimization is useful for diagnostics and conservative flagging, not final visualization.
 - Long unreliable runs should remain `review_only`, `unreliable`, or hidden in Blender rather than being filled automatically.
+- Blender default trajectory export excludes ears, hand index, and thumb, keeps `foot_index`, and uses `nose` as the head proxy.
 
 ## Latest session reference
 
@@ -88,11 +90,9 @@ refined_after_crop_v1 accepted rows: 12
 final flags before outlier minimization: crop_refined_measured 55, refined_measured 12
 ```
 
-## Planned next step
+## Current export step
 
-Use Outlier Minimizer v2 after `crop_refine_v1`: confidence-aware filtering, velocity/acceleration/jerk outlier detection, landmark-group-specific policies, trajectory break handling, and `outlier_minimized_pose.csv`.
-
-Then build Motion Profile Builder from multiple stable sessions to create `motion_profile.json` for adaptive cleaning and outlier-minimization thresholds.
+Use `export_trajectory.py` after `outlier_minimized_v1`. Default coordinate mode is `screen_bottom_origin`, using screen bottom center as Blender origin. Next: Blender/TouchDesigner importer and Motion Profile Builder.
 
 ## Known limitations
 

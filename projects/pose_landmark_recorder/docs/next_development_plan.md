@@ -19,6 +19,7 @@ The default visualization-oriented path should be:
 ```text
 crop_refined_pose.csv
 -> outlier_minimized_pose.csv
+-> blender_trajectory_points.csv / blender_trajectory_segments.csv
 -> Blender importer
 ```
 
@@ -260,6 +261,25 @@ Do not correct:
 - hand proxy landmarks with long instability
 ```
 
+## Implemented Trajectory Export
+
+`export_trajectory.py` converts `outlier_minimized_pose.csv` into Blender/TouchDesigner-ready point and segment CSV files.
+
+Default export policy:
+
+```text
+coordinate_mode: screen_bottom_origin
+screen_origin_x: 0.5
+screen_origin_y: 1.0
+source: pose
+depth_mode: pose_z
+head_proxy: nose
+```
+
+Default Blender landmark preset excludes ears, hand index, and thumb while keeping `left_foot_index` and `right_foot_index`.
+
+This export is a visualization coordinate system, not camera calibration or real-world 3D reconstruction.
+
 ## Priority 2 - Motion Profile Builder
 
 ### Purpose
@@ -404,7 +424,7 @@ Their outputs must be treated as candidates or generated layers, not measured da
 1. Keep Skeleton Optimizer as optional diagnostic layer
 2. Limit crop refinement to selected short/mixed problem segments
 3. Implement Outlier Minimizer v2
-4. Implement trajectory export and Blender/TouchDesigner importer using crop-refined/outlier-minimized data
+4. Use screen-bottom-origin trajectory export for Blender/TouchDesigner points and segments
 5. Add Motion Profile Builder for lightweight statistical prior
 6. Consider learned or generated motion backends only as separate research modules
 ```

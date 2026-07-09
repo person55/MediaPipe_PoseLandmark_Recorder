@@ -2,13 +2,9 @@
 
 ## Purpose
 
-This is a lightweight MediaPipe-based pose landmark recorder for dance/movement video experiments. It is not a full motion-capture replacement.
-
-The project preserves measured data, separates corrected/refined/optimized data, and keeps uncertainty visible through quality flags and trajectory display columns.
+This is a lightweight MediaPipe-based pose landmark recorder for dance/movement video experiments, not a full motion-capture replacement. It preserves measured data, separates corrected/refined/optimized data, and keeps uncertainty visible.
 
 ## Scope
-
-Main project folder:
 
 ```text
 projects/pose_landmark_recorder/
@@ -32,8 +28,11 @@ minimize_pose_outliers.py
 -> outlier_minimized_pose.csv / outlier_report.json
 -> temporal_spike_report.csv / trajectory_breaks.csv
 
+export_trajectory.py
+-> blender_trajectory_points.csv / blender_trajectory_segments.csv
+-> trajectory_export_report.json
+
 planned:
-trajectory_export.py
 build_motion_profile.py
 
 optional:
@@ -49,6 +48,7 @@ cleaned: validation, short interpolation, smoothing, quality flags
 crop_refined: torso-centered crop re-detection; accepts only better crop candidates
 refined: full-frame segment re-detection; optional after crop refinement
 outlier_minimized: default visualization layer for spike reduction and trajectory breaks
+trajectory_export: Blender/TouchDesigner points and segments
 optimized: optional diagnostic skeleton-constraint layer
 generated: future optional layer only; never mix with measured data
 ```
@@ -60,7 +60,7 @@ raw_pose
 -> cleaned_pose
 -> crop_refined_pose
 -> outlier_minimized_pose
--> trajectory_export planned
+-> trajectory_export
 -> Blender / TouchDesigner
 ```
 
@@ -121,7 +121,7 @@ exclude_missing_long_gap: true
 
 ## Outlier Minimizer Direction
 
-Outlier Minimizer v2 focuses on:
+Outlier Minimizer v2:
 
 ```text
 confidence-aware filtering
@@ -132,15 +132,18 @@ safe short-spike correction
 no generated motion
 ```
 
-## Future Prior Strategy
+## Trajectory Export Direction
 
-Use motion profiles before learned generation:
+Default Blender export uses `screen_bottom_origin`:
 
 ```text
-multiple stable sessions
--> motion_profile.json
--> adaptive thresholds
--> safer filtering/interpolation rules
+screen_origin_x: 0.5
+screen_origin_y: 1.0
+head_proxy: nose
+exclude: ears, hand index, thumb
+keep: left_foot_index, right_foot_index
 ```
 
-Avoid adding heavy pretrained/generative models to the core pipeline. If used later, they should live in a separate research backend.
+## Future Prior Strategy
+
+Use motion profiles before learned generation: multiple stable sessions -> `motion_profile.json` -> adaptive thresholds. Keep heavy pretrained/generative models out of the core pipeline unless isolated as research backends.

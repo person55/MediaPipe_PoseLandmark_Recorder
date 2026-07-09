@@ -16,7 +16,7 @@ python -m pip install -e .
 
 Place a compatible MediaPipe Pose Landmarker model at:
 
-```plain text
+```plain
 models/pose_landmarker.task
 ```
 
@@ -162,6 +162,47 @@ Outlier minimization outputs:
 
 See [`docs/outlier_minimization.md`](docs/outlier_minimization.md) for the visualization-oriented outlier minimization workflow.
 
+## Trajectory export
+
+Trajectory export converts `outlier_minimized_pose.csv` into Blender/TouchDesigner-ready points and line segments. It does not correct pose data; it only translates existing trajectory visibility/connect policy into export files.
+
+```bash
+python scripts/export_trajectory.py \
+  --input-pose-csv examples/output/session_gpu_004/outlier_minimized_v1/outlier_minimized_pose.csv \
+  --metadata examples/output/session_gpu_004/metadata.json \
+  --output examples/output/session_gpu_004/trajectory_export_v1 \
+  --coordinate-mode screen_bottom_origin \
+  --source pose \
+  --depth-mode pose_z \
+  --landmark-preset blender_default \
+  --screen-origin-x 0.5 \
+  --screen-origin-y 1.0 \
+  --screen-width-scale 6.0 \
+  --screen-height-scale 6.0 \
+  --depth-scale 1.0 \
+  --save-points \
+  --save-segments \
+  --save-report
+```
+
+Default export policy:
+
+```text
+coordinate_mode: screen_bottom_origin
+screen origin: x=0.5, y=1.0
+head proxy: nose
+excluded: ears, hand index, thumb
+included: left_foot_index, right_foot_index
+```
+
+Trajectory export outputs:
+
+- `blender_trajectory_points.csv`
+- `blender_trajectory_segments.csv`
+- `trajectory_export_report.json`
+
+See [`docs/trajectory_export.md`](docs/trajectory_export.md) for Blender/TouchDesigner trajectory export.
+
 ## Segment refine
 
 Full-frame segment refinement can be run after crop refinement. Use `crop_refined_pose.csv` as the input cleaned CSV so crop-accepted rows remain part of the downstream scoring context.
@@ -199,7 +240,7 @@ record_from_video.py
 -> clean_pose_data.py
 -> crop_refine_pose.py
 -> minimize_pose_outliers.py
--> trajectory_export.py planned
+-> export_trajectory.py
 -> Blender / TouchDesigner importer planned
 ```
 
