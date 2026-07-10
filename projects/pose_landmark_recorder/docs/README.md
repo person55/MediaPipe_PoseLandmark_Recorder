@@ -28,10 +28,14 @@ Task-specific documents should be read only when needed.
 | [`quality_flags.md`](quality_flags.md) | Meaning of quality flags and display policy |
 | [`segment_refinement.md`](segment_refinement.md) | Segment re-detection workflow |
 | [`skeleton_optimization.md`](skeleton_optimization.md) | Conservative skeleton diagnostics |
+| [`outlier_minimization.md`](outlier_minimization.md) | Visualization-oriented spike and trajectory-break policy |
+| [`trajectory_export.md`](trajectory_export.md) | Blender/TouchDesigner trajectory CSV and Blender scene handoff |
 | [`next_development_plan.md`](next_development_plan.md) | Next planned modules and priorities |
 
 Skeleton optimization is not the default final visualization stage.
 For visualization-first work, prefer the refined/outlier-minimized path and use skeleton optimization as diagnostic context.
+
+The installed one-command runner is `pose-landmark-pipeline`. The legacy `scripts/run_full_pipeline.py` path is kept as a compatibility wrapper.
 
 ## Recommended Reading by Task
 
@@ -40,9 +44,9 @@ For visualization-first work, prefer the refined/outlier-minimized path and use 
 | Basic extraction | `codex_context_min.md`, main README |
 | Cleaning and interpolation | `quality_flags.md`, `current_pipeline.md` if available |
 | Segment re-detection | `segment_refinement.md` |
-| Visualization-oriented cleanup | `next_development_plan.md`, future `outlier_minimization.md` |
+| Visualization-oriented cleanup | `outlier_minimization.md`, `next_development_plan.md` |
 | Skeleton diagnostics | `skeleton_optimization.md` |
-| Blender import | future `blender_importer.md` |
+| Blender scene handoff | `trajectory_export.md` |
 
 ## Sample Reports
 

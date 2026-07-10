@@ -11,6 +11,15 @@ import pandas as pd
 
 from dance_pose_recorder.interpolation import contiguous_ranges
 from dance_pose_recorder.outlier_report import write_frame_jsonl, write_json_report
+from dance_pose_recorder.output_layout import (
+    OUTLIER_MINIMIZED_DIR,
+    OUTLIER_MINIMIZED_POSE_CSV,
+    OUTLIER_MINIMIZED_POSE_JSONL,
+    OUTLIER_MINIMIZED_REPORT_JSON,
+    OUTLIER_MINIMIZED_TEMPORAL_SPIKE_REPORT_CSV,
+    OUTLIER_MINIMIZED_TRAJECTORY_BREAKS_CSV,
+    normalize_stage_output_dir,
+)
 from dance_pose_recorder.temporal_features import compute_temporal_features
 from dance_pose_recorder.trajectory_policy import (
     default_trajectory_policy,
@@ -98,6 +107,7 @@ def minimize_pose_outliers(
 
     metadata = json.loads(Path(metadata_path).read_text(encoding="utf-8"))
     df = pd.read_csv(input_pose_csv, low_memory=False)
+    output_dir = normalize_stage_output_dir(output_dir, OUTLIER_MINIMIZED_DIR)
     output_dir.mkdir(parents=True, exist_ok=True)
 
     fps = float(metadata.get("fps") or 30.0)
@@ -181,21 +191,21 @@ def minimize_pose_outliers(
     _apply_quality_trajectory_policy(minimized, start_segment_id=trajectory_segment_id)
     _apply_outlier_scores(minimized)
 
-    outlier_minimized_csv = output_dir / "outlier_minimized_pose.csv"
+    outlier_minimized_csv = output_dir / OUTLIER_MINIMIZED_POSE_CSV
     if options.save_csv:
         minimized.to_csv(outlier_minimized_csv, index=False)
     else:
         outlier_minimized_csv = None
 
-    temporal_spike_report = output_dir / "temporal_spike_report.csv"
+    temporal_spike_report = output_dir / OUTLIER_MINIMIZED_TEMPORAL_SPIKE_REPORT_CSV
     pd.DataFrame(spike_rows, columns=_spike_report_columns()).to_csv(temporal_spike_report, index=False)
 
-    trajectory_breaks = output_dir / "trajectory_breaks.csv"
+    trajectory_breaks = output_dir / OUTLIER_MINIMIZED_TRAJECTORY_BREAKS_CSV
     pd.DataFrame(break_rows, columns=_trajectory_break_columns()).to_csv(trajectory_breaks, index=False)
 
     outlier_minimized_jsonl = None
     if options.save_jsonl:
-        outlier_minimized_jsonl = output_dir / "outlier_minimized_pose.jsonl"
+        outlier_minimized_jsonl = output_dir / OUTLIER_MINIMIZED_POSE_JSONL
         write_frame_jsonl(minimized, outlier_minimized_jsonl, session_id=str(metadata.get("session_id") or ""))
 
     report = _build_report(
@@ -211,7 +221,7 @@ def minimize_pose_outliers(
         crop_refine_report_path=crop_refine_report_path,
         quality_report_path=quality_report_path,
     )
-    outlier_report = output_dir / "outlier_report.json"
+    outlier_report = output_dir / OUTLIER_MINIMIZED_REPORT_JSON
     write_json_report(report, outlier_report)
 
     return {

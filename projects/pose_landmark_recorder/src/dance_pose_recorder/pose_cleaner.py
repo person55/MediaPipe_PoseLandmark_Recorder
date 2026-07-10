@@ -12,6 +12,16 @@ import pandas as pd
 
 from dance_pose_recorder.interpolation import GapSegment, contiguous_ranges, interpolate_group_linear
 from dance_pose_recorder.landmark_schema import POSE_LANDMARK_NAMES, landmark_name
+from dance_pose_recorder.output_layout import (
+    CLEANED_DIR,
+    CLEANED_CORRECTED_PREVIEW_MP4,
+    CLEANED_FRAME_STATUS_CSV,
+    CLEANED_INTERPOLATION_REPORT_JSON,
+    CLEANED_POSE_CSV,
+    CLEANED_POSE_JSONL,
+    CLEANED_QUALITY_REPORT_JSON,
+    normalize_stage_output_dir,
+)
 from dance_pose_recorder.quality_report import build_quality_report, write_json
 
 
@@ -163,7 +173,7 @@ def clean_pose_session(options: CleaningOptions) -> CleaningResult:
     metadata = json.loads(options.metadata.read_text(encoding="utf-8"))
     raw_df = pd.read_csv(options.input_csv)
     frames = _frame_range(metadata, options.input_jsonl)
-    output_dir = options.output
+    output_dir = normalize_stage_output_dir(options.output, CLEANED_DIR)
     output_dir.mkdir(parents=True, exist_ok=True)
 
     cleaned = _build_full_grid(raw_df, metadata, frames)
@@ -212,18 +222,18 @@ def clean_pose_session(options: CleaningOptions) -> CleaningResult:
 
     cleaned_csv = None
     if options.save_csv:
-        cleaned_csv = output_dir / "cleaned_pose.csv"
+        cleaned_csv = output_dir / CLEANED_POSE_CSV
         cleaned[CLEANED_COLUMNS].to_csv(cleaned_csv, index=False)
 
     cleaned_jsonl = None
     if options.save_jsonl:
-        cleaned_jsonl = output_dir / "cleaned_pose.jsonl"
+        cleaned_jsonl = output_dir / CLEANED_POSE_JSONL
         write_cleaned_jsonl(cleaned, cleaned_jsonl, metadata)
 
-    frame_status_csv = output_dir / "frame_status.csv"
+    frame_status_csv = output_dir / CLEANED_FRAME_STATUS_CSV
     frame_status.to_csv(frame_status_csv, index=False)
-    quality_report = write_json(output_dir / "quality_report.json", quality_payload)
-    interpolation_report = write_json(output_dir / "interpolation_report.json", interpolation_payload)
+    quality_report = write_json(output_dir / CLEANED_QUALITY_REPORT_JSON, quality_payload)
+    interpolation_report = write_json(output_dir / CLEANED_INTERPOLATION_REPORT_JSON, interpolation_payload)
 
     corrected_preview = None
     if options.save_preview:
@@ -231,7 +241,7 @@ def clean_pose_session(options: CleaningOptions) -> CleaningResult:
             raise ValueError("--input-video is required when --save-preview is used")
         from dance_pose_recorder.cleaned_preview_renderer import render_corrected_preview
 
-        corrected_preview = output_dir / "corrected_preview.mp4"
+        corrected_preview = output_dir / CLEANED_CORRECTED_PREVIEW_MP4
         render_corrected_preview(options.input_video, corrected_preview, cleaned, frame_status, metadata)
 
     return CleaningResult(

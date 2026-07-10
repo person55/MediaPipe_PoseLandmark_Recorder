@@ -9,9 +9,9 @@ It does not generate missing motion. It detects velocity, acceleration, and jerk
 ```text
 raw_pose.csv
 -> cleaned_pose.csv
--> crop_refined_pose.csv
+-> crop_refine_pose.csv
 -> outlier_minimized_pose.csv
--> trajectory_export.csv
+-> trajectory_export_points.csv / trajectory_export_segments.csv
 ```
 
 ## Main Purpose

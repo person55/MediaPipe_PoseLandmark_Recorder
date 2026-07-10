@@ -17,10 +17,10 @@ Outlier Minimizer v2
 The default visualization-oriented path should be:
 
 ```text
-crop_refined_pose.csv
+crop_refine_pose.csv
 -> outlier_minimized_pose.csv
--> blender_trajectory_points.csv / blender_trajectory_segments.csv
--> Blender importer
+-> trajectory_export_points.csv / trajectory_export_segments.csv
+-> blender_<session_id>_trajectory.blend
 ```
 
 Before Outlier Minimizer v2, crop refinement should be tested as a lightweight way to improve MediaPipe input quality on problematic segments. The current crop refine default is limited to selected `mixed_problem_segment` regions and excludes long unreliable or `missing_long_gap` ranges.
@@ -92,10 +92,10 @@ It should support:
 ### Input
 
 ```text
-crop_refined_pose.csv
+crop_refine_pose.csv
 or
 refined_pose.csv
-metadata.json
+raw_metadata.json
 optional: crop_refine_report.json
 optional: refine_report.json
 optional: optimization_report.json
@@ -107,9 +107,9 @@ optional: motion_profile.json
 ```text
 outlier_minimized_pose.csv
 outlier_minimized_pose.jsonl
-outlier_report.json
-temporal_spike_report.csv
-trajectory_breaks.csv
+outlier_minimized_report.json
+outlier_minimized_temporal_spike_report.csv
+outlier_minimized_trajectory_breaks.csv
 ```
 
 ### Core Ideas
@@ -128,7 +128,7 @@ trajectory_breaks.csv
 ```text
 cleaned_pose.csv
 -> crop_refine_pose.py
--> crop_refined_pose.csv
+-> crop_refine_pose.csv
 -> minimize_pose_outliers.py
 ```
 
@@ -280,6 +280,8 @@ Default Blender landmark preset excludes ears, hand index, and thumb while keepi
 
 This export is a visualization coordinate system, not camera calibration or real-world 3D reconstruction.
 
+`open_blender_trajectory.py` now creates the saved Blender handoff scene from the trajectory export. It starts from a fresh Blender startup scene, removes the default `Cube`, imports the trajectory CSV files, and saves `blender/blender_<session_id>_trajectory.blend` by default.
+
 ## Priority 2 - Motion Profile Builder
 
 ### Purpose
@@ -371,6 +373,8 @@ This is not generated motion.
 It is a statistical prior used to guide outlier detection and safe interpolation thresholds.
 
 ## Priority 3 - Blender Importer
+
+The current `open_blender_trajectory.py` covers the default saved-scene handoff. Remaining importer work should focus on persistent add-on behavior, richer uncertainty controls, and TouchDesigner/C4D parity rather than basic `.blend` generation.
 
 Blender importer should read the final selected layer:
 

@@ -19,6 +19,13 @@ from dance_pose_recorder.landmark_sets import (
     get_landmark_names,
     landmark_group_for_export,
 )
+from dance_pose_recorder.output_layout import (
+    TRAJECTORY_EXPORT_DIR,
+    TRAJECTORY_EXPORT_POINTS_CSV,
+    TRAJECTORY_EXPORT_REPORT_JSON,
+    TRAJECTORY_EXPORT_SEGMENTS_CSV,
+    normalize_stage_output_dir,
+)
 
 
 POINT_COLUMNS = [
@@ -127,6 +134,7 @@ def export_trajectory(
     metadata = json.loads(Path(metadata_path).read_text(encoding="utf-8"))
     pose = pd.read_csv(input_pose_csv, low_memory=False)
     _validate_required_columns(pose, options)
+    output_dir = normalize_stage_output_dir(output_dir, TRAJECTORY_EXPORT_DIR)
     output_dir.mkdir(parents=True, exist_ok=True)
 
     fps = float(metadata.get("fps") or 30.0)
@@ -172,13 +180,13 @@ def export_trajectory(
     points = pd.DataFrame(point_rows, columns=POINT_COLUMNS)
     segments = _build_segments(points, options)
 
-    points_path = output_dir / "blender_trajectory_points.csv"
+    points_path = output_dir / TRAJECTORY_EXPORT_POINTS_CSV
     if options.save_points:
         points.to_csv(points_path, index=False)
     else:
         points_path = None
 
-    segments_path = output_dir / "blender_trajectory_segments.csv"
+    segments_path = output_dir / TRAJECTORY_EXPORT_SEGMENTS_CSV
     if options.save_segments:
         segments.to_csv(segments_path, index=False)
     else:
@@ -202,7 +210,7 @@ def export_trajectory(
         disconnected_skipped_rows=disconnected_skipped_rows,
         points=points,
     )
-    report_path = output_dir / "trajectory_export_report.json"
+    report_path = output_dir / TRAJECTORY_EXPORT_REPORT_JSON
     if options.save_report:
         report_path.write_text(json.dumps(_json_safe(report), indent=2, ensure_ascii=False), encoding="utf-8")
     else:

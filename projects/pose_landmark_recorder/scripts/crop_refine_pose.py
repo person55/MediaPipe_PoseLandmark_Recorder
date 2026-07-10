@@ -43,6 +43,20 @@ from dance_pose_recorder.crop_refiner import (
 )
 from dance_pose_recorder.data_writer import frame_to_csv_rows, make_frame_record
 from dance_pose_recorder.landmark_schema import POSE_LANDMARK_NAMES
+from dance_pose_recorder.output_layout import (
+    CLEANED_FRAME_STATUS_CSV,
+    CROP_REFINE_DIR,
+    CROP_REFINE_CANDIDATE_SCORES_CSV,
+    CROP_REFINE_CANDIDATES_CSV,
+    CROP_REFINE_DEBUG_IMAGES_DIR,
+    CROP_REFINE_POSE_CSV,
+    CROP_REFINE_POSE_JSONL,
+    CROP_REFINE_PREVIEW_MP4,
+    CROP_REFINE_REPORT_JSON,
+    CROP_REFINE_SEGMENTS_CSV,
+    normalize_stage_output_dir,
+    resolve_existing_file,
+)
 from dance_pose_recorder.pose_candidate_scorer import confidence_score
 from dance_pose_recorder.pose_extractor import PoseExtractor
 from dance_pose_recorder.video_input import VideoFileReader
@@ -211,7 +225,7 @@ def main() -> None:
             allow_long_segments=args.allow_long_segments,
         )
     )
-    print(f"Wrote crop refinement outputs to {args.output}")
+    print(f"Wrote crop refinement outputs to {result.crop_segments_csv.parent}")
     for path in (
         result.crop_refined_csv,
         result.crop_refined_jsonl,
@@ -232,7 +246,7 @@ def crop_refine_pose(options: CropRefinementOptions) -> CropRefinementResult:
 
     metadata = json.loads(options.metadata.read_text(encoding="utf-8"))
     cleaned = pd.read_csv(options.input_cleaned_csv, low_memory=False)
-    output_dir = options.output
+    output_dir = normalize_stage_output_dir(options.output, CROP_REFINE_DIR)
     output_dir.mkdir(parents=True, exist_ok=True)
 
     fps = float(metadata.get("fps") or 30.0)
@@ -255,28 +269,28 @@ def crop_refine_pose(options: CropRefinementOptions) -> CropRefinementResult:
     if options.max_segments is not None:
         segments = segments[: options.max_segments]
 
-    crop_segments_csv = output_dir / "crop_segments.csv"
+    crop_segments_csv = output_dir / CROP_REFINE_SEGMENTS_CSV
     crop_segments_to_dataframe(segments, fps=fps).to_csv(crop_segments_csv, index=False)
 
     bboxes, candidates = _redetect_crop_candidates(options, metadata, cleaned, segments)
     refined, score_rows, segment_summaries = _apply_crop_candidates(cleaned, candidates, segments, options)
 
-    crop_candidate_scores_csv = output_dir / "crop_candidate_scores.csv"
+    crop_candidate_scores_csv = output_dir / CROP_REFINE_CANDIDATE_SCORES_CSV
     pd.DataFrame(score_rows, columns=SCORE_COLUMNS).to_csv(crop_candidate_scores_csv, index=False)
 
     crop_candidates_csv = None
     if options.save_candidates:
-        crop_candidates_csv = output_dir / "crop_candidates.csv"
+        crop_candidates_csv = output_dir / CROP_REFINE_CANDIDATES_CSV
         candidates.to_csv(crop_candidates_csv, index=False)
 
     crop_refined_csv = None
     if options.save_refined:
-        crop_refined_csv = output_dir / "crop_refined_pose.csv"
+        crop_refined_csv = output_dir / CROP_REFINE_POSE_CSV
         refined.to_csv(crop_refined_csv, index=False)
 
     crop_refined_jsonl = None
     if options.save_jsonl:
-        crop_refined_jsonl = output_dir / "crop_refined_pose.jsonl"
+        crop_refined_jsonl = output_dir / CROP_REFINE_POSE_JSONL
         write_crop_refined_jsonl(refined, crop_refined_jsonl, metadata)
 
     report = _build_report(
@@ -287,18 +301,18 @@ def crop_refine_pose(options: CropRefinementOptions) -> CropRefinementResult:
         candidates=candidates,
         refined=refined,
     )
-    crop_refine_report = output_dir / "crop_refine_report.json"
+    crop_refine_report = output_dir / CROP_REFINE_REPORT_JSON
     crop_refine_report.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
 
     crop_refined_preview = None
     if options.save_preview:
         frame_status = _frame_status_for_preview(options, refined, total_frames, fps)
-        crop_refined_preview = output_dir / "crop_refined_preview.mp4"
+        crop_refined_preview = output_dir / CROP_REFINE_PREVIEW_MP4
         render_corrected_preview(options.input_video, crop_refined_preview, refined, frame_status, metadata)
 
     crop_debug_dir = None
     if options.save_debug_images:
-        crop_debug_dir = output_dir / "crop_debug_images"
+        crop_debug_dir = output_dir / CROP_REFINE_DEBUG_IMAGES_DIR
         render_crop_debug_images(
             options.input_video,
             crop_debug_dir,
@@ -838,7 +852,11 @@ def _segment_selection_summary(segment_summaries: list[dict]) -> dict:
 
 
 def _frame_status_for_preview(options: CropRefinementOptions, refined: pd.DataFrame, total_frames: int, fps: float) -> pd.DataFrame:
-    candidate = options.input_cleaned_csv.parent / "frame_status.csv"
+    candidate = resolve_existing_file(
+        options.input_cleaned_csv.parent,
+        CLEANED_FRAME_STATUS_CSV,
+        ("frame_status.csv",),
+    )
     if candidate.exists():
         return pd.read_csv(candidate)
     rows = []

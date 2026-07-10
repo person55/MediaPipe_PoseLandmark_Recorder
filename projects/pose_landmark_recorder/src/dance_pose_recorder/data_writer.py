@@ -6,6 +6,8 @@ import csv
 import json
 from pathlib import Path
 
+from dance_pose_recorder.output_layout import RAW_POSE_CSV, RAW_POSE_JSONL
+
 
 CSV_FIELDS = [
     "session_id",
@@ -41,9 +43,9 @@ class SessionWriters:
         self._csv_writer = None
 
         if save_jsonl:
-            self._jsonl_file = (self.output_dir / "raw_pose.jsonl").open("w", encoding="utf-8")
+            self._jsonl_file = (self.output_dir / RAW_POSE_JSONL).open("w", encoding="utf-8")
         if save_csv:
-            self._csv_file = (self.output_dir / "raw_pose.csv").open("w", encoding="utf-8", newline="")
+            self._csv_file = (self.output_dir / RAW_POSE_CSV).open("w", encoding="utf-8", newline="")
             self._csv_writer = csv.DictWriter(self._csv_file, fieldnames=CSV_FIELDS)
             self._csv_writer.writeheader()
 

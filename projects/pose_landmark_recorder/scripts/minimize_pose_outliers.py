@@ -72,7 +72,7 @@ def main() -> None:
             save_trajectory_breaks=args.save_trajectory_breaks,
         ),
     )
-    print(f"Wrote outlier minimization outputs to {args.output}")
+    print(f"Wrote outlier minimization outputs to {result['outlier_report'].parent}")
     for key in (
         "outlier_minimized_csv",
         "outlier_minimized_jsonl",

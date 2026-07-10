@@ -11,6 +11,66 @@ nav_order: 1
 [https://developers.google.com/mediapipe](https://developers.google.com/mediapipe)
 as the primary developer documentation site for MediaPipe as of April 3, 2023.*
 
+## MediaPipe Pose Landmark Recorder
+
+This fork contains **MediaPipe Pose Landmark Recorder** in
+[`projects/pose_landmark_recorder/`](projects/pose_landmark_recorder/): a
+Python 3.11 tool that turns a single RGB video into quality-aware pose data and
+Blender-ready trajectory files. It is intended for movement, dance, education,
+and research visualizations—not as a replacement for calibrated 3D motion
+capture.
+
+The default workflow keeps the original MediaPipe measurements separate from
+all post-processing layers:
+
+```text
+video -> raw -> cleaned -> crop-refined -> refined -> outlier-minimized
+      -> trajectory export -> Blender handoff
+```
+
+Short, well-supported gaps and spikes may be corrected conservatively. Long
+or uncertain regions are kept visibly uncertain or disconnected rather than
+being presented as generated movement.
+
+### Quick start
+
+Place a compatible Pose Landmarker model at
+`projects/pose_landmark_recorder/models/pose_landmarker.task`, then install
+and run the full pipeline:
+
+```bash
+cd projects/pose_landmark_recorder
+python3.11 -m venv .venv
+source .venv/bin/activate
+python -m pip install -e .
+
+pose-landmark-pipeline \
+  --input-video /absolute/path/to/dance_take.mp4 \
+  --output-root /absolute/path/to/output \
+  --delegate gpu \
+  --blender-mode skip
+```
+
+Use `--blender-mode background` to create a `.blend` file automatically when
+Blender is installed, or `--blender-mode gui` to open it for manual work. Each
+stage writes logs to `<output-root>/<session-id>/pipeline_logs/`.
+
+To make a local macOS PyInstaller build, run:
+
+```bash
+python scripts/build_pipeline_app.py
+./dist/pose-landmark-pipeline/pose-landmark-pipeline --help
+```
+
+This is a `onedir` build: distribute the whole
+`dist/pose-landmark-pipeline/` directory, including `_internal/`, rather than
+the executable alone.
+
+See the [project README](projects/pose_landmark_recorder/README.md) for the
+complete pipeline, outputs, optional scripts, troubleshooting, and packaging
+details. Project-level implementation notes are in
+[`projects/pose_landmark_recorder/docs/`](projects/pose_landmark_recorder/docs/).
+
 ![MediaPipe](https://developers.google.com/static/mediapipe/images/home/hero_01_1920.png)
 
 **Attention**: MediaPipe Solutions Preview is an early release. [Learn

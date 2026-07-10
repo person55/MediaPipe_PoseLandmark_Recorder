@@ -9,25 +9,25 @@ Phase 1 focuses on recorded video input only:
 - Store normalized `pose_landmarks`.
 - Store estimated 3D `pose_world_landmarks`.
 - Store transformed landmarks for Blender-oriented playback.
-- Write `raw_pose.jsonl`, `raw_pose.csv`, and `metadata.json`.
+- Write `raw/raw_pose.jsonl`, `raw/raw_pose.csv`, and `raw/raw_metadata.json`.
 
-Camera input, Blender import scripts, and PyInstaller packaging are planned after the first video-file path is verified.
+Camera input and PyInstaller packaging remain future work. The installed `pose-landmark-pipeline` command runs the current end-to-end local flow. The current Blender handoff is `open_blender_trajectory.py`, which generates a saved `.blend` scene from exported trajectory CSV files.
 
 ## Pose cleaning workflow
 
 Raw pose extraction and pose cleaning are separate stages.
 
-`record_from_video.py` writes MediaPipe's direct output to `raw_pose.csv`, `raw_pose.jsonl`, `metadata.json`, and `preview.mp4`. These raw files are treated as source measurements and are not overwritten by the cleaning pipeline.
+`record_from_video.py` writes MediaPipe's direct output to `raw/raw_pose.csv`, `raw/raw_pose.jsonl`, `raw/raw_metadata.json`, and `raw/raw_preview.mp4`. These raw files are treated as source measurements and are not overwritten by the cleaning pipeline.
 
 `clean_pose_data.py` reads the raw files and writes corrected outputs to `cleaned/`:
 
 ```plain text
 cleaned_pose.csv
 cleaned_pose.jsonl
-frame_status.csv
-quality_report.json
-interpolation_report.json
-corrected_preview.mp4
+cleaned_frame_status.csv
+cleaned_quality_report.json
+cleaned_interpolation_report.json
+cleaned_corrected_preview.mp4
 ```
 
 Cleaning policy:
@@ -63,6 +63,19 @@ Expected GPU initialization log:
 ```plain text
 INFO: Created TensorFlow Lite delegate for Metal.
 ```
+
+## macOS sandbox execution policy
+
+`crop_refine_pose.py`, `refine_pose_segments.py`, and Blender scene generation can require macOS GL/Metal context access. In Codex sandboxed execution, MediaPipe may fail with messages such as:
+
+```plain text
+Could not create an NSOpenGLPixelFormat
+Service "kGpuService" ... was not provided
+DrishtiMetalHelper initWithCalculatorContext
+Service is unavailable
+```
+
+Project Python code cannot elevate itself outside the sandbox. `pose-landmark-pipeline` and its compatibility wrapper `scripts/run_full_pipeline.py` run each stage as a subprocess, write per-stage logs to `examples/output/<session_id>/pipeline_logs/`, and print the exact failed command when they detect these Metal/GL context failures. The failed crop/refine/Blender stage should then be rerun outside the sandbox or through Codex escalation.
 
 ## Local layout
 

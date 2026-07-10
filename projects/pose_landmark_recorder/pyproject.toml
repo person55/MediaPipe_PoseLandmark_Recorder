@@ -22,6 +22,9 @@ dev = [
   "pytest",
 ]
 
+[project.scripts]
+pose-landmark-pipeline = "dance_pose_recorder.pipeline_runner:main"
+
 [tool.setuptools.packages.find]
 where = ["src"]
 

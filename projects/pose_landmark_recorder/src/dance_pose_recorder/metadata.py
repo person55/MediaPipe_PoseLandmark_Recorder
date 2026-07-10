@@ -8,6 +8,8 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+from dance_pose_recorder.output_layout import RAW_METADATA_JSON
+
 
 def build_metadata(
     session_id: str,
@@ -43,6 +45,6 @@ def build_metadata(
 
 
 def write_metadata(output_dir: str | Path, metadata: dict) -> Path:
-    path = Path(output_dir) / "metadata.json"
+    path = Path(output_dir) / RAW_METADATA_JSON
     path.write_text(json.dumps(metadata, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return path

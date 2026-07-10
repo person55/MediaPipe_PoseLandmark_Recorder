@@ -10,7 +10,7 @@ It uses `cleaned_pose.csv` to detect problematic frame segments, creates torso-c
 raw_pose.csv
 -> cleaned_pose.csv
 -> crop refinement candidates
--> crop_refined_pose.csv
+-> crop_refine_pose.csv
 -> outlier minimization
 -> trajectory export
 ```

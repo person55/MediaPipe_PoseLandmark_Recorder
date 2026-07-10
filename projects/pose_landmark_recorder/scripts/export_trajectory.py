@@ -76,7 +76,11 @@ def main() -> None:
             save_report=args.save_report,
         ),
     )
-    print(f"Wrote trajectory export outputs to {args.output}")
+    first_output = result.get("report_json") or result.get("points_csv") or result.get("segments_csv")
+    if first_output:
+        print(f"Wrote trajectory export outputs to {first_output.parent}")
+    else:
+        print(f"Trajectory export completed without file output for {args.output}")
     for key in ("points_csv", "segments_csv", "report_json"):
         path = result.get(key)
         if path:

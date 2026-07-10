@@ -10,6 +10,7 @@ from tqdm import tqdm
 from dance_pose_recorder.coordinate_transform import CoordinateTransformer
 from dance_pose_recorder.data_writer import SessionWriters, make_frame_record
 from dance_pose_recorder.metadata import build_metadata, write_metadata
+from dance_pose_recorder.output_layout import RAW_DIR, RAW_PREVIEW_MP4, normalize_stage_output_dir
 from dance_pose_recorder.video_input import VideoFileReader
 
 
@@ -18,9 +19,11 @@ def record_from_video(args: argparse.Namespace) -> dict:
     from dance_pose_recorder.preview_renderer import PreviewRenderer
 
     input_path = Path(args.input)
-    output_dir = Path(args.output)
+    session_output_dir = Path(args.output)
+    output_dir = normalize_stage_output_dir(session_output_dir, RAW_DIR)
     model_path = Path(args.model)
-    session_id = args.session_id or output_dir.name
+    session_id_dir = session_output_dir.parent if session_output_dir.name == RAW_DIR else session_output_dir
+    session_id = args.session_id or session_id_dir.name
 
     save_jsonl = args.save_jsonl or not args.save_csv
     save_csv = args.save_csv or not args.save_jsonl
@@ -43,7 +46,7 @@ def record_from_video(args: argparse.Namespace) -> dict:
     ) as writers:
         preview = None
         if args.save_preview:
-            preview = PreviewRenderer(output_dir / "preview.mp4", reader.info.fps, reader.info.width, reader.info.height)
+            preview = PreviewRenderer(output_dir / RAW_PREVIEW_MP4, reader.info.fps, reader.info.width, reader.info.height)
 
         try:
             progress_total = reader.info.frame_count if reader.info.frame_count > 0 else None
@@ -100,7 +103,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--scale", type=float, default=1.0, help="Scale factor for transformed landmarks.")
     parser.add_argument("--save-jsonl", action="store_true", help="Write raw_pose.jsonl.")
     parser.add_argument("--save-csv", action="store_true", help="Write raw_pose.csv.")
-    parser.add_argument("--save-preview", action="store_true", help="Write preview.mp4.")
+    parser.add_argument("--save-preview", action="store_true", help="Write raw_preview.mp4.")
     parser.add_argument("--max-frames", type=int, default=None, help="Optional frame limit for smoke tests.")
     return parser
 

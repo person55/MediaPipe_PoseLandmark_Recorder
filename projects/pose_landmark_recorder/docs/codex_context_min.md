@@ -16,27 +16,45 @@ Do not modify upstream MediaPipe source files unless explicitly instructed.
 
 ```text
 record_from_video.py
--> raw_pose.csv / raw_pose.jsonl / metadata.json / preview.mp4
+-> raw/raw_pose.csv / raw/raw_pose.jsonl
+-> raw/raw_metadata.json / raw/raw_preview.mp4
 
 clean_pose_data.py
--> cleaned_pose.csv / quality_report.json / interpolation_report.json
+-> cleaned/cleaned_pose.csv
+-> cleaned/cleaned_quality_report.json / cleaned/cleaned_interpolation_report.json
 
 crop_refine_pose.py
--> crop_refined_pose.csv / crop_refine_report.json / crop_segments.csv
+-> crop_refine/crop_refine_pose.csv
+-> crop_refine/crop_refine_report.json / crop_refine/crop_refine_segments.csv
+
+refine_pose_segments.py
+-> refined_after_crop_v1/refined_pose.csv
+-> refined_after_crop_v1/refine_report.json
 
 minimize_pose_outliers.py
--> outlier_minimized_pose.csv / outlier_report.json
--> temporal_spike_report.csv / trajectory_breaks.csv
+-> outlier_minimized/outlier_minimized_pose.csv
+-> outlier_minimized/outlier_minimized_report.json
+-> outlier_minimized/outlier_minimized_temporal_spike_report.csv
+-> outlier_minimized/outlier_minimized_trajectory_breaks.csv
 
 export_trajectory.py
--> blender_trajectory_points.csv / blender_trajectory_segments.csv
--> trajectory_export_report.json
+-> trajectory_export/trajectory_export_points.csv
+-> trajectory_export/trajectory_export_segments.csv
+-> trajectory_export/trajectory_export_report.json
+
+open_blender_trajectory.py
+-> blender/blender_<session_id>_trajectory.blend
+
+pose-landmark-pipeline / run_full_pipeline.py
+-> local end-to-end runner with per-stage logs and sandbox failure guidance
+
+build_pipeline_app.py
+-> PyInstaller build for dist/pose-landmark-pipeline/pose-landmark-pipeline
 
 planned:
 build_motion_profile.py
 
 optional:
-refine_pose_segments.py
 optimize_pose_skeleton.py
 ```
 
@@ -45,10 +63,11 @@ optimize_pose_skeleton.py
 ```text
 raw: direct MediaPipe output
 cleaned: validation, short interpolation, smoothing, quality flags
-crop_refined: torso-centered crop re-detection; accepts only better crop candidates
+crop_refine: torso-centered crop re-detection; accepts only better crop candidates
 refined: full-frame segment re-detection; optional after crop refinement
 outlier_minimized: default visualization layer for spike reduction and trajectory breaks
 trajectory_export: Blender/TouchDesigner points and segments
+blender: saved Blender scene generated from trajectory export; fresh startup scene, default Cube removed before CSV import
 optimized: optional diagnostic skeleton-constraint layer
 generated: future optional layer only; never mix with measured data
 ```
@@ -58,7 +77,8 @@ generated: future optional layer only; never mix with measured data
 ```text
 raw_pose
 -> cleaned_pose
--> crop_refined_pose
+-> crop_refine_pose
+-> refined_pose
 -> outlier_minimized_pose
 -> trajectory_export
 -> Blender / TouchDesigner
@@ -67,11 +87,19 @@ raw_pose
 ## Diagnostic Path
 
 ```text
-refined_pose or crop_refined_pose
+refined_pose or crop_refine_pose
 -> optimize_pose_skeleton.py
 -> optimization_report
 -> diagnostic overlay
 ```
+
+## Execution Policy
+
+`pose-landmark-pipeline` is the installed one-command runner. `scripts/run_full_pipeline.py` is a compatibility wrapper for the same code path. Both run the documented local stages and write logs under `examples/output/<session_id>/pipeline_logs/`.
+
+`scripts/build_pipeline_app.py` creates the local PyInstaller build under `dist/`.
+
+Project code cannot elevate itself outside the Codex sandbox. On macOS, `crop_refine_pose.py`, `refine_pose_segments.py`, and Blender creation may need GPU/Metal context access outside the sandbox. If a stage fails with `kGpuService`, `Could not create an NSOpenGLPixelFormat`, `DrishtiMetalHelper`, or `Service is unavailable`, rerun that exact stage outside the sandbox or ask Codex to rerun it with escalation.
 
 ## Important Quality Flags
 
@@ -143,6 +171,8 @@ head_proxy: nose
 exclude: ears, hand index, thumb
 keep: left_foot_index, right_foot_index
 ```
+
+`open_blender_trajectory.py` starts from a fresh Blender startup scene, deletes the default `Cube`, imports trajectory CSV data, and saves `blender/blender_<session_id>_trajectory.blend` unless `--no-save-blend` is used.
 
 ## Future Prior Strategy
 

@@ -16,7 +16,7 @@ from dance_pose_recorder.pose_cleaner import CleaningOptions, clean_pose_session
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Clean raw pose CSV/JSONL data.")
     parser.add_argument("--input-csv", required=True, type=Path, help="Input raw_pose.csv path.")
-    parser.add_argument("--metadata", required=True, type=Path, help="Input metadata.json path.")
+    parser.add_argument("--metadata", required=True, type=Path, help="Input raw_metadata.json path.")
     parser.add_argument("--output", required=True, type=Path, help="Output cleaned directory.")
     parser.add_argument("--input-video", type=Path, default=None, help="Input video path for corrected preview.")
     parser.add_argument("--input-jsonl", type=Path, default=None, help="Optional input raw_pose.jsonl path.")
@@ -27,7 +27,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--smoothing-window", type=int, default=7)
     parser.add_argument("--save-csv", action="store_true", help="Write cleaned_pose.csv.")
     parser.add_argument("--save-jsonl", action="store_true", help="Write cleaned_pose.jsonl.")
-    parser.add_argument("--save-preview", action="store_true", help="Write corrected_preview.mp4.")
+    parser.add_argument("--save-preview", action="store_true", help="Write cleaned_corrected_preview.mp4.")
     parser.add_argument("--no-smoothing", action="store_true", help="Disable rolling mean smoothing.")
     parser.add_argument(
         "--interpolate-outliers",
@@ -129,7 +129,7 @@ def main() -> None:
             leg_salvage_min_visibility=args.leg_salvage_min_visibility,
         )
     )
-    print(f"Wrote cleaned outputs to {args.output}")
+    print(f"Wrote cleaned outputs to {result.frame_status_csv.parent}")
     for path in (
         result.cleaned_csv,
         result.cleaned_jsonl,

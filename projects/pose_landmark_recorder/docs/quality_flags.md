@@ -21,8 +21,8 @@ The cleaning pipeline writes `quality_flag` values so downstream tools can disti
 
 The cleaned output is not a replacement for raw MediaPipe output. It is a downstream visualization layer.
 
-- `raw_pose.csv` and `raw_pose.jsonl` preserve direct MediaPipe measurements.
-- `cleaned_pose.csv` and `cleaned_pose.jsonl` add validation, interpolation, smoothing, and quality flags.
+- `raw/raw_pose.csv` and `raw/raw_pose.jsonl` preserve direct MediaPipe measurements.
+- `cleaned/cleaned_pose.csv` and `cleaned/cleaned_pose.jsonl` add validation, interpolation, smoothing, and quality flags.
 - Blender/C4D/After Effects importers should read `quality_flag` and avoid displaying all corrected values as equally reliable.
 - Long missing ranges and long outlier runs should not be converted into plausible-looking motion by default.
 - Outlier minimization preserves `quality_flag` by default and adds separate trajectory display columns such as `trajectory_visible`, `trajectory_connect`, and `trajectory_alpha`.
