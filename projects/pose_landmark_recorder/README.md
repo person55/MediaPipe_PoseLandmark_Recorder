@@ -67,6 +67,49 @@ It is ready after a fresh clone. See [`models/README.md`](models/README.md) for
 the exact model version, source, license, and checksum. Pass `--model` only
 when using a compatible custom model.
 
+## Recording guidelines and limitations
+
+This is a visualization-oriented single-person pose tool, not a replacement for
+calibrated 3D motion capture equipment. Good capture conditions make the output
+more stable and make its uncertainty easier to interpret.
+
+### Recommended recording
+
+- Keep the camera fixed on a tripod or stable support. Panning, tilting,
+  zooming, or significant shake reduces the consistency of screen-coordinate
+  trajectories.
+- Record one primary performer per video. If another person enters or crosses
+  the frame, the detected subject can switch or become unstable.
+- Keep the whole body, including head, hands, and feet, visible with margin for
+  the movement. Frame-outs, occlusion, and strong motion blur can become
+  missing or low-confidence landmarks.
+- Maintain contrast between performer and background. Avoid backlighting,
+  severe darkness, busy backgrounds, and props that obscure the body where
+  possible.
+
+### Input scope
+
+- Each run accepts one saved video file; live-camera capture, batch folder
+  processing, and multi-person composition are outside the current scope.
+- MP4 is the validated input format. Other formats such as MOV, AVI, or MKV
+  may work when the target environment's OpenCV build can decode their codec;
+  verify that the file opens on the target machine first.
+- Keep each recording as a separate input file and manage its results as a
+  separate session. The default input directory is `examples/input/`, but an
+  input video may be supplied from another path.
+
+### Interpretation limits
+
+- Output is a fixed-camera, screen-based visualization trajectory. It is not
+  camera-calibrated, metric distance data, or precision 3D motion capture.
+- The pipeline makes limited corrections only for short gaps or spikes with
+  supporting evidence. Long occlusions, extended frame-outs, and subject
+  confusion are not filled with fabricated motion; they remain uncertain,
+  hidden, or separated by trajectory breaks.
+- Use the result to explore movement structure, rhythm, and paths. Do not use
+  it for body measurements, exact spatial coordinates, or multi-person
+  tracking.
+
 ## File acquisition order
 
 The main local workflow is:
