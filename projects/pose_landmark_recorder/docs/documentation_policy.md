@@ -76,14 +76,16 @@ Do not read:
 
 ## Output Data Rule
 
-Generated data should remain outside Git.
+Generated data should remain outside Git. The vetted default runtime model,
+`models/pose_landmarker.task`, is the exception: it is intentionally tracked
+so a fresh clone can run. Its source, license, and checksum are recorded in
+[`../models/README.md`](../models/README.md).
 
 Never commit:
 
 ```text
 examples/input/**
 examples/output/**
-models/*.task
 *.mp4
 *.mov
 *.jsonl generated from sessions

@@ -16,7 +16,6 @@ Never commit:
 - raw/cleaned/refined/optimized JSONL files
 - preview videos
 - corrected/refined/optimized preview videos
-- `.task` model files
 - `.venv`
 - build, dist, cache files
 - `.DS_Store`
@@ -24,6 +23,15 @@ Never commit:
 Do not use `git add .`.
 
 Push only to `origin master`. Never push to `upstream`.
+
+## Model policy
+
+`models/pose_landmarker.task` is an intentional tracked runtime dependency:
+the official MediaPipe Pose Landmarker Full (float16, v1) bundle. It is not a
+generated session artifact.
+
+Do not replace it or add another model binary unless `models/README.md` records
+the official source URL, model/version, applicable license, and SHA-256.
 
 ## Current pipeline
 

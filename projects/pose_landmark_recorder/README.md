@@ -57,11 +57,15 @@ Blender installation. Pipeline logs are written to
 `<output-root>/<session-id>/pipeline_logs/`; use `--continue-on-existing` to
 resume a prior session without rerunning completed stages.
 
-Place a compatible MediaPipe Pose Landmarker model at:
+The default MediaPipe Pose Landmarker Full model is tracked at:
 
 ```plain
 models/pose_landmarker.task
 ```
+
+It is ready after a fresh clone. See [`models/README.md`](models/README.md) for
+the exact model version, source, license, and checksum. Pass `--model` only
+when using a compatible custom model.
 
 ## File acquisition order
 
