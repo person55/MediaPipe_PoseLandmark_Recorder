@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from math import isfinite
 import argparse
 import json
 from pathlib import Path
@@ -117,7 +118,7 @@ class CropRefinementOptions:
     include_short_invalid_cluster: bool = False
     allow_review_only: bool = False
     allow_missing_long_gap: bool = False
-    accept_score_margin: float = 0.06
+    accept_score_margin: float = 0.04
     max_segments: int | None = None
     bbox_smoothing_window: int = 5
     bbox_size_shrink_limit: float = 0.85
@@ -172,7 +173,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--include-short-invalid-cluster", action="store_true")
     parser.add_argument("--allow-review-only", action="store_true")
     parser.add_argument("--allow-missing-long-gap", action="store_true")
-    parser.add_argument("--accept-score-margin", type=float, default=0.06)
+    parser.add_argument("--accept-score-margin", type=float, default=0.04)
     parser.add_argument("--max-segments", type=int, default=None)
     parser.add_argument("--bbox-smoothing-window", type=int, default=5)
     parser.add_argument("--bbox-size-shrink-limit", type=float, default=0.85)
@@ -464,6 +465,9 @@ def _detect_crops(
 
 
 def _restore_pose_landmarks(landmarks: list[dict], bbox: CropBBox) -> list[dict]:
+    # MediaPipe normalizes z on the same scale as x (image width), so z from a
+    # crop detection must be rescaled by crop width / frame width alongside x/y.
+    z_scale = float(bbox.w) / float(bbox.frame_width)
     restored = []
     for landmark in landmarks:
         item = dict(landmark)
@@ -472,6 +476,9 @@ def _restore_pose_landmarks(landmarks: list[dict], bbox: CropBBox) -> list[dict]
         x_original, y_original = crop_to_original_norm(x_crop, y_crop, bbox)
         item["x"] = x_original
         item["y"] = y_original
+        z_crop = landmark.get("z")
+        if z_crop is not None and isfinite(float(z_crop)):
+            item["z"] = float(z_crop) * z_scale
         item["crop_x_norm"] = x_crop
         item["crop_y_norm"] = y_crop
         item["crop_edge_risk"] = is_near_crop_edge(x_crop, y_crop)
@@ -706,8 +713,12 @@ def _temporal_references(cleaned: pd.DataFrame) -> dict[tuple[str, int], dict]:
             continue
         frames = usable["frame"].to_numpy(dtype=np.int64)
         coords = usable[fields].to_numpy(dtype=float)
-        distances = np.linalg.norm(np.diff(coords, axis=0), axis=1) if len(coords) > 1 else np.array([])
-        median_motion = float(np.median(distances)) if len(distances) else 1.0
+        if len(coords) > 1:
+            distances = np.linalg.norm(np.diff(coords, axis=0), axis=1)
+            gaps = np.maximum(1.0, np.diff(frames).astype(float))
+            median_motion = float(np.median(distances / gaps))
+        else:
+            median_motion = 1.0
         refs[(str(source), int(landmark_id))] = {
             "frames": frames,
             "coords": coords,
@@ -746,15 +757,20 @@ def _fast_temporal_score(row, temporal_ref: dict | None, source: str) -> float:
         return 0.5
     frame = int(_row_get(row, "frame"))
     pos = int(np.searchsorted(frames, frame))
-    distances = []
+    # Per-frame rates (distance / frame gap to the anchor), matching
+    # pose_candidate_scorer.temporal_score so interpolated cleaned values do
+    # not geometrically dominate genuine re-detections far from anchors.
+    rates = []
     if pos > 0:
-        distances.append(float(np.linalg.norm(coords - stable_coords[pos - 1])))
+        gap = max(1, frame - int(frames[pos - 1]))
+        rates.append(float(np.linalg.norm(coords - stable_coords[pos - 1])) / gap)
     if pos < len(frames):
-        distances.append(float(np.linalg.norm(coords - stable_coords[pos])))
-    if not distances:
+        gap = max(1, int(frames[pos]) - frame)
+        rates.append(float(np.linalg.norm(coords - stable_coords[pos])) / gap)
+    if not rates:
         return 0.5
-    jump = float(sum(distances) / len(distances))
-    ratio = jump / (float(temporal_ref["median_motion"]) + 1e-6)
+    rate = float(sum(rates) / len(rates))
+    ratio = rate / (float(temporal_ref["median_motion"]) + 1e-6)
     return float(min(1.0, max(0.0, 1.0 / (1.0 + ratio))))
 
 

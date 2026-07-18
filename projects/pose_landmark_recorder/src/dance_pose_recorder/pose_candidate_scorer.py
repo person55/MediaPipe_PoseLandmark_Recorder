@@ -76,19 +76,23 @@ def temporal_score(
 
     previous = stable_series[stable_series["frame"] < frame].tail(1)
     next_row = stable_series[stable_series["frame"] > frame].head(1)
-    distances = []
+    # Distances are divided by the frame gap to the anchor so a candidate far
+    # from its anchors is judged on per-frame motion, not raw displacement.
+    # Without this, interpolated values geometrically always win.
+    rates = []
     for neighbor in (previous, next_row):
         if neighbor.empty:
             continue
         neighbor_coords = _coords(neighbor.iloc[0], source)
         if neighbor_coords is not None:
-            distances.append(_distance(coords, neighbor_coords))
-    if not distances:
+            gap = max(1, abs(frame - int(neighbor.iloc[0]["frame"])))
+            rates.append(_distance(coords, neighbor_coords) / gap)
+    if not rates:
         return 0.5
 
     baseline = float(median_motion if median_motion and median_motion > 0 else _median_motion(stable_series, source))
-    candidate_jump = float(sum(distances) / len(distances))
-    jump_ratio = candidate_jump / (baseline + EPSILON)
+    candidate_rate = float(sum(rates) / len(rates))
+    jump_ratio = candidate_rate / (baseline + EPSILON)
     return _clip01(1.0 / (1.0 + jump_ratio))
 
 
@@ -215,17 +219,24 @@ def _coords(row: pd.Series | dict, source: str) -> tuple[float, ...] | None:
 
 
 def _median_motion(stable_series: pd.DataFrame, source: str) -> float:
-    distances = []
+    """Median per-frame motion between successive stable rows."""
+
+    rates = []
     previous = None
+    previous_frame = None
     for row in stable_series.sort_values("frame").itertuples(index=False):
-        current = _coords(row._asdict(), source)
+        data = row._asdict()
+        current = _coords(data, source)
+        frame = int(data["frame"])
         if current is not None and previous is not None:
-            distances.append(_distance(previous, current))
+            gap = max(1, frame - previous_frame)
+            rates.append(_distance(previous, current) / gap)
         if current is not None:
             previous = current
-    if not distances:
+            previous_frame = frame
+    if not rates:
         return 1.0
-    return float(np.median(distances))
+    return float(np.median(rates))
 
 
 def _distance(start: tuple[float, ...], end: tuple[float, ...]) -> float:

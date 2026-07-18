@@ -83,7 +83,7 @@ class RefinementOptions:
     min_cluster_length: int = 2
     max_cluster_length: int = 90
     segment_margin: int = 12
-    accept_score_margin: float = 0.08
+    accept_score_margin: float = 0.05
     save_csv: bool = True
     save_jsonl: bool = True
     save_preview: bool = False
@@ -117,7 +117,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--min-cluster-length", type=int, default=2)
     parser.add_argument("--max-cluster-length", type=int, default=90)
     parser.add_argument("--segment-margin", type=int, default=12)
-    parser.add_argument("--accept-score-margin", type=float, default=0.08)
+    parser.add_argument("--accept-score-margin", type=float, default=0.05)
     parser.add_argument("--save-csv", action="store_true")
     parser.add_argument("--save-jsonl", action="store_true")
     parser.add_argument("--save-preview", action="store_true")
@@ -433,10 +433,12 @@ def _median_motion_for_series(stable_series: pd.DataFrame, source: str) -> float
     if len(usable) < 2:
         return 1.0
     coords = usable[fields].to_numpy(dtype=float)
+    frames = usable["frame"].to_numpy(dtype=float)
     distances = np.linalg.norm(np.diff(coords, axis=0), axis=1)
+    gaps = np.maximum(1.0, np.diff(frames))
     if len(distances) == 0:
         return 1.0
-    median = float(np.median(distances))
+    median = float(np.median(distances / gaps))
     return median if median > 0 else 1.0
 
 

@@ -80,11 +80,29 @@
 - old 상위 10개 velocity-ratio 세그먼트 전부 loop2에서도 break/corrected로 처리됨 (실제 스파이크 유지)
 - 후속: preview 영상과의 시각 대조는 수동 확인 항목으로 남김
 
-## Loop 3 (pending): 재검출 스코어링 공정화
-- 계획: cleaned의 공짜 crop_valid=1.0 제거, temporal 점수 gap 정규화(앵커 거리로 나눔), crop z 복원 버그 수정(`crop_refine_pose.py:466-479`, z에 `bbox.w/frame_width` 스케일), margin 재캘리브레이션
-- 검증: 저장된 `crop_refine_candidate_scores.csv`로 오프라인 재시뮬레이션 후 crop 스테이지 실재실행
+## Loop 3: 재검출 스코어링 공정화 — 완료 (판정: 유지, 노션 [Loop 3] 기록 완료)
+
+### 변경 내용
+- `pose_candidate_scorer.py`: temporal 점수 gap 정규화 — 앵커까지 거리를 프레임 gap으로 나눈 per-frame rate로 판정. `_median_motion`도 per-frame rate 기준으로 통일. (보간값이 기하학적으로 항상 이기던 구조 해소)
+- `crop_refine_pose.py`: `_fast_temporal_score`/`_temporal_references` 동일 정규화, `_restore_pose_landmarks`에 z 스케일 복원(`z × bbox.w/frame_width`) 추가
+- `refine_pose_segments.py`: `_median_motion_for_series` gap 정규화
+- margin 재캘리브레이션: 오프라인 재시뮬레이션 기준 노이즈 delta p99 ≈ 0.03 → crop 0.06→**0.04**, full-frame 0.08→**0.05** (options/argparse/pipeline_runner 3곳 모두)
+- 테스트 2개 추가(gap 불변성, per-frame rate 판정). 총 121개 통과.
+
+### 검증 결과 (crop: `crop_refine_loop3/`, full-frame: `refined_loop3/` 실재실행)
+| 지표 | 006 (old→new) | 007 (old→new) |
+|---|---|---|
+| 달성 가능 delta 상한(오프라인) | 0.038 → 0.084 | 0.031 → 0.038 |
+| crop 수용 | 0/1,345 → **11**/1,345 | 0/789 → 0/789 |
+| full-frame 수용 | 56 → 76 | 57 → 93 |
+| 후보 z 절대값 p90 | 0.47(crop 스케일) → 0.16 | 0.46 → 0.16 |
+
+- z 수정 후 후보 z 분포가 cleaned z 분포(p90 0.16/0.18)와 정확히 일치
+- crop 수용 11건 전부 목표 카테고리(estimated_occluded_arm 7, unreliable 4)
+- 007 crop 수용 0건은 후보가 실제로 더 낫지 않은 정직한 결과 (수용이 "가능"해졌고 강제되지 않음)
+- 가드 기각(review_only 6,615/5,726, missing candidate 3,834/2,851)은 old와 완전 동일 — 회귀 없음
 
 ## 재개 방법
 1. 이 문서와 노션 페이지 확인
-2. Loop 1 마무리(위 4단계) → Loop 2 → Loop 3
+2. Loop 1~3 완료. 남은 후속: preview 영상 시각 대조(수동), 새 margin/floor로 전체 파이프라인 1회 재실행(`pose-landmark-pipeline`), 병행 정리 작업(스키마/플래그 단일화, 스크립트 로직 src 이동, 계약 테스트)
 3. 각 루프: 가설 1개, 최소 변경, 기존 세션으로 전후 비교, 유지/보류/되돌림 판정, 노션 [Loop N] 기록, 커밋
