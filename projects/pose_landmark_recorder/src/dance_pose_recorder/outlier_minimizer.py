@@ -20,6 +20,10 @@ from dance_pose_recorder.output_layout import (
     OUTLIER_MINIMIZED_TRAJECTORY_BREAKS_CSV,
     normalize_stage_output_dir,
 )
+from dance_pose_recorder.quality_flags import (
+    OUTLIER_PROTECTED_FLAGS,
+    RELIABLE_TRAJECTORY_FLAGS,
+)
 from dance_pose_recorder.temporal_features import compute_temporal_features
 from dance_pose_recorder.trajectory_policy import (
     default_trajectory_policy,
@@ -28,20 +32,9 @@ from dance_pose_recorder.trajectory_policy import (
 )
 
 
-RELIABLE_FLAGS = {
-    "measured",
-    "crop_refined_measured",
-    "refined_measured",
-    "low_visibility_leg_kept",
-    "interpolated_short_gap",
-}
+RELIABLE_FLAGS = RELIABLE_TRAJECTORY_FLAGS
 
-PROTECTED_FLAGS = {
-    "missing_long_gap",
-    "review_only",
-    "optimization_unreliable",
-    "estimated_occluded_arm",
-}
+PROTECTED_FLAGS = OUTLIER_PROTECTED_FLAGS
 
 UNAVAILABLE_STATUSES = {
     "crop_unavailable",
@@ -61,26 +54,6 @@ SOURCE_POSITION_FIELDS: dict[str, tuple[str, str, str]] = {
     "pose": ("x", "y", "z"),
     "pose_world": ("tx", "ty", "tz"),
 }
-
-OUTLIER_COLUMNS = [
-    "outlier_status",
-    "outlier_action",
-    "outlier_reason",
-    "outlier_score",
-    "velocity",
-    "acceleration",
-    "jerk",
-    "velocity_ratio",
-    "acceleration_ratio",
-    "jerk_ratio",
-    "trajectory_visible",
-    "trajectory_connect",
-    "trajectory_alpha",
-    "trajectory_width",
-    "trajectory_reason",
-    "trajectory_segment_id",
-]
-
 
 @dataclass(frozen=True)
 class OutlierMinimizerOptions:

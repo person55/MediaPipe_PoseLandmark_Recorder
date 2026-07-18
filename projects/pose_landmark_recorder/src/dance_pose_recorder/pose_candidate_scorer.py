@@ -8,6 +8,8 @@ from math import isfinite
 import numpy as np
 import pandas as pd
 
+from dance_pose_recorder.quality_flags import STABLE_MEASUREMENT_FLAGS
+
 
 COORD_FIELDS = {
     "pose": ["x", "y"],
@@ -25,7 +27,7 @@ BONE_PAIRS = [
     (26, 28, "right_lower_leg"),
 ]
 
-STABLE_FLAGS = {"measured", "low_visibility_leg_kept", "crop_refined_measured", "refined_measured"}
+STABLE_FLAGS = STABLE_MEASUREMENT_FLAGS
 EPSILON = 1e-6
 
 

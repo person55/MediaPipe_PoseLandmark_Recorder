@@ -7,12 +7,7 @@ from typing import Iterable
 import numpy as np
 import pandas as pd
 
-
-PROTECTED_QUALITY_FLAGS = {
-    "missing_long_gap",
-    "review_only",
-    "optimization_unreliable",
-}
+from dance_pose_recorder.quality_flags import PROTECTED_QUALITY_FLAGS
 
 
 def compute_temporal_features(

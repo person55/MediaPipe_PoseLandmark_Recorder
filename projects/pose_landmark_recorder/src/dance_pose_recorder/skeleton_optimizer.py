@@ -27,6 +27,7 @@ from dance_pose_recorder.bone_constraints import (
 )
 from dance_pose_recorder.joint_angle import joint_angle_deg
 from dance_pose_recorder.optimization_report import build_optimization_report, write_json
+from dance_pose_recorder.quality_flags import PROTECTED_QUALITY_FLAGS
 
 OPTIMIZER_COLUMNS = [
     "optimizer_status",
@@ -44,7 +45,6 @@ OPTIMIZER_COLUMNS = [
     "optimization_source",
 ]
 
-PROTECTED_QUALITY_FLAGS = {"missing_long_gap", "review_only", "optimization_unreliable"}
 NON_CORRECTABLE_QUALITY_FLAGS = {"missing_long_gap", "review_only", "optimization_unreliable", "unreliable"}
 REVIEW_PROBLEM_FLAGS = {
     "unreliable",
