@@ -111,6 +111,79 @@ def test_review_only_is_not_corrected(tmp_path):
     assert bool(row["trajectory_connect"]) is False
 
 
+def _dual_source_rows(values_tx, values_x):
+    rows = []
+    for frame, (tx, x) in enumerate(zip(values_tx, values_x)):
+        world = _pose_row(frame, tx=tx)
+        screen = _pose_row(frame)
+        screen["source"] = "pose"
+        screen["x"] = x
+        screen["tx"] = float("nan")
+        rows.append(world)
+        rows.append(screen)
+    return rows
+
+
+def test_sync_sources_corrects_pose_rows(tmp_path):
+    values_tx = [0.0, 1.0, 2.0, 50.0, 4.0, 5.0, 6.0, 7.0]
+    values_x = [0.0, 0.01, 0.02, 0.9, 0.04, 0.05, 0.06, 0.07]
+    input_csv, metadata = _write_input(tmp_path, _dual_source_rows(values_tx, values_x))
+
+    result = minimize_pose_outliers(
+        input_csv,
+        metadata,
+        tmp_path / "out",
+        OutlierMinimizerOptions(max_correction_gap_sec=0.2, min_stable_neighbors=1),
+    )
+    df = pd.read_csv(result["outlier_minimized_csv"])
+    pose_row = df[(df["frame"] == 3) & (df["source"] == "pose")].iloc[0]
+
+    assert pose_row["outlier_status"] == "outlier_corrected"
+    assert abs(float(pose_row["x"]) - 0.03) < 1e-6
+
+
+def test_sync_sources_breaks_pose_rows(tmp_path):
+    values_tx = [0.0, 1.0, 2.0, 50.0, -50.0, 50.0, -50.0, 7.0, 8.0]
+    values_x = [0.0, 0.01, 0.02, 0.5, -0.5, 0.5, -0.5, 0.07, 0.08]
+    input_csv, metadata = _write_input(tmp_path, _dual_source_rows(values_tx, values_x))
+
+    result = minimize_pose_outliers(
+        input_csv,
+        metadata,
+        tmp_path / "out",
+        OutlierMinimizerOptions(
+            max_correction_gap_sec=0.03,
+            velocity_threshold_multiplier=1.1,
+            acceleration_threshold_multiplier=1.1,
+            jerk_threshold_multiplier=1.1,
+            min_stable_neighbors=1,
+        ),
+    )
+    df = pd.read_csv(result["outlier_minimized_csv"])
+    pose_rows = df[df["source"] == "pose"]
+
+    assert (pose_rows["outlier_status"] == "trajectory_break").any()
+    assert (pose_rows["trajectory_connect"] == False).any()  # noqa: E712
+
+
+def test_sync_sources_can_be_disabled(tmp_path):
+    values_tx = [0.0, 1.0, 2.0, 50.0, 4.0, 5.0, 6.0, 7.0]
+    values_x = [0.0, 0.01, 0.02, 0.9, 0.04, 0.05, 0.06, 0.07]
+    input_csv, metadata = _write_input(tmp_path, _dual_source_rows(values_tx, values_x))
+
+    result = minimize_pose_outliers(
+        input_csv,
+        metadata,
+        tmp_path / "out",
+        OutlierMinimizerOptions(max_correction_gap_sec=0.2, min_stable_neighbors=1, sync_sources=False),
+    )
+    df = pd.read_csv(result["outlier_minimized_csv"])
+    pose_row = df[(df["frame"] == 3) & (df["source"] == "pose")].iloc[0]
+
+    assert pose_row["outlier_status"] != "outlier_corrected"
+    assert abs(float(pose_row["x"]) - 0.9) < 1e-6
+
+
 def test_reports_are_written(tmp_path):
     values = [0.0, 1.0, 2.0, 50.0, 4.0, 5.0, 6.0, 7.0]
     input_csv, metadata = _write_input(tmp_path, [_pose_row(frame, tx=value) for frame, value in enumerate(values)])

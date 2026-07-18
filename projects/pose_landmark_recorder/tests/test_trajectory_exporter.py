@@ -125,3 +125,43 @@ def test_frame_gap_does_not_make_segment(tmp_path):
     segments = pd.read_csv(result["segments_csv"])
 
     assert segments.empty
+
+
+def test_aspect_ratio_scales_width(tmp_path):
+    rows = [_row(0, 0, "nose", x=1.0, y=0.5)]
+    input_csv, metadata = _write_fixture(tmp_path, rows)
+    metadata.write_text(
+        json.dumps(
+            {"session_id": "test_session", "fps": 30.0, "frame_count_written": 10, "width": 1920, "height": 1080}
+        )
+    )
+
+    result = export_trajectory(input_csv, metadata, tmp_path / "export", TrajectoryExportOptions())
+    points = pd.read_csv(result["points_csv"])
+    report = json.loads(result["report_json"].read_text())
+    aspect = 1920 / 1080
+
+    assert abs(report["settings"]["aspect_ratio"] - aspect) < 1e-9
+    assert abs(report["settings"]["screen_width_scale"] - 6.0 * aspect) < 1e-9
+    assert report["settings"]["screen_width_scale_requested"] == 6.0
+    assert abs(points["blender_x"].iloc[0] - 0.5 * 6.0 * aspect) < 1e-6
+
+
+def test_aspect_ratio_can_be_disabled(tmp_path):
+    rows = [_row(0, 0, "nose", x=1.0, y=0.5)]
+    input_csv, metadata = _write_fixture(tmp_path, rows)
+    metadata.write_text(
+        json.dumps(
+            {"session_id": "test_session", "fps": 30.0, "frame_count_written": 10, "width": 1920, "height": 1080}
+        )
+    )
+
+    result = export_trajectory(
+        input_csv, metadata, tmp_path / "export", TrajectoryExportOptions(apply_aspect_ratio=False)
+    )
+    points = pd.read_csv(result["points_csv"])
+    report = json.loads(result["report_json"].read_text())
+
+    assert report["settings"]["aspect_ratio"] is None
+    assert report["settings"]["screen_width_scale"] == 6.0
+    assert abs(points["blender_x"].iloc[0] - 0.5 * 6.0) < 1e-6

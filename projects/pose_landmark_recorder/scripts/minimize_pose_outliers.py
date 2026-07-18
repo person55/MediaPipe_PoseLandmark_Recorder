@@ -36,6 +36,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--min-stable-neighbors", type=int, default=2)
     parser.add_argument("--landmark-policy", default="visualization", choices=["default", "visualization"])
     parser.add_argument("--preserve-quality-flags", action="store_true", default=True)
+    parser.add_argument("--sync-sources", action="store_true", default=True)
+    parser.add_argument("--no-sync-sources", action="store_false", dest="sync_sources")
     parser.add_argument("--save-csv", action="store_true")
     parser.add_argument("--save-jsonl", action="store_true")
     parser.add_argument("--save-report", action="store_true")
@@ -66,6 +68,7 @@ def main() -> None:
             min_stable_neighbors=args.min_stable_neighbors,
             landmark_policy=args.landmark_policy,
             preserve_quality_flags=args.preserve_quality_flags,
+            sync_sources=args.sync_sources,
             save_csv=args.save_csv,
             save_jsonl=args.save_jsonl,
             save_report=args.save_report,

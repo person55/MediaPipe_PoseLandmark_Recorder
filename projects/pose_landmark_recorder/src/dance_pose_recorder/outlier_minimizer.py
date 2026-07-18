@@ -48,6 +48,11 @@ UNAVAILABLE_STATUSES = {
     "refined_unavailable",
 }
 
+SOURCE_POSITION_FIELDS: dict[str, tuple[str, str, str]] = {
+    "pose": ("x", "y", "z"),
+    "pose_world": ("tx", "ty", "tz"),
+}
+
 OUTLIER_COLUMNS = [
     "outlier_status",
     "outlier_action",
@@ -80,6 +85,7 @@ class OutlierMinimizerOptions:
     min_stable_neighbors: int = 2
     landmark_policy: str = "visualization"
     preserve_quality_flags: bool = True
+    sync_sources: bool = True
     save_csv: bool = True
     save_jsonl: bool = False
     save_report: bool = True
@@ -133,6 +139,14 @@ def minimize_pose_outliers(
     break_rows: list[dict] = []
     trajectory_segment_id = 1
 
+    mirror_sources: list[str] = []
+    mirror_groups: dict[tuple[str, str], pd.DataFrame] = {}
+    if options.sync_sources and options.source != "both":
+        mirror_sources = sorted(set(SOURCE_POSITION_FIELDS) - _target_sources(options.source))
+        mirror_rows = minimized[minimized["source"].astype(str).isin(mirror_sources)]
+        for key, mirror_group in mirror_rows.groupby(["source", "landmark_name"], sort=False):
+            mirror_groups[(str(key[0]), str(key[1]))] = mirror_group.sort_values("frame")
+
     for (source, landmark_name), group in minimized[minimized["source"].astype(str).isin(_target_sources(options.source))].groupby(
         ["source", "landmark_name"], sort=False
     ):
@@ -152,9 +166,10 @@ def minimize_pose_outliers(
                 and is_correctable_landmark(str(landmark_name))
                 and _has_stable_neighbors(group, segment.start_frame, segment.end_frame, options)
             ):
-                corrected = _interpolate_segment(minimized, group, segment_indices, options)
+                corrected = _interpolate_segment(minimized, group, segment_indices, options, fields=options.position_fields)
                 if corrected:
                     _mark_corrected(minimized, segment_indices, reason)
+            break_id_used = False
             if not corrected:
                 break_reason = _break_reason(minimized.loc[segment_indices], spike_type, str(landmark_name))
                 _mark_break(minimized, segment_indices, break_reason, trajectory_segment_id)
@@ -171,6 +186,43 @@ def minimize_pose_outliers(
                         minimized.loc[segment_indices],
                     )
                 )
+                break_id_used = True
+
+            for mirror_source in mirror_sources:
+                mirror_group = mirror_groups.get((mirror_source, str(landmark_name)))
+                if mirror_group is None:
+                    continue
+                mirror_indices = mirror_group[
+                    mirror_group["frame"].between(segment.start_frame, segment.end_frame)
+                ].index.tolist()
+                if not mirror_indices:
+                    continue
+                mirror_fields = SOURCE_POSITION_FIELDS.get(mirror_source)
+                if corrected:
+                    mirror_corrected = mirror_fields is not None and _interpolate_segment(
+                        minimized, mirror_group, mirror_indices, options, fields=mirror_fields
+                    )
+                    if mirror_corrected:
+                        _mark_corrected(minimized, mirror_indices, reason)
+                        continue
+                mirror_break_reason = _break_reason(minimized.loc[mirror_indices], spike_type, str(landmark_name))
+                _mark_break(minimized, mirror_indices, mirror_break_reason, trajectory_segment_id)
+                break_rows.append(
+                    _trajectory_break_row(
+                        trajectory_segment_id,
+                        mirror_source,
+                        str(landmark_name),
+                        segment.start_frame,
+                        segment.end_frame,
+                        segment.length,
+                        fps,
+                        mirror_break_reason,
+                        minimized.loc[mirror_indices],
+                    )
+                )
+                break_id_used = True
+
+            if break_id_used:
                 trajectory_segment_id += 1
 
             spike_rows.append(
@@ -351,8 +403,9 @@ def _interpolate_segment(
     group: pd.DataFrame,
     segment_indices: list[int],
     options: OutlierMinimizerOptions,
+    fields: tuple[str, ...] | None = None,
 ) -> bool:
-    fields = options.position_fields
+    fields = fields if fields is not None else options.position_fields
     start_frame = int(df.loc[segment_indices, "frame"].min())
     end_frame = int(df.loc[segment_indices, "frame"].max())
     before = group[(group["frame"] < start_frame) & group.apply(lambda row: _is_stable_neighbor(row, options), axis=1)].tail(1)
@@ -554,6 +607,7 @@ def _build_report(
             "min_stable_neighbors": options.min_stable_neighbors,
             "landmark_policy": options.landmark_policy,
             "preserve_quality_flags": options.preserve_quality_flags,
+            "sync_sources": options.sync_sources,
         },
         "counts": {
             "total_rows": int(len(minimized)),

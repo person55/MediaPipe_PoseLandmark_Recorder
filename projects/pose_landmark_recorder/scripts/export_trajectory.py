@@ -39,6 +39,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--screen-width-scale", type=float, default=6.0)
     parser.add_argument("--screen-height-scale", type=float, default=6.0)
     parser.add_argument("--depth-scale", type=float, default=1.0)
+    parser.add_argument("--apply-aspect-ratio", action="store_true", default=True)
+    parser.add_argument("--no-aspect-ratio", action="store_false", dest="apply_aspect_ratio")
     parser.add_argument("--include-hidden", action="store_true")
     parser.add_argument("--include-disconnected-points", action="store_true", default=True)
     parser.add_argument("--no-include-disconnected-points", action="store_false", dest="include_disconnected_points")
@@ -69,6 +71,7 @@ def main() -> None:
             screen_width_scale=args.screen_width_scale,
             screen_height_scale=args.screen_height_scale,
             depth_scale=args.depth_scale,
+            apply_aspect_ratio=args.apply_aspect_ratio,
             include_hidden=args.include_hidden,
             include_disconnected_points=args.include_disconnected_points,
             save_points=args.save_points,

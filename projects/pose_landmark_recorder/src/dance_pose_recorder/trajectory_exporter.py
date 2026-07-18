@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 import json
 
@@ -116,6 +116,7 @@ class TrajectoryExportOptions:
     screen_width_scale: float = 6.0
     screen_height_scale: float = 6.0
     depth_scale: float = 1.0
+    apply_aspect_ratio: bool = True
     include_hidden: bool = False
     include_disconnected_points: bool = True
     save_points: bool = True
@@ -139,6 +140,22 @@ def export_trajectory(
 
     fps = float(metadata.get("fps") or 30.0)
     frames_total = int(metadata.get("frame_count_written") or metadata.get("frame_count") or pose["frame"].max() + 1)
+
+    requested_width_scale = float(options.screen_width_scale)
+    aspect_ratio = None
+    video_width = metadata.get("width")
+    video_height = metadata.get("height")
+    if (
+        options.apply_aspect_ratio
+        and options.coordinate_mode in {"screen_bottom_origin", "pose_2d_flat"}
+        and video_width
+        and video_height
+    ):
+        # Normalized x is pixel/width and normalized y is pixel/height, so equal
+        # scales shear real motion by the aspect ratio. Derive the width scale
+        # from the height scale to keep on-screen proportions.
+        aspect_ratio = float(video_width) / float(video_height)
+        options = replace(options, screen_width_scale=float(options.screen_height_scale) * aspect_ratio)
     session_id = str(metadata.get("session_id") or _first_non_empty(pose.get("session_id")) or output_dir.name)
     if "time_sec" not in pose.columns:
         pose["time_sec"] = pose["frame"].astype(float) / fps
@@ -209,6 +226,8 @@ def export_trajectory(
         missing_required_column_rows=missing_required_column_rows,
         disconnected_skipped_rows=disconnected_skipped_rows,
         points=points,
+        requested_width_scale=requested_width_scale,
+        aspect_ratio=aspect_ratio,
     )
     report_path = output_dir / TRAJECTORY_EXPORT_REPORT_JSON
     if options.save_report:
@@ -384,6 +403,8 @@ def _build_report(
     missing_required_column_rows: int,
     disconnected_skipped_rows: int,
     points: pd.DataFrame,
+    requested_width_scale: float | None = None,
+    aspect_ratio: float | None = None,
 ) -> dict:
     return {
         "session_id": session_id,
@@ -401,7 +422,10 @@ def _build_report(
             "screen_origin_x": options.screen_origin_x,
             "screen_origin_y": options.screen_origin_y,
             "screen_width_scale": options.screen_width_scale,
+            "screen_width_scale_requested": requested_width_scale,
             "screen_height_scale": options.screen_height_scale,
+            "apply_aspect_ratio": options.apply_aspect_ratio,
+            "aspect_ratio": aspect_ratio,
             "depth_scale": options.depth_scale,
             "include_hidden": options.include_hidden,
             "include_disconnected_points": options.include_disconnected_points,

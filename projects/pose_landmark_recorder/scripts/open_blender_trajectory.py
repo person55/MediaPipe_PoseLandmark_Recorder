@@ -94,8 +94,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--x-factor",
         type=float,
-        default=2.2,
-        help="Visual scale applied to Blender X so screen width is not collapsed.",
+        default=1.0,
+        help="Extra visual scale applied to Blender X. The exporter now applies "
+        "the video aspect ratio, so 1.0 preserves true screen proportions.",
     )
     parser.add_argument(
         "--y-factor",
