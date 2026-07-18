@@ -102,7 +102,25 @@
 - 007 crop 수용 0건은 후보가 실제로 더 낫지 않은 정직한 결과 (수용이 "가능"해졌고 강제되지 않음)
 - 가드 기각(review_only 6,615/5,726, missing candidate 3,834/2,851)은 old와 완전 동일 — 회귀 없음
 
+## 후속 작업 — 완료 (2026-07-19)
+
+### 1. preview 시각 대조 ✓
+kept spike 구간(006 카트휠 f951-958·바닥 구르기 얼굴 f1339-1345, 007 바닥 런지 f789-798)은 전부 실제 글리치 유발 상황(신체 반전·좌우 혼동·얼굴 이탈), dropped 구간(wrist f1670, foot f360 등)은 실제 빠른 동작으로 확인. 판정 분류 타당.
+
+### 3. 구조 정리 ✓ (커밋 ab581990f)
+- `quality_flags.py`: stable/reliable/protected 플래그 집합 단일화 (5곳 → 1곳)
+- `stage_schema.py`: crop/refine/outlier 스테이지 컬럼 계약 + COORD_FIELDS 단일화
+- `crop_apply.py`/`refine_apply.py`: 병합·수용 로직을 스크립트에서 src로 이동
+- `test_stage_contracts.py` 계약 테스트 추가, 총 123개 통과. 저장된 loop3 후보 재실행으로 동작 불변 확인(11/0 수용 재현)
+
+### 2. 전체 파이프라인 재실행 ✓ (`session_cpu_006_v2`, `session_cpu_007_v2`)
+record→cleaned→crop→refined→outlier→export→Blender 전 스테이지 정상 완주. 루프 검증 수치 재현:
+- crop 수용 11/0 (margin 0.04), full-frame 수용 76/93 (margin 0.05)
+- spike 세그먼트 664/308, floors (0.02, 0.02, 0.03) + 에코 트리밍 적용 확인
+- export aspect_ratio 1.778, width_scale 6.0→10.67 파생 확인
+- .blend 생성 (6.1MB / 2.6MB), 전 레이어 행 수 정합 (219,384 / 103,620)
+
 ## 재개 방법
 1. 이 문서와 노션 페이지 확인
-2. Loop 1~3 완료. 남은 후속: preview 영상 시각 대조(수동), 새 margin/floor로 전체 파이프라인 1회 재실행(`pose-landmark-pipeline`), 병행 정리 작업(스키마/플래그 단일화, 스크립트 로직 src 이동, 계약 테스트)
+2. Loop 1~3 + 후속 작업 완료. 다음 후보: 노션 문서 5장의 "대상 전환 징후 진단 정보"(유일한 미구현 항목), next_development_plan의 Motion Profile Builder, AGENTS.md 현행화
 3. 각 루프: 가설 1개, 최소 변경, 기존 세션으로 전후 비교, 유지/보류/되돌림 판정, 노션 [Loop N] 기록, 커밋
