@@ -23,9 +23,12 @@ def compute_temporal_features(
 ) -> pd.DataFrame:
     """Return velocity, acceleration, and jerk for each landmark row.
 
-    Features are calculated per source/landmark in frame order. Frame gaps,
-    protected quality flags, and invalid coordinates intentionally break the
-    trajectory so false lines are not carried across unreliable regions.
+    Features are calculated per source/landmark in frame order. Velocity is
+    the norm of the first position difference; acceleration and jerk are the
+    norms of the second and third vector differences, so direction changes
+    register even at constant speed. Frame gaps, protected quality flags, and
+    invalid coordinates intentionally break the trajectory so false lines are
+    not carried across unreliable regions.
     """
 
     features = pd.DataFrame(
@@ -51,8 +54,8 @@ def compute_temporal_features(
         previous_index: int | None = None
         previous_frame: int | None = None
         previous_coords: np.ndarray | None = None
-        previous_velocity: float | None = None
-        previous_acceleration: float | None = None
+        previous_velocity_vec: np.ndarray | None = None
+        previous_acceleration_vec: np.ndarray | None = None
 
         for index, row in ordered.iterrows():
             frame = int(row["frame"])
@@ -61,6 +64,8 @@ def compute_temporal_features(
             velocity = np.nan
             acceleration = np.nan
             jerk = np.nan
+            velocity_vec: np.ndarray | None = None
+            acceleration_vec: np.ndarray | None = None
 
             if (
                 previous_index is not None
@@ -70,11 +75,13 @@ def compute_temporal_features(
                 and previous_coords is not None
                 and not is_protected
             ):
-                velocity = float(np.linalg.norm(coords - previous_coords))
-                if previous_velocity is not None and np.isfinite(previous_velocity):
-                    acceleration = abs(velocity - previous_velocity)
-                    if previous_acceleration is not None and np.isfinite(previous_acceleration):
-                        jerk = abs(acceleration - previous_acceleration)
+                velocity_vec = coords - previous_coords
+                velocity = float(np.linalg.norm(velocity_vec))
+                if previous_velocity_vec is not None:
+                    acceleration_vec = velocity_vec - previous_velocity_vec
+                    acceleration = float(np.linalg.norm(acceleration_vec))
+                    if previous_acceleration_vec is not None:
+                        jerk = float(np.linalg.norm(acceleration_vec - previous_acceleration_vec))
 
             features.at[index, "velocity"] = velocity
             features.at[index, "acceleration"] = acceleration
@@ -84,15 +91,15 @@ def compute_temporal_features(
                 previous_index = None
                 previous_frame = None
                 previous_coords = None
-                previous_velocity = None
-                previous_acceleration = None
+                previous_velocity_vec = None
+                previous_acceleration_vec = None
                 continue
 
             previous_index = int(index)
             previous_frame = frame
             previous_coords = coords
-            previous_velocity = velocity if np.isfinite(velocity) else None
-            previous_acceleration = acceleration if np.isfinite(acceleration) else None
+            previous_velocity_vec = velocity_vec
+            previous_acceleration_vec = acceleration_vec
 
     return features
 

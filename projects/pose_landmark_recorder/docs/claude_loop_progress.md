@@ -56,9 +56,29 @@
 3. 노션 [Loop 1] 기록 완료 ✓
 4. 커밋 완료 ✓
 
-## Loop 2 (pending): spike 임계값 재설계
-- 계획: `_feature_medians`를 median+MAD(또는 P99.5) + 절대 하한으로 교체, `temporal_features.py` 가속/저크를 벡터 2차/3차 차분으로, 에코 트리밍(velocity 정상인 accel/jerk-only 프레임은 세그먼트에서 제외), 보간 행을 베이스라인에서 제외, hip 보정 허용 검토
-- 검증: 기존 세션 refined_pose.csv로 오프라인 재실행 → hip/ankle 거짓 break 감소, 실제 스파이크 유지 확인. preview 영상과 대조.
+## Loop 2: spike 임계값 재설계 — 완료 (판정: 유지, 노션 [Loop 2] 기록 완료)
+
+### 변경 내용
+- `temporal_features.py`: 가속/저크를 속력 스칼라 차분 → 벡터 2차/3차 차분 norm으로 (방향 전환 감지)
+- `outlier_minimizer.py`:
+  - `_feature_medians` → `_feature_scales`: scale = max(median + 1.4826×MAD, 절대 하한). 하한 옵션 `velocity_floor=0.02`, `acceleration_floor=0.02`, `jerk_floor=0.03` (pose_world m/frame 단위)
+  - 베이스라인에서 `interpolated_short_gap` 행 제외 (`BASELINE_EXCLUDED_FLAGS`)
+  - 에코 트리밍 `trim_feature_echo`(기본 true): velocity 스파이크가 있는 run에서 velocity 정상인 accel/jerk-only 프레임을 세그먼트에서 제외. 안정 이웃/보간 앵커 판정을 ratio 기반 → 최종 스파이크 집합 비포함 기준으로 변경(에코 프레임은 위치가 정상이므로 앵커 가능)
+- `trajectory_policy.py`: hip 보정 허용 (`CORRECTABLE_TORSO_LANDMARKS = {left_hip, right_hip}`)
+- CLI: `--velocity-floor/--acceleration-floor/--jerk-floor`, `--trim-feature-echo/--no-trim-feature-echo`
+- 테스트 6개 추가(에코 트리밍 2, 노이즈 하한, hip 보정, 보간 베이스라인 제외, 벡터 가속), 다수-스파이크 합성 테스트 2개는 스파이크가 희소하도록 데이터 현실화. 총 119개 통과.
+
+### 검증 결과 (재실행: `outlier_minimized_loop2/`, `trajectory_export_loop2/`)
+| 지표 | 006 (loop1→loop2) | 007 (loop1→loop2) |
+|---|---|---|
+| spike 세그먼트 | 3,361 → 664 | 1,563 → 310 |
+| world spike-break 행 | 5,527 → 521 | 2,170 → 276 |
+| hip/ankle spike-break 행 | 1,274 → 37 (−97%) | 488 → 47 (−90%) |
+| export 세그먼트 | 53,501 → 58,400 | 23,461 → 25,420 |
+
+- 드롭된 스파이크 절대속도 중앙값 1.7~1.8 m/s(정상 동작 수준), 유지된 스파이크 4.7~7.0 m/s(글리치 수준) — 분리 명확
+- old 상위 10개 velocity-ratio 세그먼트 전부 loop2에서도 break/corrected로 처리됨 (실제 스파이크 유지)
+- 후속: preview 영상과의 시각 대조는 수동 확인 항목으로 남김
 
 ## Loop 3 (pending): 재검출 스코어링 공정화
 - 계획: cleaned의 공짜 crop_valid=1.0 제거, temporal 점수 gap 정규화(앵커 거리로 나눔), crop z 복원 버그 수정(`crop_refine_pose.py:466-479`, z에 `bbox.w/frame_width` 스케일), margin 재캘리브레이션

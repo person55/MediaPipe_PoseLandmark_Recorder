@@ -48,6 +48,15 @@ UNAVAILABLE_STATUSES = {
     "refined_unavailable",
 }
 
+# Interpolated rows are artificially smooth; keeping them in the baseline
+# deflates the typical-motion scale and inflates every ratio.
+BASELINE_EXCLUDED_FLAGS = {
+    "interpolated_short_gap",
+}
+
+# Converts MAD to a robust standard deviation estimate for normal-ish data.
+MAD_SIGMA_SCALE = 1.4826
+
 SOURCE_POSITION_FIELDS: dict[str, tuple[str, str, str]] = {
     "pose": ("x", "y", "z"),
     "pose_world": ("tx", "ty", "tz"),
@@ -82,6 +91,10 @@ class OutlierMinimizerOptions:
     velocity_threshold_multiplier: float = 6.0
     acceleration_threshold_multiplier: float = 6.0
     jerk_threshold_multiplier: float = 8.0
+    velocity_floor: float = 0.02
+    acceleration_floor: float = 0.02
+    jerk_floor: float = 0.03
+    trim_feature_echo: bool = True
     min_stable_neighbors: int = 2
     landmark_policy: str = "visualization"
     preserve_quality_flags: bool = True
@@ -131,8 +144,8 @@ def minimize_pose_outliers(
     for column in ("velocity", "acceleration", "jerk"):
         minimized[column] = features[column]
 
-    medians = _feature_medians(minimized, options)
-    _apply_ratios(minimized, medians)
+    scales = _feature_scales(minimized, options)
+    _apply_ratios(minimized, scales)
     spike_mask = _spike_mask(minimized, options)
 
     spike_rows: list[dict] = []
@@ -152,7 +165,11 @@ def minimize_pose_outliers(
     ):
         group = group.sort_values("frame")
         group_spikes = group[spike_mask.loc[group.index]]
-        for segment in contiguous_ranges(group_spikes["frame"].tolist()):
+        spike_frames = group_spikes["frame"].tolist()
+        if options.trim_feature_echo:
+            spike_frames = _trim_echo_frames(group_spikes, options)
+        spike_frame_set = set(spike_frames)
+        for segment in contiguous_ranges(spike_frames):
             segment_indices = group[group["frame"].between(segment.start_frame, segment.end_frame)].index.tolist()
             if not segment_indices:
                 continue
@@ -164,9 +181,11 @@ def minimize_pose_outliers(
                 segment.length <= max_correction_gap_frames
                 and not protected
                 and is_correctable_landmark(str(landmark_name))
-                and _has_stable_neighbors(group, segment.start_frame, segment.end_frame, options)
+                and _has_stable_neighbors(group, segment.start_frame, segment.end_frame, options, spike_frame_set)
             ):
-                corrected = _interpolate_segment(minimized, group, segment_indices, options, fields=options.position_fields)
+                corrected = _interpolate_segment(
+                    minimized, group, segment_indices, options, fields=options.position_fields, spike_frames=spike_frame_set
+                )
                 if corrected:
                     _mark_corrected(minimized, segment_indices, reason)
             break_id_used = False
@@ -200,7 +219,7 @@ def minimize_pose_outliers(
                 mirror_fields = SOURCE_POSITION_FIELDS.get(mirror_source)
                 if corrected:
                     mirror_corrected = mirror_fields is not None and _interpolate_segment(
-                        minimized, mirror_group, mirror_indices, options, fields=mirror_fields
+                        minimized, mirror_group, mirror_indices, options, fields=mirror_fields, spike_frames=spike_frame_set
                     )
                     if mirror_corrected:
                         _mark_corrected(minimized, mirror_indices, reason)
@@ -311,30 +330,34 @@ def _target_sources(source: str) -> set[str]:
     return {source}
 
 
-def _feature_medians(df: pd.DataFrame, options: OutlierMinimizerOptions) -> dict[tuple[str, str], dict[str, float]]:
-    medians: dict[tuple[str, str], dict[str, float]] = {}
+def _feature_scales(df: pd.DataFrame, options: OutlierMinimizerOptions) -> dict[tuple[str, str], dict[str, float]]:
+    scales: dict[tuple[str, str], dict[str, float]] = {}
     target = df[df["source"].astype(str).isin(_target_sources(options.source))]
     reliable = target[target.apply(_is_reliable_row, axis=1)]
-    for key, group in reliable.groupby(["source", "landmark_name"], sort=False):
-        medians[(str(key[0]), str(key[1]))] = {
-            "velocity": _positive_median(group["velocity"]),
-            "acceleration": _positive_median(group["acceleration"]),
-            "jerk": _positive_median(group["jerk"]),
+    baseline = reliable[~reliable["quality_flag"].astype(str).isin(BASELINE_EXCLUDED_FLAGS)]
+    floors = {
+        "velocity": options.velocity_floor,
+        "acceleration": options.acceleration_floor,
+        "jerk": options.jerk_floor,
+    }
+    for key, group in baseline.groupby(["source", "landmark_name"], sort=False):
+        scales[(str(key[0]), str(key[1]))] = {
+            feature: _robust_scale(group[feature], floors[feature]) for feature in ("velocity", "acceleration", "jerk")
         }
-    return medians
+    return scales
 
 
-def _apply_ratios(df: pd.DataFrame, medians: dict[tuple[str, str], dict[str, float]]) -> None:
+def _apply_ratios(df: pd.DataFrame, scales: dict[tuple[str, str], dict[str, float]]) -> None:
     for index, row in df.iterrows():
-        item = medians.get((str(row["source"]), str(row["landmark_name"])))
+        item = scales.get((str(row["source"]), str(row["landmark_name"])))
         if not item:
             continue
         for feature in ("velocity", "acceleration", "jerk"):
-            median = item.get(feature)
+            scale = item.get(feature)
             value = row.get(feature)
-            if median is None or median <= 0 or pd.isna(value):
+            if scale is None or pd.isna(scale) or scale <= 0 or pd.isna(value):
                 continue
-            df.at[index, f"{feature}_ratio"] = float(value) / float(median)
+            df.at[index, f"{feature}_ratio"] = float(value) / float(scale)
 
 
 def _spike_mask(df: pd.DataFrame, options: OutlierMinimizerOptions) -> pd.Series:
@@ -361,12 +384,33 @@ def _is_reliable_row(row: pd.Series) -> bool:
     return True
 
 
-def _positive_median(series: pd.Series) -> float:
+def _robust_scale(series: pd.Series, floor: float) -> float:
     values = series.dropna().astype(float)
     values = values[values > 0]
     if values.empty:
-        return np.nan
-    return float(values.median())
+        return floor if floor > 0 else np.nan
+    median = float(values.median())
+    mad = float((values - median).abs().median())
+    return max(median + MAD_SIGMA_SCALE * mad, floor)
+
+
+def _trim_echo_frames(spike_rows: pd.DataFrame, options: OutlierMinimizerOptions) -> list[int]:
+    """Drop acceleration/jerk-only echo frames from runs that contain a velocity spike.
+
+    A single bad position spikes velocity on two frames but echoes through the
+    second and third differences for up to two more frames, stretching the run
+    past the correction limit. Runs with no velocity spike at all are kept
+    whole so pure direction-change glitches remain detectable.
+    """
+
+    kept: list[int] = []
+    for segment in contiguous_ranges(spike_rows["frame"].tolist()):
+        run = spike_rows[spike_rows["frame"].between(segment.start_frame, segment.end_frame)]
+        velocity_frames = run[
+            run["velocity_ratio"].fillna(0.0) >= options.velocity_threshold_multiplier
+        ]["frame"].tolist()
+        kept.extend(velocity_frames if velocity_frames else run["frame"].tolist())
+    return kept
 
 
 def _segment_has_protected(segment_df: pd.DataFrame) -> bool:
@@ -379,23 +423,25 @@ def _segment_has_protected(segment_df: pd.DataFrame) -> bool:
     return False
 
 
-def _has_stable_neighbors(group: pd.DataFrame, start_frame: int, end_frame: int, options: OutlierMinimizerOptions) -> bool:
+def _has_stable_neighbors(
+    group: pd.DataFrame,
+    start_frame: int,
+    end_frame: int,
+    options: OutlierMinimizerOptions,
+    spike_frames: set[int],
+) -> bool:
     before = group[group["frame"] < start_frame].tail(options.min_stable_neighbors)
     after = group[group["frame"] > end_frame].head(options.min_stable_neighbors)
-    return len(before[before.apply(lambda row: _is_stable_neighbor(row, options), axis=1)]) >= options.min_stable_neighbors and len(
-        after[after.apply(lambda row: _is_stable_neighbor(row, options), axis=1)]
+    return len(before[before.apply(lambda row: _is_stable_neighbor(row, spike_frames), axis=1)]) >= options.min_stable_neighbors and len(
+        after[after.apply(lambda row: _is_stable_neighbor(row, spike_frames), axis=1)]
     ) >= options.min_stable_neighbors
 
 
-def _is_stable_neighbor(row: pd.Series, options: OutlierMinimizerOptions) -> bool:
-    return _is_reliable_row(row) and not bool(
-        (pd.notna(row.get("velocity_ratio")) and float(row.get("velocity_ratio")) >= options.velocity_threshold_multiplier)
-        or (
-            pd.notna(row.get("acceleration_ratio"))
-            and float(row.get("acceleration_ratio")) >= options.acceleration_threshold_multiplier
-        )
-        or (pd.notna(row.get("jerk_ratio")) and float(row.get("jerk_ratio")) >= options.jerk_threshold_multiplier)
-    )
+def _is_stable_neighbor(row: pd.Series, spike_frames: set[int]) -> bool:
+    # Trimmed echo frames carry inflated acceleration/jerk ratios but their
+    # positions are sound, so anchor eligibility keys off the final spike set
+    # rather than the raw ratios.
+    return _is_reliable_row(row) and int(row["frame"]) not in spike_frames
 
 
 def _interpolate_segment(
@@ -404,12 +450,14 @@ def _interpolate_segment(
     segment_indices: list[int],
     options: OutlierMinimizerOptions,
     fields: tuple[str, ...] | None = None,
+    spike_frames: set[int] | None = None,
 ) -> bool:
     fields = fields if fields is not None else options.position_fields
+    spike_frames = spike_frames if spike_frames is not None else set()
     start_frame = int(df.loc[segment_indices, "frame"].min())
     end_frame = int(df.loc[segment_indices, "frame"].max())
-    before = group[(group["frame"] < start_frame) & group.apply(lambda row: _is_stable_neighbor(row, options), axis=1)].tail(1)
-    after = group[(group["frame"] > end_frame) & group.apply(lambda row: _is_stable_neighbor(row, options), axis=1)].head(1)
+    before = group[(group["frame"] < start_frame) & group.apply(lambda row: _is_stable_neighbor(row, spike_frames), axis=1)].tail(1)
+    after = group[(group["frame"] > end_frame) & group.apply(lambda row: _is_stable_neighbor(row, spike_frames), axis=1)].head(1)
     if before.empty or after.empty:
         return False
     prev = before.iloc[0]
@@ -604,6 +652,10 @@ def _build_report(
             "velocity_threshold_multiplier": options.velocity_threshold_multiplier,
             "acceleration_threshold_multiplier": options.acceleration_threshold_multiplier,
             "jerk_threshold_multiplier": options.jerk_threshold_multiplier,
+            "velocity_floor": options.velocity_floor,
+            "acceleration_floor": options.acceleration_floor,
+            "jerk_floor": options.jerk_floor,
+            "trim_feature_echo": options.trim_feature_echo,
             "min_stable_neighbors": options.min_stable_neighbors,
             "landmark_policy": options.landmark_policy,
             "preserve_quality_flags": options.preserve_quality_flags,

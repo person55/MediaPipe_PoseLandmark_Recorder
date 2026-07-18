@@ -41,6 +41,15 @@ def test_acceleration_and_jerk_are_calculated():
     assert np.isfinite(features.loc[3, "jerk"])
 
 
+def test_direction_change_at_constant_speed_registers_acceleration():
+    df = pd.DataFrame([_row(0, 0.0), _row(1, 1.0), _row(2, 2.0), _row(3, 1.0), _row(4, 0.0)])
+
+    features = compute_temporal_features(df)
+
+    assert features["velocity"].dropna().tolist() == [1.0, 1.0, 1.0, 1.0]
+    assert features.loc[3, "acceleration"] == 2.0
+
+
 def test_frame_gap_breaks_direct_connection():
     df = pd.DataFrame([_row(0, 0.0), _row(2, 2.0)])
 
