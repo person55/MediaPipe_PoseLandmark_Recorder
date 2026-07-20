@@ -146,6 +146,7 @@ def initialize_crop_columns(refined: pd.DataFrame) -> None:
     refined["crop_running_mode"] = ""
     refined["crop_rotation_deg"] = np.nan
     refined["crop_enhanced"] = False
+    refined["crop_pass"] = ""
 
 
 def _accept_crop_candidate(
@@ -207,6 +208,7 @@ def _mark_crop_row(
             ("crop_running_mode", "crop_running_mode"),
             ("crop_rotation_deg", "crop_rotation_deg"),
             ("crop_enhanced", "crop_enhanced"),
+            ("crop_pass", "crop_pass"),
         ):
             if hasattr(candidate_row, attr):
                 refined.at[index, target] = getattr(candidate_row, attr)

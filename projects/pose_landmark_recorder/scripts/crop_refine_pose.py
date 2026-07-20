@@ -38,7 +38,15 @@ from dance_pose_recorder.crop_refiner import (
     parse_crop_target_landmarks,
     parse_flags,
 )
-from dance_pose_recorder.crop_enhancement import detection_is_weak, enhance_crop
+from dance_pose_recorder.crop_enhancement import detection_is_weak, enhance_crop, mean_visibility
+from dance_pose_recorder.crop_mirror import (
+    CONFUSION_COLUMNS,
+    confusion_row,
+    mirror_crop,
+    pass_disagreement,
+    unmirror_pose_landmarks,
+    unmirror_world_landmarks,
+)
 from dance_pose_recorder.crop_rotation import (
     build_inverted_segments,
     detect_width_for_z,
@@ -111,6 +119,14 @@ class CropRefinementOptions:
     # retry once on a CLAHE-enhanced crop as an extra competing candidate.
     enhance_low_light: bool = True
     enhance_visibility_threshold: float = 0.5
+    # Mirror/reverse passes and confusion diagnostics (Loop 10). The mirror
+    # pass probes detector left-right asymmetry; the reverse pass approaches
+    # each segment from the opposite temporal direction to escape tracker
+    # inertia. Forward/mirror disagreement is recorded as a target-switch /
+    # confusion diagnostic (metadata only, never auto-corrected).
+    mirror_pass: bool = True
+    reverse_pass: bool = True
+    confusion_threshold: float = 0.03
 
 
 @dataclass(frozen=True)
@@ -172,6 +188,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--enhance-low-light", action="store_true", default=True)
     parser.add_argument("--no-enhance-low-light", action="store_false", dest="enhance_low_light")
     parser.add_argument("--enhance-visibility-threshold", type=float, default=0.5)
+    parser.add_argument("--mirror-pass", action="store_true", default=True)
+    parser.add_argument("--no-mirror-pass", action="store_false", dest="mirror_pass")
+    parser.add_argument("--reverse-pass", action="store_true", default=True)
+    parser.add_argument("--no-reverse-pass", action="store_false", dest="reverse_pass")
+    parser.add_argument("--confusion-threshold", type=float, default=0.03)
     return parser
 
 
@@ -216,6 +237,9 @@ def main() -> None:
             rotation_min_angle_deg=args.rotation_min_angle_deg,
             enhance_low_light=args.enhance_low_light,
             enhance_visibility_threshold=args.enhance_visibility_threshold,
+            mirror_pass=args.mirror_pass,
+            reverse_pass=args.reverse_pass,
+            confusion_threshold=args.confusion_threshold,
         )
     )
     print(f"Wrote crop refinement outputs to {result.crop_segments_csv.parent}")
@@ -279,10 +303,12 @@ def crop_refine_pose(options: CropRefinementOptions) -> CropRefinementResult:
     crop_segments_csv = output_dir / CROP_REFINE_SEGMENTS_CSV
     crop_segments_to_dataframe(segments, fps=fps).to_csv(crop_segments_csv, index=False)
 
-    bboxes, candidates = _redetect_crop_candidates(options, metadata, cleaned, segments)
+    bboxes, candidates, confusion_diagnostics = _redetect_crop_candidates(options, metadata, cleaned, segments)
     refined, score_rows, segment_summaries = apply_crop_candidates(
         cleaned, candidates, segments, options.accept_score_margin
     )
+    confusion_csv = output_dir / "crop_confusion_diagnostics.csv"
+    confusion_diagnostics.to_csv(confusion_csv, index=False)
 
     crop_candidate_scores_csv = output_dir / CROP_REFINE_CANDIDATE_SCORES_CSV
     pd.DataFrame(score_rows, columns=CROP_SCORE_COLUMNS).to_csv(crop_candidate_scores_csv, index=False)
@@ -309,6 +335,7 @@ def crop_refine_pose(options: CropRefinementOptions) -> CropRefinementResult:
         segment_summaries=segment_summaries,
         candidates=candidates,
         refined=refined,
+        confusion_diagnostics=confusion_diagnostics,
     )
     crop_refine_report = output_dir / CROP_REFINE_REPORT_JSON
     crop_refine_report.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
@@ -352,7 +379,7 @@ def _redetect_crop_candidates(
 ) -> tuple[dict[int, CropBBox], pd.DataFrame]:
     attempted = [segment for segment in segments if segment.crop_attempted]
     if not attempted:
-        return {}, pd.DataFrame()
+        return {}, pd.DataFrame(), pd.DataFrame(columns=CONFUSION_COLUMNS)
 
     total_frames = int(metadata.get("frame_count_written") or cleaned["frame"].max() + 1)
     pose_by_frame = {
@@ -379,7 +406,7 @@ def _redetect_crop_candidates(
                 reader.info.height,
                 options.rotation_min_angle_deg,
             )
-        rows = _detect_crops(
+        rows, diagnostic_rows = _detect_crops(
             reader=reader,
             bboxes=bboxes,
             frame_to_segment=frame_to_segment,
@@ -388,7 +415,7 @@ def _redetect_crop_candidates(
             total_frames=total_frames,
             rotations=rotations,
         )
-    return bboxes, pd.DataFrame(rows)
+    return bboxes, pd.DataFrame(rows), pd.DataFrame(diagnostic_rows, columns=CONFUSION_COLUMNS)
 
 
 def _build_bboxes(
@@ -428,30 +455,41 @@ def _detect_crops(
     metadata: dict,
     total_frames: int,
     rotations: dict[int, int] | None = None,
-) -> list[dict]:
+) -> tuple[list[dict], list[dict]]:
     rotations = rotations or {}
     rows: list[dict] = []
+    diagnostic_rows: list[dict] = []
     session_id = str(metadata.get("session_id") or options.output.name)
     transformer = CoordinateTransformer(origin_policy=str(metadata.get("origin_policy") or "raw"))
     if transformer.origin_policy != "raw":
         print("warning: crop refinement v1 is calibrated for origin_policy=raw")
 
-    def candidate_rows(frame, bbox, segment, detection, snap: int, enhanced: bool = False) -> list[dict]:
+    def restored_pose(detection, bbox, snap: int) -> list[dict]:
         raw_pose = unrotate_pose_landmarks(detection["pose_landmarks"], snap)
-        raw_world = unrotate_world_landmarks(detection["pose_world_landmarks"], snap)
-        pose_landmarks = _restore_pose_landmarks(
+        return _restore_pose_landmarks(
             raw_pose, bbox, z_detect_width=detect_width_for_z(bbox.w, bbox.h, snap)
         )
-        transformed = transformer.transform_landmarks(raw_world)
+
+    def add_candidate_rows(
+        frame_index: int,
+        timestamp_ms: int,
+        bbox,
+        segment,
+        snap: int,
+        pose_landmarks: list[dict],
+        world_landmarks: list[dict],
+        enhanced: bool = False,
+        pass_name: str = "forward",
+    ) -> None:
+        transformed = transformer.transform_landmarks(world_landmarks)
         record = make_frame_record(
             session_id=session_id,
-            frame_index=frame.frame_index,
-            timestamp_ms=frame.timestamp_ms,
+            frame_index=frame_index,
+            timestamp_ms=timestamp_ms,
             pose_landmarks=pose_landmarks,
-            pose_world_landmarks=raw_world,
+            pose_world_landmarks=world_landmarks,
             transformed_landmarks=transformed,
         )
-        result_rows: list[dict] = []
         for row in frame_to_csv_rows(record):
             row.update(
                 {
@@ -464,10 +502,11 @@ def _detect_crops(
                     "crop_running_mode": "video",
                     "crop_rotation_deg": snap,
                     "crop_enhanced": enhanced,
+                    "crop_pass": pass_name,
                 }
             )
             if row["source"] == "pose":
-                restored = pose_landmarks[int(row["landmark_id"])]
+                restored = pose_landmarks[int(row["landmark_id"])] if pose_landmarks else {}
                 row["crop_x_norm"] = restored.get("crop_x_norm")
                 row["crop_y_norm"] = restored.get("crop_y_norm")
                 row["crop_edge_risk"] = restored.get("crop_edge_risk")
@@ -475,16 +514,15 @@ def _detect_crops(
                 row["crop_x_norm"] = np.nan
                 row["crop_y_norm"] = np.nan
                 row["crop_edge_risk"] = False
-            result_rows.append(row)
-        return result_rows
+            rows.append(row)
 
-    # Three separate video-mode trackers keep the streams isolated:
+    # Separate video-mode trackers keep the streams isolated:
     #  - baseline: exactly the frames the pre-Loop-8 stage processed, so its
     #    candidates (and therefore prior acceptances) are unaffected. Mixing
     #    new frames or rotated crops into this stream was observed to disturb
     #    tracking on later baseline frames.
     #  - inverted-upright: upright detections on new inverted-pose segments.
-    #  - rotated: rotated detections on all inverted frames.
+    #  - rotated / enhanced / mirror / reverse: one tracker per extra pass.
     extra_extractors: list[PoseExtractor] = []
 
     def open_extractor() -> PoseExtractor:
@@ -496,6 +534,34 @@ def _detect_crops(
     inverted_upright_extractor: PoseExtractor | None = None
     rotated_extractor: PoseExtractor | None = None
     enhanced_extractor: PoseExtractor | None = None
+    mirror_extractor: PoseExtractor | None = None
+    reverse_extractor: PoseExtractor | None = None
+    reverse_buffer: list[tuple[int, CropBBox, CropSegment, np.ndarray]] = []
+    reverse_state = {"segment_id": None, "timestamp_ms": 0}
+    frame_duration_ms = max(1, int(round(1000.0 / float(metadata.get("fps") or 30.0))))
+
+    def flush_reverse_buffer() -> None:
+        # Re-detect the buffered segment in reverse frame order on its own
+        # tracker so it approaches the segment from the opposite temporal
+        # direction. Timestamps are synthetic but monotonic for the tracker.
+        if reverse_extractor is None or not reverse_buffer:
+            reverse_buffer.clear()
+            return
+        for frame_index, bbox, segment, crop in reversed(reverse_buffer):
+            reverse_state["timestamp_ms"] += frame_duration_ms
+            detection = reverse_extractor.detect(crop, reverse_state["timestamp_ms"])
+            add_candidate_rows(
+                frame_index,
+                reverse_state["timestamp_ms"],
+                bbox,
+                segment,
+                0,
+                restored_pose(detection, bbox, 0),
+                detection["pose_world_landmarks"],
+                pass_name="reverse",
+            )
+        reverse_buffer.clear()
+
     try:
         with PoseExtractor(options.model, delegate=options.delegate) as baseline_extractor:
             has_inverted = any(
@@ -507,6 +573,10 @@ def _detect_crops(
                 rotated_extractor = open_extractor()
             if options.enhance_low_light:
                 enhanced_extractor = open_extractor()
+            if options.mirror_pass:
+                mirror_extractor = open_extractor()
+            if options.reverse_pass:
+                reverse_extractor = open_extractor()
             for frame in tqdm(reader.frames(max_frames=total_frames), total=total_frames, unit="frame"):
                 bbox = bboxes.get(frame.frame_index)
                 if bbox is None:
@@ -518,17 +588,39 @@ def _detect_crops(
                 if crop.size == 0:
                     continue
                 segment = frame_to_segment[frame.frame_index]
+                if reverse_extractor is not None and reverse_state["segment_id"] != segment.crop_segment_id:
+                    flush_reverse_buffer()
+                    reverse_state["segment_id"] = segment.crop_segment_id
                 if segment.segment_type == "inverted_pose_segment" and inverted_upright_extractor is not None:
                     upright_extractor = inverted_upright_extractor
                 else:
                     upright_extractor = baseline_extractor
                 result = upright_extractor.detect(crop, frame.timestamp_ms)
-                rows.extend(candidate_rows(frame, bbox, segment, result, 0))
+                forward_pose = restored_pose(result, bbox, 0)
+                add_candidate_rows(
+                    frame.frame_index,
+                    frame.timestamp_ms,
+                    bbox,
+                    segment,
+                    0,
+                    forward_pose,
+                    result["pose_world_landmarks"],
+                )
                 snap = rotations.get(frame.frame_index, 0)
                 rotated = None
+                rotated_pose = None
                 if snap and rotated_extractor is not None:
                     rotated = rotated_extractor.detect(rotate_crop(crop, snap), frame.timestamp_ms)
-                    rows.extend(candidate_rows(frame, bbox, segment, rotated, snap))
+                    rotated_pose = restored_pose(rotated, bbox, snap)
+                    add_candidate_rows(
+                        frame.frame_index,
+                        frame.timestamp_ms,
+                        bbox,
+                        segment,
+                        snap,
+                        rotated_pose,
+                        unrotate_world_landmarks(rotated["pose_world_landmarks"], snap),
+                    )
                 if enhanced_extractor is not None:
                     # Rescue pass: only when every detection for the frame is
                     # weak does an enhanced-contrast retry become a candidate.
@@ -538,11 +630,49 @@ def _detect_crops(
                     )
                     if weak:
                         enhanced = enhanced_extractor.detect(enhance_crop(crop), frame.timestamp_ms)
-                        rows.extend(candidate_rows(frame, bbox, segment, enhanced, 0, enhanced=True))
+                        add_candidate_rows(
+                            frame.frame_index,
+                            frame.timestamp_ms,
+                            bbox,
+                            segment,
+                            0,
+                            restored_pose(enhanced, bbox, 0),
+                            enhanced["pose_world_landmarks"],
+                            enhanced=True,
+                        )
+                mirror_pose = None
+                if mirror_extractor is not None:
+                    mirrored = mirror_extractor.detect(mirror_crop(crop), frame.timestamp_ms)
+                    unmirrored = unmirror_pose_landmarks(mirrored["pose_landmarks"])
+                    if unmirrored:
+                        mirror_pose = _restore_pose_landmarks(unmirrored, bbox)
+                        add_candidate_rows(
+                            frame.frame_index,
+                            frame.timestamp_ms,
+                            bbox,
+                            segment,
+                            0,
+                            mirror_pose,
+                            unmirror_world_landmarks(mirrored["pose_world_landmarks"]),
+                            pass_name="mirror",
+                        )
+                if reverse_extractor is not None:
+                    reverse_buffer.append((frame.frame_index, bbox, segment, crop.copy()))
+                diagnostic_rows.append(
+                    confusion_row(
+                        frame.frame_index,
+                        segment.crop_segment_id,
+                        mean_visibility(result["pose_landmarks"]),
+                        pass_disagreement(forward_pose, mirror_pose) if mirror_pose else None,
+                        pass_disagreement(forward_pose, rotated_pose) if rotated_pose else None,
+                        options.confusion_threshold,
+                    )
+                )
+            flush_reverse_buffer()
     finally:
         for extractor in extra_extractors:
             extractor.__exit__(None, None, None)
-    return rows
+    return rows, diagnostic_rows
 
 
 def _restore_pose_landmarks(
@@ -586,6 +716,7 @@ def _build_report(
     segment_summaries: list[dict],
     candidates: pd.DataFrame,
     refined: pd.DataFrame,
+    confusion_diagnostics: pd.DataFrame | None = None,
 ) -> dict:
     counts = refined["crop_refine_status"].value_counts().to_dict()
     return {
@@ -625,6 +756,19 @@ def _build_report(
             )
             if not candidates.empty and "crop_enhanced" in candidates.columns
             else 0,
+        },
+        "passes": candidates.groupby("crop_pass")["frame"].nunique().to_dict()
+        if not candidates.empty and "crop_pass" in candidates.columns
+        else {},
+        "confusion_diagnostics": {
+            "frames_checked": int(len(confusion_diagnostics))
+            if confusion_diagnostics is not None
+            else 0,
+            "possible_confusion_frames": int(confusion_diagnostics["possible_confusion"].sum())
+            if confusion_diagnostics is not None and not confusion_diagnostics.empty
+            else 0,
+            "threshold": options.confusion_threshold,
+            "note": "diagnostic metadata only; confusion is surfaced, never auto-corrected",
         },
         "rotation": {
             "rotated_frames": int(candidates["crop_rotation_deg"].gt(0).groupby(candidates["frame"]).any().sum())
