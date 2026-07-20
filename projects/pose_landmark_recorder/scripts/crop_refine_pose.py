@@ -38,6 +38,14 @@ from dance_pose_recorder.crop_refiner import (
     parse_crop_target_landmarks,
     parse_flags,
 )
+from dance_pose_recorder.crop_rotation import (
+    build_inverted_segments,
+    detect_width_for_z,
+    frame_rotations,
+    rotate_crop,
+    unrotate_pose_landmarks,
+    unrotate_world_landmarks,
+)
 from dance_pose_recorder.data_writer import frame_to_csv_rows, make_frame_record
 from dance_pose_recorder.output_layout import (
     CLEANED_FRAME_STATUS_CSV,
@@ -93,6 +101,11 @@ class CropRefinementOptions:
     save_preview: bool = False
     save_debug_images: bool = False
     allow_long_segments: bool = False
+    # Rotation-augmented re-detection for inverted poses (Loop 8). Crops whose
+    # cleaned body axis deviates far from upright are rotated in 90-degree
+    # steps before detection, and landmarks are rotated back afterwards.
+    rotate_inverted: bool = True
+    rotation_min_angle_deg: float = 60.0
 
 
 @dataclass(frozen=True)
@@ -148,6 +161,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--save-preview", action="store_true")
     parser.add_argument("--save-debug-images", action="store_true")
     parser.add_argument("--allow-long-segments", action="store_true")
+    parser.add_argument("--rotate-inverted", action="store_true", default=True)
+    parser.add_argument("--no-rotate-inverted", action="store_false", dest="rotate_inverted")
+    parser.add_argument("--rotation-min-angle-deg", type=float, default=60.0)
     return parser
 
 
@@ -188,6 +204,8 @@ def main() -> None:
             save_preview=args.save_preview,
             save_debug_images=args.save_debug_images,
             allow_long_segments=args.allow_long_segments,
+            rotate_inverted=args.rotate_inverted,
+            rotation_min_angle_deg=args.rotation_min_angle_deg,
         )
     )
     print(f"Wrote crop refinement outputs to {result.crop_segments_csv.parent}")
@@ -233,6 +251,20 @@ def crop_refine_pose(options: CropRefinementOptions) -> CropRefinementResult:
     )
     if options.max_segments is not None:
         segments = segments[: options.max_segments]
+
+    if options.rotate_inverted:
+        pose_frames = {
+            int(frame): group for frame, group in cleaned[cleaned["source"] == "pose"].groupby("frame", sort=False)
+        }
+        segments = segments + build_inverted_segments(
+            pose_frames,
+            total_frames,
+            int(metadata.get("width") or 1920),
+            int(metadata.get("height") or 1080),
+            options.rotation_min_angle_deg,
+            segments,
+            options.max_segment_length,
+        )
 
     crop_segments_csv = output_dir / CROP_REFINE_SEGMENTS_CSV
     crop_segments_to_dataframe(segments, fps=fps).to_csv(crop_segments_csv, index=False)
@@ -328,6 +360,15 @@ def _redetect_crop_candidates(
             options=options,
         )
         bboxes = smooth_bboxes(raw_bboxes, options.bbox_smoothing_window, options.bbox_size_shrink_limit)
+        rotations: dict[int, int] = {}
+        if options.rotate_inverted:
+            rotations = frame_rotations(
+                pose_by_frame,
+                sorted(frame_to_segment),
+                reader.info.width,
+                reader.info.height,
+                options.rotation_min_angle_deg,
+            )
         rows = _detect_crops(
             reader=reader,
             bboxes=bboxes,
@@ -335,6 +376,7 @@ def _redetect_crop_candidates(
             options=options,
             metadata=metadata,
             total_frames=total_frames,
+            rotations=rotations,
         )
     return bboxes, pd.DataFrame(rows)
 
@@ -375,65 +417,117 @@ def _detect_crops(
     options: CropRefinementOptions,
     metadata: dict,
     total_frames: int,
+    rotations: dict[int, int] | None = None,
 ) -> list[dict]:
+    rotations = rotations or {}
     rows: list[dict] = []
     session_id = str(metadata.get("session_id") or options.output.name)
     transformer = CoordinateTransformer(origin_policy=str(metadata.get("origin_policy") or "raw"))
     if transformer.origin_policy != "raw":
         print("warning: crop refinement v1 is calibrated for origin_policy=raw")
 
-    with PoseExtractor(options.model, delegate=options.delegate) as extractor:
-        for frame in tqdm(reader.frames(max_frames=total_frames), total=total_frames, unit="frame"):
-            bbox = bboxes.get(frame.frame_index)
-            if bbox is None:
-                continue
-            x0, y0, x1, y1 = bbox.to_int_tuple()
-            if x1 <= x0 or y1 <= y0:
-                continue
-            crop = frame.image_bgr[y0:y1, x0:x1]
-            if crop.size == 0:
-                continue
-            result = extractor.detect(crop, frame.timestamp_ms)
-            pose_landmarks = _restore_pose_landmarks(result["pose_landmarks"], bbox)
-            transformed = transformer.transform_landmarks(result["pose_world_landmarks"])
-            record = make_frame_record(
-                session_id=session_id,
-                frame_index=frame.frame_index,
-                timestamp_ms=frame.timestamp_ms,
-                pose_landmarks=pose_landmarks,
-                pose_world_landmarks=result["pose_world_landmarks"],
-                transformed_landmarks=transformed,
+    def candidate_rows(frame, bbox, segment, detection, snap: int) -> list[dict]:
+        raw_pose = unrotate_pose_landmarks(detection["pose_landmarks"], snap)
+        raw_world = unrotate_world_landmarks(detection["pose_world_landmarks"], snap)
+        pose_landmarks = _restore_pose_landmarks(
+            raw_pose, bbox, z_detect_width=detect_width_for_z(bbox.w, bbox.h, snap)
+        )
+        transformed = transformer.transform_landmarks(raw_world)
+        record = make_frame_record(
+            session_id=session_id,
+            frame_index=frame.frame_index,
+            timestamp_ms=frame.timestamp_ms,
+            pose_landmarks=pose_landmarks,
+            pose_world_landmarks=raw_world,
+            transformed_landmarks=transformed,
+        )
+        result_rows: list[dict] = []
+        for row in frame_to_csv_rows(record):
+            row.update(
+                {
+                    "crop_segment_id": segment.crop_segment_id,
+                    "crop_x0": bbox.x0,
+                    "crop_y0": bbox.y0,
+                    "crop_w": bbox.w,
+                    "crop_h": bbox.h,
+                    "crop_margin_ratio": bbox.margin_ratio,
+                    "crop_running_mode": "video",
+                    "crop_rotation_deg": snap,
+                }
             )
-            segment = frame_to_segment[frame.frame_index]
-            for row in frame_to_csv_rows(record):
-                row.update(
-                    {
-                        "crop_segment_id": segment.crop_segment_id,
-                        "crop_x0": bbox.x0,
-                        "crop_y0": bbox.y0,
-                        "crop_w": bbox.w,
-                        "crop_h": bbox.h,
-                        "crop_margin_ratio": bbox.margin_ratio,
-                        "crop_running_mode": "video",
-                    }
-                )
-                if row["source"] == "pose":
-                    restored = pose_landmarks[int(row["landmark_id"])]
-                    row["crop_x_norm"] = restored.get("crop_x_norm")
-                    row["crop_y_norm"] = restored.get("crop_y_norm")
-                    row["crop_edge_risk"] = restored.get("crop_edge_risk")
+            if row["source"] == "pose":
+                restored = pose_landmarks[int(row["landmark_id"])]
+                row["crop_x_norm"] = restored.get("crop_x_norm")
+                row["crop_y_norm"] = restored.get("crop_y_norm")
+                row["crop_edge_risk"] = restored.get("crop_edge_risk")
+            else:
+                row["crop_x_norm"] = np.nan
+                row["crop_y_norm"] = np.nan
+                row["crop_edge_risk"] = False
+            result_rows.append(row)
+        return result_rows
+
+    # Three separate video-mode trackers keep the streams isolated:
+    #  - baseline: exactly the frames the pre-Loop-8 stage processed, so its
+    #    candidates (and therefore prior acceptances) are unaffected. Mixing
+    #    new frames or rotated crops into this stream was observed to disturb
+    #    tracking on later baseline frames.
+    #  - inverted-upright: upright detections on new inverted-pose segments.
+    #  - rotated: rotated detections on all inverted frames.
+    extra_extractors: list[PoseExtractor] = []
+
+    def open_extractor() -> PoseExtractor:
+        extractor = PoseExtractor(options.model, delegate=options.delegate)
+        extractor.__enter__()
+        extra_extractors.append(extractor)
+        return extractor
+
+    inverted_upright_extractor: PoseExtractor | None = None
+    rotated_extractor: PoseExtractor | None = None
+    try:
+        with PoseExtractor(options.model, delegate=options.delegate) as baseline_extractor:
+            has_inverted = any(
+                segment.segment_type == "inverted_pose_segment" for segment in frame_to_segment.values()
+            )
+            if has_inverted:
+                inverted_upright_extractor = open_extractor()
+            if rotations:
+                rotated_extractor = open_extractor()
+            for frame in tqdm(reader.frames(max_frames=total_frames), total=total_frames, unit="frame"):
+                bbox = bboxes.get(frame.frame_index)
+                if bbox is None:
+                    continue
+                x0, y0, x1, y1 = bbox.to_int_tuple()
+                if x1 <= x0 or y1 <= y0:
+                    continue
+                crop = frame.image_bgr[y0:y1, x0:x1]
+                if crop.size == 0:
+                    continue
+                segment = frame_to_segment[frame.frame_index]
+                if segment.segment_type == "inverted_pose_segment" and inverted_upright_extractor is not None:
+                    upright_extractor = inverted_upright_extractor
                 else:
-                    row["crop_x_norm"] = np.nan
-                    row["crop_y_norm"] = np.nan
-                    row["crop_edge_risk"] = False
-                rows.append(row)
+                    upright_extractor = baseline_extractor
+                result = upright_extractor.detect(crop, frame.timestamp_ms)
+                rows.extend(candidate_rows(frame, bbox, segment, result, 0))
+                snap = rotations.get(frame.frame_index, 0)
+                if snap and rotated_extractor is not None:
+                    rotated = rotated_extractor.detect(rotate_crop(crop, snap), frame.timestamp_ms)
+                    rows.extend(candidate_rows(frame, bbox, segment, rotated, snap))
+    finally:
+        for extractor in extra_extractors:
+            extractor.__exit__(None, None, None)
     return rows
 
 
-def _restore_pose_landmarks(landmarks: list[dict], bbox: CropBBox) -> list[dict]:
+def _restore_pose_landmarks(
+    landmarks: list[dict], bbox: CropBBox, z_detect_width: float | None = None
+) -> list[dict]:
     # MediaPipe normalizes z on the same scale as x (image width), so z from a
-    # crop detection must be rescaled by crop width / frame width alongside x/y.
-    z_scale = float(bbox.w) / float(bbox.frame_width)
+    # crop detection must be rescaled by detected-image width / frame width
+    # alongside x/y. For 90-degree rotated crops the detector saw the crop
+    # height as its width.
+    z_scale = float(z_detect_width if z_detect_width is not None else bbox.w) / float(bbox.frame_width)
     restored = []
     for landmark in landmarks:
         item = dict(landmark)
@@ -495,6 +589,19 @@ def _build_report(
             "allow_missing_long_gap": options.allow_missing_long_gap,
             "accept_score_margin": options.accept_score_margin,
             "allow_long_segments": options.allow_long_segments,
+            "rotate_inverted": options.rotate_inverted,
+            "rotation_min_angle_deg": options.rotation_min_angle_deg,
+        },
+        "rotation": {
+            "rotated_frames": int(candidates["crop_rotation_deg"].gt(0).groupby(candidates["frame"]).any().sum())
+            if not candidates.empty and "crop_rotation_deg" in candidates.columns
+            else 0,
+            "rotation_degrees": candidates[candidates["crop_rotation_deg"] > 0]
+            .groupby("crop_rotation_deg")["frame"]
+            .nunique()
+            .to_dict()
+            if not candidates.empty and "crop_rotation_deg" in candidates.columns
+            else {},
         },
         "segment_selection": _segment_selection_summary(segment_summaries),
         "counts": {

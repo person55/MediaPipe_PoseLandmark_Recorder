@@ -26,6 +26,7 @@ CROP_STAGE_COLUMNS = [
     "crop_h",
     "crop_margin_ratio",
     "crop_running_mode",
+    "crop_rotation_deg",
 ]
 
 # Row layout of the crop stage candidate score report.

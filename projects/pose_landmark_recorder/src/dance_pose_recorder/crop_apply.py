@@ -63,7 +63,7 @@ def apply_crop_candidates(
             source = str(row["source"])
             frame = int(row["frame"])
             landmark_id = int(row["landmark_id"])
-            candidate_row = candidate_lookup.get((frame, source, landmark_id))
+            candidate_rows = candidate_lookup.get((frame, source, landmark_id), [])
 
             before_score = _fast_cleaned_score(
                 row,
@@ -71,18 +71,26 @@ def apply_crop_candidates(
                 source=source,
             )
 
-            if candidate_row is None:
+            if not candidate_rows:
                 _mark_crop_row(refined, index, "crop_unavailable", "none", before_score, before_score, segment, "rejected_missing_candidate")
                 counts["unavailable"] += 1
                 score_rows.append(_score_row(row, segment, "crop_unavailable", "rejected_missing_candidate", before_score, before_score))
                 continue
 
-            after_score = _fast_crop_score(
-                row,
-                candidate_row,
-                temporal_refs.get((source, landmark_id)),
-                source=source,
-            )
+            # Multiple candidates per row (e.g. upright + rotated detections)
+            # compete on the same score; the best real detection wins.
+            candidate_row = None
+            after_score = -np.inf
+            for contender in candidate_rows:
+                contender_score = _fast_crop_score(
+                    row,
+                    contender,
+                    temporal_refs.get((source, landmark_id)),
+                    source=source,
+                )
+                if contender_score > after_score:
+                    candidate_row = contender
+                    after_score = contender_score
             decision = decide_crop_candidate(
                 before_score,
                 after_score,
@@ -136,6 +144,7 @@ def initialize_crop_columns(refined: pd.DataFrame) -> None:
     refined["crop_h"] = np.nan
     refined["crop_margin_ratio"] = np.nan
     refined["crop_running_mode"] = ""
+    refined["crop_rotation_deg"] = np.nan
 
 
 def _accept_crop_candidate(
@@ -195,6 +204,7 @@ def _mark_crop_row(
             ("crop_h", "crop_h"),
             ("crop_margin_ratio", "crop_margin_ratio"),
             ("crop_running_mode", "crop_running_mode"),
+            ("crop_rotation_deg", "crop_rotation_deg"),
         ):
             if hasattr(candidate_row, attr):
                 refined.at[index, target] = getattr(candidate_row, attr)
@@ -216,13 +226,13 @@ def _score_row(row: pd.Series, segment: CropSegment, status: str, reason: str, b
     }
 
 
-def _candidate_lookup(candidates: pd.DataFrame) -> dict[tuple[int, str, int], object]:
+def _candidate_lookup(candidates: pd.DataFrame) -> dict[tuple[int, str, int], list]:
     if candidates.empty:
         return {}
-    return {
-        (int(row.frame), str(row.source), int(row.landmark_id)): row
-        for row in candidates.itertuples(index=False)
-    }
+    lookup: dict[tuple[int, str, int], list] = {}
+    for row in candidates.itertuples(index=False):
+        lookup.setdefault((int(row.frame), str(row.source), int(row.landmark_id)), []).append(row)
+    return lookup
 
 
 def _temporal_references(cleaned: pd.DataFrame) -> dict[tuple[str, int], dict]:
