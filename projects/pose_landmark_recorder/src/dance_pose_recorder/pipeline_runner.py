@@ -380,6 +380,15 @@ def build_stages(
 
     if args.blender_mode != "skip":
         stages.append(blender_stage(args, trajectory_dir))
+    stages.append(
+        Stage(
+            "manifest",
+            python_stage_command(
+                "write_session_manifest.py",
+                ["--session-dir", str(session_dir)],
+            ),
+        )
+    )
     return stages
 
 
@@ -480,6 +489,7 @@ def primary_output_for_stage(stage_name: str, session_dir: Path) -> Path | None:
         "trajectory_export": session_dir / "trajectory_export/trajectory_export_points.csv",
         "blender_background": session_dir / "blender",
         "blender_gui": session_dir / "blender",
+        "manifest": session_dir / "manifest.json",
     }
     return mapping.get(stage_name)
 
