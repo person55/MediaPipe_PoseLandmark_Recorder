@@ -442,17 +442,19 @@ Their outputs must be treated as candidates or generated layers, not measured da
 ## Recommended Next Implementation Order
 
 ```text
-1. Holdout-validate margins/floors on a third video                  [needs new footage]
-2. Add target-switch diagnostics (only unimplemented loop candidate) [pending]
-3. Add Motion Profile Builder for lightweight statistical prior      [pending]
-4. Persistent Blender add-on / TouchDesigner importer parity         [pending]
-5. Per-frame marker/halo fade in the Blender importer                [pending]
-6. Consider learned or generated motion backends only as separate research modules
+1. v3 integrated rerun (Loop 8-10 crop outputs -> refine/outlier/export)  [next]
+2. Stratified positional-accuracy verification of accepted re-detections  [Codex P1]
+3. Holdout-validate margins/floors on a third video                       [needs new footage]
+4. Add Motion Profile Builder for lightweight statistical prior           [pending]
+5. Persistent Blender add-on / TouchDesigner importer parity              [pending]
+6. Per-frame marker/halo fade in the Blender importer                     [pending]
+7. Consider learned or generated motion backends only as separate research modules
 
-Done: Skeleton Optimizer kept diagnostic; crop refinement limited to mixed problem
-segments; Outlier Minimizer v2; screen-bottom-origin trajectory export; Loop 1-3
-wiring/threshold/scoring fixes; Loop 4 fps-normalized spike floors; Loop 6 importer
-fade-policy contract + depth sign correction.
+Done: Skeleton Optimizer kept diagnostic; Outlier Minimizer v2; screen-bottom-origin
+trajectory export; Loop 1-3 wiring/threshold/scoring fixes; Loop 4 fps-normalized
+spike floors; Loop 6 importer fade-policy contract + depth sign; Loop 7 One-Euro
+smoothing layer; Loops 8-10 rotation/CLAHE/mirror/reverse candidate passes with
+confusion (target-switch) diagnostics; Codex P0 maintenance package.
 ```
 
 ## Core Principle
