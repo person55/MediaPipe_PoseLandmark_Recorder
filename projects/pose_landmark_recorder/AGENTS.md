@@ -22,7 +22,9 @@ Never commit:
 
 Do not use `git add .`.
 
-Push only to `origin master`. Never push to `upstream`.
+Push only to `origin`. Never push to `upstream`.
+
+Improvement work happens on feature branches (current: `feat/claude-loop-pose-landmark-improvement`). Do not push to `origin master` directly unless explicitly instructed.
 
 ## Model policy
 
@@ -38,10 +40,14 @@ the official source URL, model/version, applicable license, and SHA-256.
 ```text
 record_from_video.py
 -> clean_pose_data.py
+-> crop_refine_pose.py
 -> refine_pose_segments.py
--> minimize_pose_outliers.py planned
--> Blender importer planned
+-> minimize_pose_outliers.py
+-> export_trajectory.py
+-> open_blender_trajectory.py
 ```
+
+One-command runner: `pose-landmark-pipeline` (`src/dance_pose_recorder/pipeline_runner.py`).
 
 Optional diagnostic branch:
 
@@ -56,7 +62,7 @@ refined_pose.csv
 - `raw_pose` preserves direct MediaPipe measurements.
 - `cleaned_pose` applies validation, short interpolation, smoothing, and quality flags.
 - `refined_pose` accepts only better re-detected candidates.
-- future `outlier_minimized_pose` should reduce visual/temporal spikes without generating motion.
+- `outlier_minimized_pose` reduces visual/temporal spikes without generating motion; its corrections/breaks propagate to the export source (`sync_sources`).
 - `optimized_pose` is an optional diagnostic layer for conservative skeleton checks, not the default final visualization layer.
 - generated motion must be explicitly separated from measured/refined/optimized data.
 
@@ -79,4 +85,11 @@ Run tests from:
 cd projects/pose_landmark_recorder
 source .venv/bin/activate
 python -m pytest
+```
+
+On Windows (Git Bash), run the venv interpreter directly instead of activating:
+
+```bash
+cd projects/pose_landmark_recorder
+./.venv/Scripts/python.exe -m pytest -q
 ```

@@ -8,11 +8,17 @@ Skeleton optimization has been tested and found useful mainly as a diagnostic/re
 
 Therefore, do not prioritize stronger skeleton optimization unless the project explicitly shifts toward learned motion reconstruction or generated interpolation.
 
-The next implementation priority is:
+Status update (2026-07-20): Outlier Minimizer v2 is implemented (`minimize_pose_outliers.py`), and the Claude Loop 1-3 improvements (export wiring + aspect ratio, robust spike thresholds, fair re-detection scoring) are merged as pipeline defaults. See `docs/claude_loop_progress.md`.
+
+The next implementation priorities are validation-first:
 
 ```text
-Outlier Minimizer v2
+1. fps normalization of spike floors (define in m/s, convert by metadata fps)
+2. holdout validation of margins/floors on a third video (different environment/fps)
+3. Blender importer fade-policy contract restoration (honor exporter alpha/width fades, check depth sign)
 ```
+
+After that: target-switch diagnostics, Motion Profile Builder (Priority 2 below), persistent importer work (Priority 3 below).
 
 The default visualization-oriented path should be:
 
@@ -68,7 +74,9 @@ Use refined or outlier-minimized coordinates for visual continuity.
 Use optimizer reports as overlays, warnings, or review guides.
 ```
 
-## Priority 1 - Outlier Minimizer v2
+## Priority 1 - Outlier Minimizer v2 (implemented)
+
+Implemented as `scripts/minimize_pose_outliers.py` + `src/dance_pose_recorder/outlier_minimizer.py`, `temporal_features.py`, `trajectory_policy.py`, `outlier_report.py`. The section below is kept as the original design reference.
 
 ### Purpose
 
@@ -425,12 +433,17 @@ Their outputs must be treated as candidates or generated layers, not measured da
 ## Recommended Next Implementation Order
 
 ```text
-1. Keep Skeleton Optimizer as optional diagnostic layer
-2. Limit crop refinement to selected short/mixed problem segments
-3. Implement Outlier Minimizer v2
-4. Use screen-bottom-origin trajectory export for Blender/TouchDesigner points and segments
-5. Add Motion Profile Builder for lightweight statistical prior
-6. Consider learned or generated motion backends only as separate research modules
+1. Normalize spike floors to m/s (fps-invariant thresholds)          [next]
+2. Holdout-validate margins/floors on a third video                  [needs new footage]
+3. Restore Blender importer fade-policy contract                     [pending]
+4. Add target-switch diagnostics (only unimplemented loop candidate) [pending]
+5. Add Motion Profile Builder for lightweight statistical prior      [pending]
+6. Persistent Blender add-on / TouchDesigner importer parity         [pending]
+7. Consider learned or generated motion backends only as separate research modules
+
+Done: Skeleton Optimizer kept diagnostic; crop refinement limited to mixed problem
+segments; Outlier Minimizer v2; screen-bottom-origin trajectory export; Loop 1-3
+wiring/threshold/scoring fixes.
 ```
 
 ## Core Principle

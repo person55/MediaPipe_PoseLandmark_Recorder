@@ -146,7 +146,36 @@ record→cleaned→crop→refined→outlier→export→Blender 전 스테이지 
 3. Blender 임포터의 페이드 정책 계약 복원
 - 그 외 후보: 대상 전환 징후 진단 정보(유일한 미구현 항목), Motion Profile Builder, AGENTS.md 현행화
 
+## Loop 4: spike floor의 fps 정규화 — 구성됨 (2026-07-20, 구현 전)
+
+### 관찰한 증상
+- Loop 2에서 도입한 spike floor(velocity 0.02 / accel 0.02 / jerk 0.03)가 **m/frame 절대값**. 같은 실제 동작이라도 프레임당 이동량은 fps에 반비례하므로, 60fps 입력에서는 velocity 기준이 실질 2배(0.6→1.2 m/s), accel은 fps², jerk는 fps³으로 왜곡됨.
+- 결과적으로 고fps 영상에서는 글리치 미검출(거짓 음성), 저fps 영상에서는 정상 동작 오판이 경고 없이 발생할 수 있음.
+- 이 왜곡은 다음 우선순위인 홀드아웃 검증(제3의 영상, 다른 fps)과 교락되므로 홀드아웃보다 먼저 해소해야 함.
+
+### 가설
+floor를 물리 단위(m/s, m/s², m/s³)로 정의하고 로드 시 metadata fps로 프레임 단위 환산하면, 기존 세션(≈30fps)의 판정은 사실상 불변으로 유지되면서 어떤 fps 입력에서도 동일한 물리 기준이 적용된다.
+
+### 변경 범위 (최소)
+- `outlier_minimizer.py`: floor 옵션을 초 단위로 정의하고 내부에서 fps로 환산 (velocity: /fps, accel: /fps², jerk: /fps³). fps는 이미 `outlier_minimizer.py:105`에서 metadata로부터 로드됨 — `max_correction_gap_sec × fps`와 동일 패턴.
+- 기본값은 30fps 등가로 설정: velocity 0.6 m/s, accel 18 m/s², jerk 810 m/s³ (= 기존 0.02/0.02/0.03 × 30/30²/30³).
+- CLI 플래그를 초 단위 명칭으로 전환(기존 m/frame 플래그는 deprecated 또는 제거 — 구현 시 결정).
+- 테스트: ① fps=30에서 기존 floor와 수치 동등, ② 동일 물리 궤적을 30/60fps로 샘플링한 합성 데이터에서 spike 판정 집합 동일, ③ fps 결측 시 기본 30 fallback.
+
+### 기준선과 비교 방법
+- `session_cpu_006_v2` / `session_cpu_007_v2` 산출물을 기준선으로 outlier 스테이지 오프라인 재실행.
+- 세션 실제 fps가 정확히 30이면 byte-identical 기대, 아니면(예: 29.97) 환산 차이로 인한 판정 변화가 0 또는 무시 가능한 수준인지 spike 세그먼트/break 행 수로 확인.
+- 60fps 검증은 합성/리샘플 데이터로 수행 (실제 60fps 영상은 홀드아웃 루프에서).
+
+### 판정 기준
+- 유지: 30fps 기준선 판정 불변(또는 환산 오차 수준) + 합성 60fps에서 fps 불변성 입증 + 테스트 통과.
+- 원칙 정합: 임계값 정의 변경일 뿐 모션 생성/원본 덮어쓰기 없음 → 노션 3장 원칙과 무충돌.
+
+### 후속 루프 후보 (Loop 4 이후)
+- Loop 5: 제3의 영상 홀드아웃 검증 — **사용자 제공 영상 필요** (다른 환경/fps 권장, 60fps면 이상적)
+- Loop 6: Blender 임포터 페이드 정책 계약 복원 + 깊이 부호 검증
+
 ## 재개 방법
 1. 이 문서와 노션 페이지 확인
-2. Loop 1~3 + 후속 작업 완료. 위 "다음 루프 우선순위"부터 진행
+2. Loop 1~3 + 후속 작업 + 문서 현행화(AGENTS/CURRENT_STATE/next_development_plan, 2026-07-20) 완료. Loop 4(위 계획)부터 진행
 3. 각 루프: 가설 1개, 최소 변경, 기존 세션으로 전후 비교, 유지/보류/되돌림 판정, 노션 [Loop N] 기록, 커밋

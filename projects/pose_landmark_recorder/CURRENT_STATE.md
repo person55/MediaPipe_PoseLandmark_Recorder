@@ -1,6 +1,6 @@
 # Current State
 
-Last updated: 2026-07-10
+Last updated: 2026-07-20
 
 ## Project
 
@@ -61,16 +61,36 @@ crop_full_body_margin_ratio: 1.45
 crop_min_size: 480 px
 crop_target_segment_types: mixed_problem_segment
 crop_max_segment_length: 100 frames
-crop_accept_score_margin: 0.06
-segment_refine_accept_score_margin: 0.08
+crop_accept_score_margin: 0.04
+segment_refine_accept_score_margin: 0.05
+temporal_scoring: per-frame rate (anchor distance normalized by frame gap)
+crop_z_restore: z scaled by bbox.w / frame_width
+outlier_spike_scale: max(median + 1.4826 * MAD, floor)
+outlier_spike_floors: velocity 0.02 / acceleration 0.02 / jerk 0.03 (pose_world m/frame)
+outlier_accel_jerk: vector 2nd/3rd difference norms
+outlier_echo_trimming: true (velocity-spike runs only)
+outlier_baseline_excludes: interpolated_short_gap
+outlier_correctable_hips: true
+outlier_sync_sources: true (pose_world decisions propagated to pose source)
 trajectory_coordinate_mode: screen_bottom_origin
 trajectory_origin: screen bottom center (x=0.5, y=1.0)
+trajectory_apply_aspect_ratio: true (screen_width_scale = height_scale * W/H)
 blender_auto_import_camera: location 0,-5,3.4 / rotation 90,0,0
-blender_auto_import_scale: x_factor 2.2 / y_factor 0.36
+blender_auto_import_scale: x_factor 1.0 (aspect applied at export) / y_factor 0.36
 blender_auto_import_scene_reset: load fresh startup scene, remove default Cube, then import CSV trajectory
 blender_metadata_labels: hidden by default, optional camera lower-left summary
 macos_gpu_sandbox_policy: crop/refine/Blender stages may require sandbox escalation for GPU/Metal context
 ```
+
+## Claude Loop improvements (2026-07-19, branch feat/claude-loop-pose-landmark-improvement)
+
+Three verified loops fixed stage-wiring defects found in the structural review. Full records: `docs/claude_loop_progress.md` and the Notion page "Claude Loop — Pose Landmark 개선".
+
+- Loop 1: outlier minimizer decisions (corrections/breaks) now propagate to the `pose` source that export reads (`sync_sources`); export applies the 16:9 aspect ratio (X/Z span ratio increase exactly 1.778).
+- Loop 2: spike thresholds rebuilt as median + 1.4826*MAD with absolute floors, vector-based acceleration/jerk, echo trimming, hips correctable. False spike breaks on hip/ankle reduced 90-97% while real glitches (5-7 m/s) stayed detected; confirmed by visual frame comparison.
+- Loop 3: temporal scoring normalized to per-frame rate so re-detected candidates compete fairly with interpolation; crop candidate z restored to frame scale; margins recalibrated (crop 0.04, full-frame 0.05). First crop acceptances occurred (session 006: 11, all in target categories).
+- Cleanup: `quality_flags.py` and `stage_schema.py` single sources; merge/accept logic moved from scripts to `src/crop_apply.py` / `src/refine_apply.py` with contract tests (123 tests passing).
+- Final integrated rerun (`session_cpu_006_v2` / `session_cpu_007_v2`) reproduced all loop numbers end to end and produced `.blend` files.
 
 ## Findings
 
@@ -89,6 +109,10 @@ macos_gpu_sandbox_policy: crop/refine/Blender stages may require sandbox escalat
 - Blender auto import now keeps metadata/debug text hidden by default. Use the optional camera summary only when a compact lower-left camera-view label is needed.
 
 ## Latest session reference
+
+Latest verified sessions (Windows 11, CPU delegate, Blender 5.2): `session_cpu_006_v2` (3,324 frames, crop accept 11, full-frame accept 76, spike segments 664, .blend 6.1MB) and `session_cpu_007_v2` (1,570 frames, crop accept 0, full-frame accept 93, spike segments 308, .blend 2.6MB). All layers row-consistent (219,384 / 103,620).
+
+## Earlier build reference
 
 Latest local PyInstaller build:
 
@@ -140,8 +164,15 @@ Use `export_trajectory.py` after `outlier_minimized`, which is produced from `re
 
 Use `open_blender_trajectory.py` to open the exported CSV in Blender and save `blender/blender_<session_id>_trajectory.blend`. The importer resets to a fresh startup scene, deletes the default `Cube`, then imports the trajectory. The current default camera is the fixed `-Y` view, marker/halo visibility is tuned for playback, overview trails are shown while paused, progressive trails draw during playback, and metadata labels are hidden unless `--show-camera-summary` is used.
 
-Next: persistent Blender/TouchDesigner importer and Motion Profile Builder.
+Next (validation-first order): fps normalization of spike floors (m/s units), holdout validation on a third video with a different environment/fps, Blender importer fade-policy contract restoration. Then: target-switch diagnostics, Motion Profile Builder, persistent Blender/TouchDesigner importer.
 
 ## Known limitations
 
 No Hand Landmarker, persistent Blender add-on, TouchDesigner importer, learned temporal prior, or generated motion layer yet. Long occlusion and frame-out regions are not reconstructable in the current lightweight pipeline.
+
+Open verification reservations (2026-07-19 assessment):
+
+- margins/floors were derived from the same two sessions used for validation (no holdout yet)
+- spike floors are absolute m/frame values, so their effective strictness depends on recording fps
+- accepted re-detection candidates passed scores/guards but their positional accuracy was not compared against video
+- the Blender importer re-derives depth and ignores the exporter's alpha/width fade policy, so uncertain regions render like certain ones; suspected local depth sign inversion is uninvestigated
