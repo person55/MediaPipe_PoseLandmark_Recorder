@@ -64,9 +64,13 @@ class OutlierMinimizerOptions:
     velocity_threshold_multiplier: float = 6.0
     acceleration_threshold_multiplier: float = 6.0
     jerk_threshold_multiplier: float = 8.0
-    velocity_floor: float = 0.02
-    acceleration_floor: float = 0.02
-    jerk_floor: float = 0.03
+    # Floors are physical per-second values converted to per-frame units by the
+    # session fps, so the effective spike thresholds stay fps-invariant. The
+    # defaults are the 23.976fps-session equivalents of the Loop 2 per-frame
+    # floors (0.02/0.02/0.03 m per frame).
+    velocity_floor_m_per_s: float = 0.48
+    acceleration_floor_m_per_s2: float = 11.5
+    jerk_floor_m_per_s3: float = 414.0
     trim_feature_echo: bool = True
     min_stable_neighbors: int = 2
     landmark_policy: str = "visualization"
@@ -117,7 +121,8 @@ def minimize_pose_outliers(
     for column in ("velocity", "acceleration", "jerk"):
         minimized[column] = features[column]
 
-    scales = _feature_scales(minimized, options)
+    frame_floors = _frame_floors(options, fps)
+    scales = _feature_scales(minimized, options, frame_floors)
     _apply_ratios(minimized, scales)
     spike_mask = _spike_mask(minimized, options)
 
@@ -260,6 +265,7 @@ def minimize_pose_outliers(
         frames_total=frames_total,
         options=options,
         max_correction_gap_frames=max_correction_gap_frames,
+        frame_floors=frame_floors,
         spike_rows=spike_rows,
         break_rows=break_rows,
         crop_refine_report_path=crop_refine_report_path,
@@ -303,16 +309,27 @@ def _target_sources(source: str) -> set[str]:
     return {source}
 
 
-def _feature_scales(df: pd.DataFrame, options: OutlierMinimizerOptions) -> dict[tuple[str, str], dict[str, float]]:
+def _frame_floors(options: OutlierMinimizerOptions, fps: float) -> dict[str, float]:
+    """Convert per-second floors to the per-frame units the features use.
+
+    Velocity is a first difference (1/fps), acceleration a second difference
+    (1/fps^2), jerk a third difference (1/fps^3).
+    """
+
+    return {
+        "velocity": options.velocity_floor_m_per_s / fps,
+        "acceleration": options.acceleration_floor_m_per_s2 / (fps**2),
+        "jerk": options.jerk_floor_m_per_s3 / (fps**3),
+    }
+
+
+def _feature_scales(
+    df: pd.DataFrame, options: OutlierMinimizerOptions, floors: dict[str, float]
+) -> dict[tuple[str, str], dict[str, float]]:
     scales: dict[tuple[str, str], dict[str, float]] = {}
     target = df[df["source"].astype(str).isin(_target_sources(options.source))]
     reliable = target[target.apply(_is_reliable_row, axis=1)]
     baseline = reliable[~reliable["quality_flag"].astype(str).isin(BASELINE_EXCLUDED_FLAGS)]
-    floors = {
-        "velocity": options.velocity_floor,
-        "acceleration": options.acceleration_floor,
-        "jerk": options.jerk_floor,
-    }
     for key, group in baseline.groupby(["source", "landmark_name"], sort=False):
         scales[(str(key[0]), str(key[1]))] = {
             feature: _robust_scale(group[feature], floors[feature]) for feature in ("velocity", "acceleration", "jerk")
@@ -601,6 +618,7 @@ def _build_report(
     frames_total: int,
     options: OutlierMinimizerOptions,
     max_correction_gap_frames: int,
+    frame_floors: dict[str, float],
     spike_rows: list[dict],
     break_rows: list[dict],
     crop_refine_report_path: Path | None,
@@ -625,9 +643,12 @@ def _build_report(
             "velocity_threshold_multiplier": options.velocity_threshold_multiplier,
             "acceleration_threshold_multiplier": options.acceleration_threshold_multiplier,
             "jerk_threshold_multiplier": options.jerk_threshold_multiplier,
-            "velocity_floor": options.velocity_floor,
-            "acceleration_floor": options.acceleration_floor,
-            "jerk_floor": options.jerk_floor,
+            "velocity_floor_m_per_s": options.velocity_floor_m_per_s,
+            "acceleration_floor_m_per_s2": options.acceleration_floor_m_per_s2,
+            "jerk_floor_m_per_s3": options.jerk_floor_m_per_s3,
+            "velocity_floor_per_frame": frame_floors["velocity"],
+            "acceleration_floor_per_frame": frame_floors["acceleration"],
+            "jerk_floor_per_frame": frame_floors["jerk"],
             "trim_feature_echo": options.trim_feature_echo,
             "min_stable_neighbors": options.min_stable_neighbors,
             "landmark_policy": options.landmark_policy,

@@ -33,9 +33,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--velocity-threshold-multiplier", type=float, default=6.0)
     parser.add_argument("--acceleration-threshold-multiplier", type=float, default=6.0)
     parser.add_argument("--jerk-threshold-multiplier", type=float, default=8.0)
-    parser.add_argument("--velocity-floor", type=float, default=0.02)
-    parser.add_argument("--acceleration-floor", type=float, default=0.02)
-    parser.add_argument("--jerk-floor", type=float, default=0.03)
+    parser.add_argument("--velocity-floor-m-per-s", type=float, default=0.48)
+    parser.add_argument("--acceleration-floor-m-per-s2", type=float, default=11.5)
+    parser.add_argument("--jerk-floor-m-per-s3", type=float, default=414.0)
     parser.add_argument("--trim-feature-echo", action="store_true", default=True)
     parser.add_argument("--no-trim-feature-echo", action="store_false", dest="trim_feature_echo")
     parser.add_argument("--min-stable-neighbors", type=int, default=2)
@@ -70,9 +70,9 @@ def main() -> None:
             velocity_threshold_multiplier=args.velocity_threshold_multiplier,
             acceleration_threshold_multiplier=args.acceleration_threshold_multiplier,
             jerk_threshold_multiplier=args.jerk_threshold_multiplier,
-            velocity_floor=args.velocity_floor,
-            acceleration_floor=args.acceleration_floor,
-            jerk_floor=args.jerk_floor,
+            velocity_floor_m_per_s=args.velocity_floor_m_per_s,
+            acceleration_floor_m_per_s2=args.acceleration_floor_m_per_s2,
+            jerk_floor_m_per_s3=args.jerk_floor_m_per_s3,
             trim_feature_echo=args.trim_feature_echo,
             min_stable_neighbors=args.min_stable_neighbors,
             landmark_policy=args.landmark_policy,

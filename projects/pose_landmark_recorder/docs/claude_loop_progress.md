@@ -146,7 +146,7 @@ record→cleaned→crop→refined→outlier→export→Blender 전 스테이지 
 3. Blender 임포터의 페이드 정책 계약 복원
 - 그 외 후보: 대상 전환 징후 진단 정보(유일한 미구현 항목), Motion Profile Builder, AGENTS.md 현행화
 
-## Loop 4: spike floor의 fps 정규화 — 구성됨 (2026-07-20, 구현 전)
+## Loop 4: spike floor의 fps 정규화 — 완료 (2026-07-20, 판정: 유지)
 
 ### 관찰한 증상
 - Loop 2에서 도입한 spike floor(velocity 0.02 / accel 0.02 / jerk 0.03)가 **m/frame 절대값**. 같은 실제 동작이라도 프레임당 이동량은 fps에 반비례하므로, 60fps 입력에서는 velocity 기준이 실질 2배(0.6→1.2 m/s), accel은 fps², jerk는 fps³으로 왜곡됨.
@@ -168,11 +168,28 @@ floor를 물리 단위(m/s, m/s², m/s³)로 정의하고 로드 시 metadata fp
 - 60fps 검증은 합성/리샘플 데이터로 수행 (실제 60fps 영상은 홀드아웃 루프에서).
 
 ### 판정 기준
-- 유지: 30fps 기준선 판정 불변(또는 환산 오차 수준) + 합성 60fps에서 fps 불변성 입증 + 테스트 통과.
+- 유지: 기준선 판정 불변(또는 환산 오차 수준) + 합성 60fps에서 fps 불변성 입증 + 테스트 통과.
 - 원칙 정합: 임계값 정의 변경일 뿐 모션 생성/원본 덮어쓰기 없음 → 노션 3장 원칙과 무충돌.
 
+### 구현 결과 (2026-07-20)
+- **계획 수정 1건**: 기준 세션의 실제 fps는 30이 아니라 **23.976**. floor의 검증된 물리값은 0.02 m/frame × 23.976 = 0.48 m/s이므로 30fps 등가(0.6 m/s)가 아닌 23.976fps 등가를 기본값 앵커로 채택.
+- `OutlierMinimizerOptions`: `velocity_floor_m_per_s=0.48`, `acceleration_floor_m_per_s2=11.5`, `jerk_floor_m_per_s3=414.0` (반올림으로 인한 프레임 단위 오차 +0.03~0.13%). 신규 `_frame_floors()`가 fps로 환산(/fps, /fps², /fps³)해 `_feature_scales`에 전달.
+- CLI: `--velocity-floor-m-per-s` / `--acceleration-floor-m-per-s2` / `--jerk-floor-m-per-s3` (기존 m/frame 플래그 제거). 리포트 settings에 초 단위 값 + 파생 프레임 단위 값 모두 기록.
+- 테스트 3종 추가 (총 126개 통과): ① 동일 물리 동작(4 m/s 버스트, floor 지배 베이스라인)을 30/60fps로 샘플링 시 spike 판정 동일 + ratio 오차 <5% — 구 코드라면 60fps에서 ratio가 절반이 되어 미검출, ② 리포트 환산값 정확성, ③ fps 결측 시 30 fallback.
+
+### 검증 결과 (outlier_minimized_loop4/ 오프라인 재실행, 기존 outlier_minimized/와 전수 비교)
+| 지표 | 006_v2 | 007_v2 |
+|---|---|---|
+| spike 세그먼트 | 664 → 663 | 308 → 308 (동일) |
+| outlier_status 변경 행 | 4 / 219,384 (0.002%) | 0 / 103,620 |
+| 좌표 변경 행 | 1행(×2소스, 보정 전환분) | 0 (byte-identical) |
+
+- 007_v2: 산출물 완전 동일 (status·좌표 byte-identical).
+- 006_v2 변화 4행은 전부 임계 경계 케이스로 확인: right_ankle f2262 accel ratio 6.0012→5.9996(경계 6.0을 0.02% 차이로 탈락), 이로 인해 f2260이 안정 이웃을 얻어 break→corrected로 개선. right_heel f2788은 jerk ratio 8.0076→7.9975로 spike_type만 mixed→accel 변경(status 불변). 5~7 m/s급 실제 글리치에는 영향 없음.
+- 판정: **유지** — 기준선 보존(환산 오차 수준) + fps 불변성 입증 + 원본 보존·비생성 원칙 무관.
+
 ### 후속 루프 후보 (Loop 4 이후)
-- Loop 5: 제3의 영상 홀드아웃 검증 — **사용자 제공 영상 필요** (다른 환경/fps 권장, 60fps면 이상적)
+- Loop 5: 제3의 영상 홀드아웃 검증 — **사용자 제공 영상 필요** (다른 환경/fps 권장, 60fps면 이상적. fps 정규화 완료로 이제 fps 교락 없이 검증 가능)
 - Loop 6: Blender 임포터 페이드 정책 계약 복원 + 깊이 부호 검증
 
 ## 재개 방법
