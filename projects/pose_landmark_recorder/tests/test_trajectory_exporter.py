@@ -165,3 +165,51 @@ def test_aspect_ratio_can_be_disabled(tmp_path):
     assert report["settings"]["aspect_ratio"] is None
     assert report["settings"]["screen_width_scale"] == 6.0
     assert abs(points["blender_x"].iloc[0] - 0.5 * 6.0) < 1e-6
+
+
+def _jitter_rows(connect_break_frame=None):
+    rows = []
+    for frame in range(30):
+        x = 0.5 + (0.004 if frame % 2 else -0.004)
+        connect = True
+        if connect_break_frame is not None and frame == connect_break_frame:
+            connect = False
+        rows.append(_row(frame, 0, "nose", x=x, connect=connect))
+    return rows
+
+
+def test_smoothing_reduces_jitter_and_keeps_raw(tmp_path):
+    input_csv, metadata = _write_fixture(tmp_path, _jitter_rows())
+
+    result = export_trajectory(input_csv, metadata, tmp_path / "export", TrajectoryExportOptions())
+    points = pd.read_csv(result["points_csv"])
+
+    raw_jitter = points["blender_x"].diff().abs().mean()
+    smooth_jitter = points["blender_x_smooth"].diff().abs().mean()
+    assert smooth_jitter < raw_jitter * 0.5
+    assert (points["blender_x"] != points["blender_x_smooth"]).any()
+    segments = pd.read_csv(result["segments_csv"])
+    assert "x1_smooth" in segments.columns
+
+
+def test_smoothing_can_be_disabled(tmp_path):
+    input_csv, metadata = _write_fixture(tmp_path, _jitter_rows())
+
+    result = export_trajectory(
+        input_csv, metadata, tmp_path / "export", TrajectoryExportOptions(smooth_trajectory=False)
+    )
+    points = pd.read_csv(result["points_csv"])
+
+    assert (points["blender_x"] == points["blender_x_smooth"]).all()
+
+
+def test_smoothing_resets_across_breaks(tmp_path):
+    # The row after a no-connect row starts a new chain, so its smoothed value
+    # must equal its raw value instead of blending across the break.
+    input_csv, metadata = _write_fixture(tmp_path, _jitter_rows(connect_break_frame=14))
+
+    result = export_trajectory(input_csv, metadata, tmp_path / "export", TrajectoryExportOptions())
+    points = pd.read_csv(result["points_csv"]).sort_values("frame")
+    restart = points[points["frame"] == 15].iloc[0]
+
+    assert restart["blender_x_smooth"] == restart["blender_x"]

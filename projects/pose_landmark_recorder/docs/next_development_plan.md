@@ -23,6 +23,10 @@ Done 2026-07-20 (Loop 6): Blender importer fade-policy contract restored (trails
 consume exporter trajectory_alpha/trajectory_width) and export depth sign corrected
 (`blender_y = z * depth_scale`, verified against video frames).
 
+Done 2026-07-20 (Loop 7): One-Euro visualization smoothing layer in trajectory
+export (the "confidence-aware smoothing" filtering candidate below) — separate
+*_smooth columns, break-aware filter resets, importer consumes them by default.
+
 After that: target-switch diagnostics, Motion Profile Builder (Priority 2 below), persistent importer work (Priority 3 below).
 
 The default visualization-oriented path should be:

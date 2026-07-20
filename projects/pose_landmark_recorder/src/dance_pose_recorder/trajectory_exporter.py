@@ -26,6 +26,7 @@ from dance_pose_recorder.output_layout import (
     TRAJECTORY_EXPORT_SEGMENTS_CSV,
     normalize_stage_output_dir,
 )
+from dance_pose_recorder.trajectory_smoothing import OneEuroParams, OneEuroFilter
 
 
 POINT_COLUMNS = [
@@ -39,6 +40,9 @@ POINT_COLUMNS = [
     "blender_x",
     "blender_y",
     "blender_z",
+    "blender_x_smooth",
+    "blender_y_smooth",
+    "blender_z_smooth",
     "screen_x",
     "screen_y",
     "screen_z",
@@ -75,6 +79,12 @@ SEGMENT_COLUMNS = [
     "x2",
     "y2",
     "z2",
+    "x1_smooth",
+    "y1_smooth",
+    "z1_smooth",
+    "x2_smooth",
+    "y2_smooth",
+    "z2_smooth",
     "trajectory_alpha",
     "trajectory_width",
     "trajectory_reason",
@@ -117,6 +127,13 @@ class TrajectoryExportOptions:
     screen_height_scale: float = 6.0
     depth_scale: float = 1.0
     apply_aspect_ratio: bool = True
+    # One-Euro visualization smoothing. Raw blender coordinates are always kept;
+    # smoothed values land in *_smooth columns and never bridge breaks or gaps.
+    smooth_trajectory: bool = True
+    smooth_min_cutoff_hz: float = 1.2
+    smooth_beta: float = 1.5
+    smooth_depth_min_cutoff_hz: float = 0.4
+    smooth_depth_beta: float = 0.4
     include_hidden: bool = False
     include_disconnected_points: bool = True
     save_points: bool = True
@@ -195,6 +212,8 @@ def export_trajectory(
         point_rows.append(_point_row(row_series, coords, session_id, options, visible, connect))
 
     points = pd.DataFrame(point_rows, columns=POINT_COLUMNS)
+    if options.smooth_trajectory and not points.empty:
+        _apply_one_euro_smoothing(points, fps, options)
     segments = _build_segments(points, options)
 
     points_path = output_dir / TRAJECTORY_EXPORT_POINTS_CSV
@@ -306,6 +325,9 @@ def _point_row(
         "blender_x": coords["blender_x"],
         "blender_y": coords["blender_y"],
         "blender_z": coords["blender_z"],
+        "blender_x_smooth": coords["blender_x"],
+        "blender_y_smooth": coords["blender_y"],
+        "blender_z_smooth": coords["blender_z"],
         "screen_x": coords["screen_x"],
         "screen_y": coords["screen_y"],
         "screen_z": coords["screen_z"],
@@ -324,6 +346,45 @@ def _point_row(
         "coordinate_mode": options.coordinate_mode,
         "depth_mode": options.depth_mode,
     }
+
+
+def _apply_one_euro_smoothing(points: pd.DataFrame, fps: float, options: TrajectoryExportOptions) -> None:
+    """Fill *_smooth columns chain by chain, resetting filters at every break."""
+
+    xy_params = OneEuroParams(min_cutoff_hz=options.smooth_min_cutoff_hz, beta=options.smooth_beta)
+    depth_params = OneEuroParams(
+        min_cutoff_hz=options.smooth_depth_min_cutoff_hz, beta=options.smooth_depth_beta
+    )
+    axis_params = {
+        "blender_x": xy_params,
+        "blender_z": xy_params,
+        "blender_y": depth_params,
+    }
+    for (_source, _track_id), group in points.groupby(["source", "track_id"], sort=False):
+        ordered = group.sort_values("frame")
+        filters = {axis: OneEuroFilter(params, fps) for axis, params in axis_params.items()}
+        prev_frame: int | None = None
+        prev_connect = False
+        for index, row in ordered.iterrows():
+            frame = int(row["frame"])
+            connect = bool(row["trajectory_connect"])
+            chained = (
+                prev_frame is not None
+                and frame - prev_frame == 1
+                and prev_connect
+                and connect
+            )
+            if not chained:
+                for one_euro in filters.values():
+                    one_euro.reset()
+            for axis, one_euro in filters.items():
+                value = row[axis]
+                if pd.isna(value):
+                    one_euro.reset()
+                    continue
+                points.at[index, f"{axis}_smooth"] = one_euro.filter(float(value))
+            prev_frame = frame
+            prev_connect = connect
 
 
 def _build_segments(points: pd.DataFrame, options: TrajectoryExportOptions) -> pd.DataFrame:
@@ -374,6 +435,12 @@ def _segment_row(segment_id: int, previous: dict, current: dict, options: Trajec
         "x2": float(current["blender_x"]),
         "y2": float(current["blender_y"]),
         "z2": float(current["blender_z"]),
+        "x1_smooth": float(previous["blender_x_smooth"]),
+        "y1_smooth": float(previous["blender_y_smooth"]),
+        "z1_smooth": float(previous["blender_z_smooth"]),
+        "x2_smooth": float(current["blender_x_smooth"]),
+        "y2_smooth": float(current["blender_y_smooth"]),
+        "z2_smooth": float(current["blender_z_smooth"]),
         "trajectory_alpha": float(current["trajectory_alpha"]),
         "trajectory_width": float(current["trajectory_width"]),
         "trajectory_reason": current["trajectory_reason"],
@@ -427,6 +494,11 @@ def _build_report(
             "apply_aspect_ratio": options.apply_aspect_ratio,
             "aspect_ratio": aspect_ratio,
             "depth_scale": options.depth_scale,
+            "smooth_trajectory": options.smooth_trajectory,
+            "smooth_min_cutoff_hz": options.smooth_min_cutoff_hz,
+            "smooth_beta": options.smooth_beta,
+            "smooth_depth_min_cutoff_hz": options.smooth_depth_min_cutoff_hz,
+            "smooth_depth_beta": options.smooth_depth_beta,
             "include_hidden": options.include_hidden,
             "include_disconnected_points": options.include_disconnected_points,
         },

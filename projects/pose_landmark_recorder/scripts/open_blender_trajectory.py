@@ -195,6 +195,18 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Blender root collection name. Defaults to MPLR_<session_id>.",
     )
+    parser.add_argument(
+        "--use-smoothed-trajectory",
+        action="store_true",
+        default=True,
+        help="Prefer the exporter's One-Euro *_smooth coordinates when present.",
+    )
+    parser.add_argument(
+        "--no-use-smoothed-trajectory",
+        action="store_false",
+        dest="use_smoothed_trajectory",
+        help="Render raw blender coordinates even when smoothed columns exist.",
+    )
     return parser
 
 
@@ -414,6 +426,13 @@ def import_in_blender(args: argparse.Namespace) -> None:
         "right_foot_index",
     }
 
+    def smoothed_coord(row: dict[str, str], name: str) -> float:
+        if args.use_smoothed_trajectory:
+            value = row.get(f"{name}_smooth")
+            if value not in (None, ""):
+                return float(value)
+        return float(row[name])
+
     with args.points_csv.open("r", encoding="utf-8", newline="") as file:
         reader = csv.DictReader(file)
         for row in reader:
@@ -422,9 +441,9 @@ def import_in_blender(args: argparse.Namespace) -> None:
             try:
                 frame = int(float(row["frame"]))
                 landmark = row["landmark_name"]
-                x = float(row["blender_x"])
-                raw_y = float(row["blender_y"])
-                z = float(row["blender_z"])
+                x = smoothed_coord(row, "blender_x")
+                raw_y = smoothed_coord(row, "blender_y")
+                z = smoothed_coord(row, "blender_z")
                 screen_x = float(row.get("screen_x") or row.get("x") or 0.0)
                 screen_y = float(row.get("screen_y") or row.get("y") or 0.0)
                 if any(math.isnan(v) or math.isinf(v) for v in (x, raw_y, z, screen_x, screen_y)):
@@ -685,8 +704,20 @@ def import_in_blender(args: argparse.Namespace) -> None:
                 landmark = row["landmark_name"]
                 frame_start_row = int(float(row["frame_start"]))
                 frame_end_row = int(float(row["frame_end"]))
-                p1 = mapped_location(frame_start_row, landmark, float(row["x1"]), float(row["y1"]), float(row["z1"]))
-                p2 = mapped_location(frame_end_row, landmark, float(row["x2"]), float(row["y2"]), float(row["z2"]))
+                p1 = mapped_location(
+                    frame_start_row,
+                    landmark,
+                    smoothed_coord(row, "x1"),
+                    smoothed_coord(row, "y1"),
+                    smoothed_coord(row, "z1"),
+                )
+                p2 = mapped_location(
+                    frame_end_row,
+                    landmark,
+                    smoothed_coord(row, "x2"),
+                    smoothed_coord(row, "y2"),
+                    smoothed_coord(row, "z2"),
+                )
                 alpha_value = float(row.get("trajectory_alpha") or 1.0)
                 width_value = float(row.get("trajectory_width") or 1.0)
             except Exception:
@@ -1131,6 +1162,7 @@ def import_in_blender(args: argparse.Namespace) -> None:
                 "x_factor": args.x_factor,
                 "y_factor": args.y_factor,
                 "depth_range_m": [0.0, args.depth_meters * args.y_factor],
+                "use_smoothed_trajectory": args.use_smoothed_trajectory,
                 "fade_policy_source": "exporter trajectory_alpha/trajectory_width (bucketed to 0.1)",
                 "fade_policy_tiers": dict(sorted(fade_tier_counts.items())),
                 "local_depth_sign": "blender_y keeps pose_z sign (closer to camera = smaller y)",

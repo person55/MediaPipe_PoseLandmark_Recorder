@@ -220,6 +220,35 @@ exporter의 깊이 부호를 z 그대로 유지하고(`blender_y = z × depth_sc
 - 애니메이션 마커/halo는 여전히 프레임별 alpha를 반영하지 않음 (트레일만 페이드 소비). 필요 시 후속 루프.
 - 프레임 단위 전신 깊이는 여전히 임포터가 신체 크기 휴리스틱으로 유도 — 이는 계약 위반이 아니라 설계(pose z는 hip 상대 로컬 깊이뿐이므로 전역 깊이는 exporter에 없음).
 
+## Loop 7: One-Euro 시각화 스무딩 레이어 — 완료 (2026-07-20, 판정: 유지)
+
+### 배경
+Loop 1~6은 정확성 수리였고 소진폭 잔떨림(특히 pseudo-depth z 노이즈)은 원칙상 어느 스테이지도 건드리지 않아 Blender 궤적에 그대로 유입됨. 사용자 시각 확인에서 이 문제가 지적됨.
+
+### 가설
+export 단계에 confidence-인지형 One-Euro 필터(저속 강한 스무딩·고속 추종)를 **별도 컬럼 레이어**로 추가하고 break/gap에서 필터를 리셋하면, 원본 보존·비생성 원칙을 지키면서 시각 떨림이 제거된다.
+
+### 변경 범위
+- `trajectory_smoothing.py` 신설: One-Euro 필터 (min_cutoff/beta/d_cutoff), 체인 단위 적용.
+- `trajectory_exporter.py`: points에 `blender_{x,y,z}_smooth`, segments에 `{x,y,z}{1,2}_smooth` 컬럼 추가. 체인 판정(연속 프레임 + connect)이 끊기면 필터 리셋 — 스무딩이 break를 이어붙이지 않음. 원본 blender 좌표는 무변경 유지. 기본 파라미터: x/z min_cutoff 1.2Hz·beta 1.5, 깊이(y) 0.4Hz·beta 0.4 (깊이가 가장 노이즈가 크므로 강한 스무딩).
+- `export_trajectory.py` CLI 플래그 6종, `open_blender_trajectory.py`: `*_smooth` 컬럼 존재 시 우선 사용(`--no-use-smoothed-trajectory`로 해제), 트레일·마커·포인트클라우드 모두 적용.
+- 테스트 7종 추가(필터 4: 상수 통과/노이즈 감소/고속 지연 한계/리셋, exporter 3: 지터 감소·비활성화·break 리셋), 총 133개 통과.
+
+### 검증 결과 (trajectory_export_loop7/ 재-export, loop6 대비)
+| 지표 | 006_v2 | 007_v2 |
+|---|---|---|
+| 깊이(blender_y) 지터(2차 차분) | **−88%** | **−87%** |
+| x/z 지터 (전체) | −14~16% | −13% |
+| x/z 노이즈 (저속 프레임 한정) | −24% | — |
+| 고속 프레임 지연 (p95) | 0.12~0.19 유닛 (≈1~2프레임 모션) | 동일 수준 |
+| 원본 blender 좌표 | loop6과 byte-identical | 〃 |
+
+- 해석: 시각 떨림의 지배 요인이던 깊이 노이즈가 ~88% 제거. x/z의 잔여 2차 차분은 대부분 실제 저속 모션(보존 대상)임을 저속 한정 측정으로 확인. 고속 동작 지연은 1~2프레임 수준으로 One-Euro의 적응 특성이 작동.
+- Blender 5.2 헤드리스 임포트로 smoothed 소비 확인, `.blend` 생성(loop7, 6.3MB).
+
+### 판정: 유지
+원본 좌표 무변경(byte-identical) + 스무딩은 분리 컬럼 + break 리셋으로 거짓 연결 없음 → 원칙 무충돌. 파라미터는 두 세션 기준 초기값이며 홀드아웃 검증 대상에 포함.
+
 ## 재개 방법
 1. 이 문서와 노션 페이지 확인
 2. Loop 1~3 + 후속 작업 + 문서 현행화(AGENTS/CURRENT_STATE/next_development_plan, 2026-07-20) 완료. Loop 4(위 계획)부터 진행
