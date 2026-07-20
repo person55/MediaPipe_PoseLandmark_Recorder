@@ -38,6 +38,7 @@ from dance_pose_recorder.crop_refiner import (
     parse_crop_target_landmarks,
     parse_flags,
 )
+from dance_pose_recorder.crop_enhancement import detection_is_weak, enhance_crop
 from dance_pose_recorder.crop_rotation import (
     build_inverted_segments,
     detect_width_for_z,
@@ -106,6 +107,10 @@ class CropRefinementOptions:
     # steps before detection, and landmarks are rotated back afterwards.
     rotate_inverted: bool = True
     rotation_min_angle_deg: float = 60.0
+    # Low-light rescue (Loop 9): when every detection for a frame is weak,
+    # retry once on a CLAHE-enhanced crop as an extra competing candidate.
+    enhance_low_light: bool = True
+    enhance_visibility_threshold: float = 0.5
 
 
 @dataclass(frozen=True)
@@ -164,6 +169,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--rotate-inverted", action="store_true", default=True)
     parser.add_argument("--no-rotate-inverted", action="store_false", dest="rotate_inverted")
     parser.add_argument("--rotation-min-angle-deg", type=float, default=60.0)
+    parser.add_argument("--enhance-low-light", action="store_true", default=True)
+    parser.add_argument("--no-enhance-low-light", action="store_false", dest="enhance_low_light")
+    parser.add_argument("--enhance-visibility-threshold", type=float, default=0.5)
     return parser
 
 
@@ -206,6 +214,8 @@ def main() -> None:
             allow_long_segments=args.allow_long_segments,
             rotate_inverted=args.rotate_inverted,
             rotation_min_angle_deg=args.rotation_min_angle_deg,
+            enhance_low_light=args.enhance_low_light,
+            enhance_visibility_threshold=args.enhance_visibility_threshold,
         )
     )
     print(f"Wrote crop refinement outputs to {result.crop_segments_csv.parent}")
@@ -426,7 +436,7 @@ def _detect_crops(
     if transformer.origin_policy != "raw":
         print("warning: crop refinement v1 is calibrated for origin_policy=raw")
 
-    def candidate_rows(frame, bbox, segment, detection, snap: int) -> list[dict]:
+    def candidate_rows(frame, bbox, segment, detection, snap: int, enhanced: bool = False) -> list[dict]:
         raw_pose = unrotate_pose_landmarks(detection["pose_landmarks"], snap)
         raw_world = unrotate_world_landmarks(detection["pose_world_landmarks"], snap)
         pose_landmarks = _restore_pose_landmarks(
@@ -453,6 +463,7 @@ def _detect_crops(
                     "crop_margin_ratio": bbox.margin_ratio,
                     "crop_running_mode": "video",
                     "crop_rotation_deg": snap,
+                    "crop_enhanced": enhanced,
                 }
             )
             if row["source"] == "pose":
@@ -484,6 +495,7 @@ def _detect_crops(
 
     inverted_upright_extractor: PoseExtractor | None = None
     rotated_extractor: PoseExtractor | None = None
+    enhanced_extractor: PoseExtractor | None = None
     try:
         with PoseExtractor(options.model, delegate=options.delegate) as baseline_extractor:
             has_inverted = any(
@@ -493,6 +505,8 @@ def _detect_crops(
                 inverted_upright_extractor = open_extractor()
             if rotations:
                 rotated_extractor = open_extractor()
+            if options.enhance_low_light:
+                enhanced_extractor = open_extractor()
             for frame in tqdm(reader.frames(max_frames=total_frames), total=total_frames, unit="frame"):
                 bbox = bboxes.get(frame.frame_index)
                 if bbox is None:
@@ -511,9 +525,20 @@ def _detect_crops(
                 result = upright_extractor.detect(crop, frame.timestamp_ms)
                 rows.extend(candidate_rows(frame, bbox, segment, result, 0))
                 snap = rotations.get(frame.frame_index, 0)
+                rotated = None
                 if snap and rotated_extractor is not None:
                     rotated = rotated_extractor.detect(rotate_crop(crop, snap), frame.timestamp_ms)
                     rows.extend(candidate_rows(frame, bbox, segment, rotated, snap))
+                if enhanced_extractor is not None:
+                    # Rescue pass: only when every detection for the frame is
+                    # weak does an enhanced-contrast retry become a candidate.
+                    weak = detection_is_weak(result["pose_landmarks"], options.enhance_visibility_threshold) and (
+                        rotated is None
+                        or detection_is_weak(rotated["pose_landmarks"], options.enhance_visibility_threshold)
+                    )
+                    if weak:
+                        enhanced = enhanced_extractor.detect(enhance_crop(crop), frame.timestamp_ms)
+                        rows.extend(candidate_rows(frame, bbox, segment, enhanced, 0, enhanced=True))
     finally:
         for extractor in extra_extractors:
             extractor.__exit__(None, None, None)
@@ -591,6 +616,15 @@ def _build_report(
             "allow_long_segments": options.allow_long_segments,
             "rotate_inverted": options.rotate_inverted,
             "rotation_min_angle_deg": options.rotation_min_angle_deg,
+            "enhance_low_light": options.enhance_low_light,
+            "enhance_visibility_threshold": options.enhance_visibility_threshold,
+        },
+        "enhancement": {
+            "enhanced_frames": int(
+                candidates.loc[candidates["crop_enhanced"] == True, "frame"].nunique()  # noqa: E712
+            )
+            if not candidates.empty and "crop_enhanced" in candidates.columns
+            else 0,
         },
         "rotation": {
             "rotated_frames": int(candidates["crop_rotation_deg"].gt(0).groupby(candidates["frame"]).any().sum())
