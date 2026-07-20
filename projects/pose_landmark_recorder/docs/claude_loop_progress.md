@@ -192,6 +192,34 @@ floor를 물리 단위(m/s, m/s², m/s³)로 정의하고 로드 시 metadata fp
 - Loop 5: 제3의 영상 홀드아웃 검증 — **사용자 제공 영상 필요** (다른 환경/fps 권장, 60fps면 이상적. fps 정규화 완료로 이제 fps 교락 없이 검증 가능)
 - Loop 6: Blender 임포터 페이드 정책 계약 복원 + 깊이 부호 검증
 
+## Loop 6: Blender 페이드 정책 계약 복원 + 깊이 부호 교정 — 완료 (2026-07-20, 판정: 유지)
+
+Loop 5(홀드아웃)는 제3의 영상 미확보로 보류하고 Loop 6을 선행.
+
+### 관찰한 증상 (구조 진단 발견 4의 잔여)
+1. 임포터가 exporter의 `trajectory_alpha`/`trajectory_width`를 완전히 무시 — 모든 트레일이 고정 alpha(overview 0.30, progress 0.95)·고정 굵기로 렌더되어 불확실 구간이 확실 구간과 동일하게 보임. 실데이터에서 페이드 세그먼트 1,121건(006_v2) / 708건(007_v2)이 전부 뭉개짐.
+2. 깊이 부호 역전 실증: MediaPipe pose z는 "작을수록 카메라에 가까움"(docs/solutions/pose.md:220 + **영상 대조로 확인**: 006 f1711 z=-0.33 → 손목이 가슴 앞 카메라 쪽, f1309 z=+0.27 → 손목이 몸 뒤). exporter가 `blender_y = -z`로 반전하고 Blender 카메라는 -Y에서 +Y를 보므로, 카메라에 가까운 부위가 Blender에서 더 멀리 렌더됨.
+
+### 가설
+exporter의 깊이 부호를 z 그대로 유지하고(`blender_y = z × depth_scale`), 임포터가 alpha/width를 재유도 없이 소비하면(0.1 단위 버킷), 로컬 깊이 방향이 물리적으로 올바르게 되고 불확실 구간이 시각적으로 구분된다.
+
+### 변경 범위
+- `blender_coordinate.py`: `blender_y = z × depth_scale` (부호 교정). 임포터의 로컬 깊이는 `(raw_y − root)` 상대값이라 코드 무변경으로 방향이 함께 교정됨.
+- `open_blender_trajectory.py`: 세그먼트의 alpha/width를 0.1 단위로 버킷팅해 티어별 커브 객체 분리. overview alpha = 0.30×α, progress emission strength·alpha ×α, bevel 굵기 ×width. 티어 경계에서 draw path 분할. JSON 요약에 `fade_policy_tiers` 통계 추가. alpha=1.0 티어는 기존과 동일 머티리얼 재사용(솔리드 구간 시각 회귀 없음).
+- `docs/trajectory_export.md` 좌표식 갱신, `test_blender_coordinate.py` 부호 테스트 갱신.
+
+### 기준선과 비교 방법 / 결과
+- 재-export(`trajectory_export_loop6/`) 전수 비교: **blender_y(y1/y2)만 정확히 부호 반전, 나머지 전 컬럼 byte-identical** (006_v2 points 86,885 / segments 58,408; 007_v2 38,003 / 25,434).
+- Blender 5.2 헤드리스 임포트: 006_v2 티어 6종 소비(a0.5~a1.0, 합계 58,408 = 세그먼트 수 일치), overview 커브 21→94 객체(티어 분리), .blend 6.3MB 생성. 007_v2 동일 검증(티어 6종, .blend 2.8MB).
+- 테스트 126개 전체 통과.
+
+### 판정: 유지
+- 부호 교정은 문서 규약 + 영상 실증 양쪽으로 근거 확보. 페이드 소비는 exporter 계약의 순수 시각 반영(모션 데이터 무변경, 원본 보존·비생성 원칙 무관).
+
+### 남은 한계 (기록)
+- 애니메이션 마커/halo는 여전히 프레임별 alpha를 반영하지 않음 (트레일만 페이드 소비). 필요 시 후속 루프.
+- 프레임 단위 전신 깊이는 여전히 임포터가 신체 크기 휴리스틱으로 유도 — 이는 계약 위반이 아니라 설계(pose z는 hip 상대 로컬 깊이뿐이므로 전역 깊이는 exporter에 없음).
+
 ## 재개 방법
 1. 이 문서와 노션 페이지 확인
 2. Loop 1~3 + 후속 작업 + 문서 현행화(AGENTS/CURRENT_STATE/next_development_plan, 2026-07-20) 완료. Loop 4(위 계획)부터 진행

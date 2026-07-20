@@ -671,7 +671,13 @@ def import_in_blender(args: argparse.Namespace) -> None:
             point.co = (co[0], co[1], co[2], 1.0)
         return True
 
-    segments_by_lm: dict[str, list[tuple[int, int, tuple[float, float, float], tuple[float, float, float]]]] = defaultdict(list)
+    # Fade policy contract: the exporter's trajectory_alpha/trajectory_width
+    # columns are consumed as-is (bucketed to one decimal) instead of being
+    # re-derived, so uncertain regions render fainter and thinner.
+    segments_by_lm: dict[
+        str, list[tuple[int, int, tuple[float, float, float], tuple[float, float, float], tuple[float, float]]]
+    ] = defaultdict(list)
+    fade_tier_counts: dict[str, int] = defaultdict(int)
     with args.segments_csv.open("r", encoding="utf-8", newline="") as file:
         reader = csv.DictReader(file)
         for row in reader:
@@ -681,56 +687,109 @@ def import_in_blender(args: argparse.Namespace) -> None:
                 frame_end_row = int(float(row["frame_end"]))
                 p1 = mapped_location(frame_start_row, landmark, float(row["x1"]), float(row["y1"]), float(row["z1"]))
                 p2 = mapped_location(frame_end_row, landmark, float(row["x2"]), float(row["y2"]), float(row["z2"]))
+                alpha_value = float(row.get("trajectory_alpha") or 1.0)
+                width_value = float(row.get("trajectory_width") or 1.0)
             except Exception:
                 continue
-            segments_by_lm[landmark].append((frame_start_row, frame_end_row, p1, p2))
+            tier = (round(alpha_value, 1), round(width_value, 1))
+            fade_tier_counts[f"a{tier[0]:.1f}_w{tier[1]:.1f}"] += 1
+            segments_by_lm[landmark].append((frame_start_row, frame_end_row, p1, p2, tier))
+
+    tier_material_cache: dict[str, Any] = {}
+
+    def tier_suffix(alpha_bucket: float) -> str:
+        return f"A{int(round(alpha_bucket * 100)):03d}"
+
+    def overview_tier_material(side: str, group: str, alpha_bucket: float) -> Any:
+        if alpha_bucket >= 0.999:
+            return lr_overview_materials.get(
+                side, overview_materials.get(group, overview_materials["other"])
+            )
+        key = f"MPLR_LR_{side.upper()}_OVERVIEW_{tier_suffix(alpha_bucket)}"
+        if key not in tier_material_cache:
+            base = lr_colors.get(side, colors.get(group, colors["other"]))
+            tier_material_cache[key] = make_material(
+                key,
+                base,
+                emission=False,
+                strength=1.0,
+                alpha=args.overview_trail_alpha * alpha_bucket,
+            )
+        return tier_material_cache[key]
+
+    def progress_tier_material(side: str, group: str, alpha_bucket: float) -> Any:
+        if alpha_bucket >= 0.999:
+            return lr_progress_materials.get(
+                side, progress_materials.get(group, progress_materials["other"])
+            )
+        key = f"MPLR_LR_{side.upper()}_DRAW_{tier_suffix(alpha_bucket)}"
+        if key not in tier_material_cache:
+            base = lr_colors.get(side, colors.get(group, colors["other"]))
+            strength = (5.5 if side != "center" else 2.2) * alpha_bucket
+            tier_material_cache[key] = make_material(
+                key,
+                base,
+                emission=True,
+                strength=strength,
+                alpha=0.95 * alpha_bucket,
+            )
+        return tier_material_cache[key]
 
     overview_count = 0
     progress_count = 0
     for landmark, segments in sorted(segments_by_lm.items()):
         segments.sort(key=lambda item: (item[0], item[1]))
         group = landmark_group(landmark)
-        overview_curve = bpy.data.curves.new(f"MPLR_TRAJ_{landmark}", "CURVE")
-        overview_curve.dimensions = "3D"
-        overview_curve.resolution_u = 2
-        overview_curve.bevel_depth = 0.0038
-        overview_curve.bevel_resolution = 1
-        paths: list[tuple[int, int, list[tuple[float, float, float]]]] = []
+        side = landmark_side(landmark)
+        paths: list[tuple[int, int, tuple[float, float], list[tuple[float, float, float]]]] = []
         current: list[tuple[float, float, float]] = []
         start = None
         end = None
         prev_end = None
-        for start_frame_row, end_frame_row, p1, p2 in segments:
-            if prev_end is not None and start_frame_row == prev_end:
+        prev_tier: tuple[float, float] | None = None
+        for start_frame_row, end_frame_row, p1, p2, tier in segments:
+            if prev_end is not None and start_frame_row == prev_end and tier == prev_tier:
                 current.append(p2)
                 end = end_frame_row
             else:
-                if len(current) >= 2 and start is not None and end is not None:
-                    paths.append((start, end, list(current)))
-                    add_polyline(overview_curve, current)
+                if len(current) >= 2 and start is not None and end is not None and prev_tier is not None:
+                    paths.append((start, end, prev_tier, list(current)))
                 current = [p1, p2]
                 start = start_frame_row
                 end = end_frame_row
             prev_end = end_frame_row
-        if len(current) >= 2 and start is not None and end is not None:
-            paths.append((start, end, list(current)))
-            add_polyline(overview_curve, current)
-        overview_obj = bpy.data.objects.new(f"MPLR_TRAJ_{landmark}", overview_curve)
-        overview_obj.data.materials.append(
-            lr_overview_materials.get(
-                landmark_side(landmark),
-                overview_materials.get(group, overview_materials["other"]),
-            )
-        )
-        overview_obj["mplr_overview_curve"] = True
-        curves_col.objects.link(overview_obj)
-        overview_count += 1
+            prev_tier = tier
+        if len(current) >= 2 and start is not None and end is not None and prev_tier is not None:
+            paths.append((start, end, prev_tier, list(current)))
 
-        for index, (path_start, path_end, points) in enumerate(paths):
+        overview_paths_by_tier: dict[tuple[float, float], list[list[tuple[float, float, float]]]] = defaultdict(list)
+        for _path_start, _path_end, tier, points in paths:
+            overview_paths_by_tier[tier].append(points)
+        for tier, tier_paths in sorted(overview_paths_by_tier.items()):
+            alpha_bucket, width_bucket = tier
+            solid = alpha_bucket >= 0.999 and width_bucket >= 0.999
+            name = f"MPLR_TRAJ_{landmark}" if solid else f"MPLR_TRAJ_{landmark}_{tier_suffix(alpha_bucket)}"
+            overview_curve = bpy.data.curves.new(name, "CURVE")
+            overview_curve.dimensions = "3D"
+            overview_curve.resolution_u = 2
+            overview_curve.bevel_depth = 0.0038 * width_bucket
+            overview_curve.bevel_resolution = 1
+            for points in tier_paths:
+                add_polyline(overview_curve, points)
+            overview_obj = bpy.data.objects.new(name, overview_curve)
+            overview_obj.data.materials.append(overview_tier_material(side, group, alpha_bucket))
+            overview_obj["mplr_overview_curve"] = True
+            overview_obj["mplr_trajectory_alpha"] = float(alpha_bucket)
+            overview_obj["mplr_trajectory_width"] = float(width_bucket)
+            curves_col.objects.link(overview_obj)
+            overview_count += 1
+
+        for index, (path_start, path_end, tier, points) in enumerate(paths):
+            alpha_bucket, width_bucket = tier
             curve = bpy.data.curves.new(f"MPLR_DRAWPATH_{landmark}_{index:03d}", "CURVE")
             curve.dimensions = "3D"
             curve.resolution_u = 2
-            curve.bevel_depth = 0.0075
+            curve.bevel_depth = 0.0075 * width_bucket
             curve.bevel_resolution = 1
             curve.bevel_factor_start = 0.0
             curve.bevel_factor_end = 0.0
@@ -740,15 +799,12 @@ def import_in_blender(args: argparse.Namespace) -> None:
                 pass
             add_polyline(curve, points)
             obj = bpy.data.objects.new(f"MPLR_DRAWPATH_{landmark}_{index:03d}", curve)
-            obj.data.materials.append(
-                lr_progress_materials.get(
-                    landmark_side(landmark),
-                    progress_materials.get(group, progress_materials["other"]),
-                )
-            )
+            obj.data.materials.append(progress_tier_material(side, group, alpha_bucket))
             obj["mplr_progress_curve"] = True
             obj["mplr_start_frame"] = int(path_start)
             obj["mplr_end_frame"] = int(path_end)
+            obj["mplr_trajectory_alpha"] = float(alpha_bucket)
+            obj["mplr_trajectory_width"] = float(width_bucket)
             obj.hide_viewport = True
             obj.hide_render = True
             progress_col.objects.link(obj)
@@ -1075,6 +1131,9 @@ def import_in_blender(args: argparse.Namespace) -> None:
                 "x_factor": args.x_factor,
                 "y_factor": args.y_factor,
                 "depth_range_m": [0.0, args.depth_meters * args.y_factor],
+                "fade_policy_source": "exporter trajectory_alpha/trajectory_width (bucketed to 0.1)",
+                "fade_policy_tiers": dict(sorted(fade_tier_counts.items())),
+                "local_depth_sign": "blender_y keeps pose_z sign (closer to camera = smaller y)",
                 "camera_location": args.camera_location,
                 "camera_rotation_degrees": args.camera_rotation,
                 "save_blend": str(args.save_blend) if args.save_blend else None,

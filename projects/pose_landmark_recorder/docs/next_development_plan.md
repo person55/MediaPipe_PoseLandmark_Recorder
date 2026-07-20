@@ -13,12 +13,15 @@ Status update (2026-07-20): Outlier Minimizer v2 is implemented (`minimize_pose_
 The next implementation priorities are validation-first:
 
 ```text
-1. holdout validation of margins/floors on a third video (different environment/fps)
-2. Blender importer fade-policy contract restoration (honor exporter alpha/width fades, check depth sign)
+1. holdout validation of margins/floors on a third video (different environment/fps) [awaiting footage]
 ```
 
 Done 2026-07-20 (Loop 4): fps normalization of spike floors — floors are now defined
 in m/s units and converted to per-frame values by metadata fps.
+
+Done 2026-07-20 (Loop 6): Blender importer fade-policy contract restored (trails
+consume exporter trajectory_alpha/trajectory_width) and export depth sign corrected
+(`blender_y = z * depth_scale`, verified against video frames).
 
 After that: target-switch diagnostics, Motion Profile Builder (Priority 2 below), persistent importer work (Priority 3 below).
 
@@ -436,15 +439,16 @@ Their outputs must be treated as candidates or generated layers, not measured da
 
 ```text
 1. Holdout-validate margins/floors on a third video                  [needs new footage]
-2. Restore Blender importer fade-policy contract                     [pending]
-3. Add target-switch diagnostics (only unimplemented loop candidate) [pending]
-4. Add Motion Profile Builder for lightweight statistical prior      [pending]
-5. Persistent Blender add-on / TouchDesigner importer parity         [pending]
+2. Add target-switch diagnostics (only unimplemented loop candidate) [pending]
+3. Add Motion Profile Builder for lightweight statistical prior      [pending]
+4. Persistent Blender add-on / TouchDesigner importer parity         [pending]
+5. Per-frame marker/halo fade in the Blender importer                [pending]
 6. Consider learned or generated motion backends only as separate research modules
 
 Done: Skeleton Optimizer kept diagnostic; crop refinement limited to mixed problem
 segments; Outlier Minimizer v2; screen-bottom-origin trajectory export; Loop 1-3
-wiring/threshold/scoring fixes; Loop 4 fps-normalized spike floors.
+wiring/threshold/scoring fixes; Loop 4 fps-normalized spike floors; Loop 6 importer
+fade-policy contract + depth sign correction.
 ```
 
 ## Core Principle

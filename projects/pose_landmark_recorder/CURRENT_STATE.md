@@ -90,6 +90,7 @@ Three verified loops fixed stage-wiring defects found in the structural review. 
 - Loop 2: spike thresholds rebuilt as median + 1.4826*MAD with absolute floors, vector-based acceleration/jerk, echo trimming, hips correctable. False spike breaks on hip/ankle reduced 90-97% while real glitches (5-7 m/s) stayed detected; confirmed by visual frame comparison.
 - Loop 3: temporal scoring normalized to per-frame rate so re-detected candidates compete fairly with interpolation; crop candidate z restored to frame scale; margins recalibrated (crop 0.04, full-frame 0.05). First crop acceptances occurred (session 006: 11, all in target categories).
 - Loop 4 (2026-07-20): spike floors redefined in physical per-second units (0.48 m/s / 11.5 m/s^2 / 414 m/s^3) and converted to per-frame values by metadata fps, making spike judgments fps-invariant. Baseline decisions preserved (007_v2 byte-identical; 006_v2 4 borderline rows of 219,384).
+- Loop 6 (2026-07-20): export depth sign corrected (`blender_y = z`, verified against MediaPipe convention and video frames) and the Blender importer now consumes the exporter's trajectory_alpha/trajectory_width fade policy (0.1 buckets, tiered curve objects) instead of rendering everything at fixed alpha. Loop 5 (holdout) is on hold until third-video footage exists.
 - Cleanup: `quality_flags.py` and `stage_schema.py` single sources; merge/accept logic moved from scripts to `src/crop_apply.py` / `src/refine_apply.py` with contract tests (123 tests passing).
 - Final integrated rerun (`session_cpu_006_v2` / `session_cpu_007_v2`) reproduced all loop numbers end to end and produced `.blend` files.
 
@@ -165,7 +166,7 @@ Use `export_trajectory.py` after `outlier_minimized`, which is produced from `re
 
 Use `open_blender_trajectory.py` to open the exported CSV in Blender and save `blender/blender_<session_id>_trajectory.blend`. The importer resets to a fresh startup scene, deletes the default `Cube`, then imports the trajectory. The current default camera is the fixed `-Y` view, marker/halo visibility is tuned for playback, overview trails are shown while paused, progressive trails draw during playback, and metadata labels are hidden unless `--show-camera-summary` is used.
 
-Next (validation-first order): holdout validation on a third video with a different environment/fps (fps normalization done in Loop 4, so fps no longer confounds this), Blender importer fade-policy contract restoration. Then: target-switch diagnostics, Motion Profile Builder, persistent Blender/TouchDesigner importer.
+Next (validation-first order): holdout validation on a third video with a different environment/fps (fps normalization done in Loop 4, so fps no longer confounds this; awaiting footage). Then: target-switch diagnostics, Motion Profile Builder, persistent Blender/TouchDesigner importer, per-frame marker fade.
 
 ## Known limitations
 
@@ -175,4 +176,4 @@ Open verification reservations (2026-07-19 assessment):
 
 - margins/floors were derived from the same two sessions used for validation (no holdout yet)
 - accepted re-detection candidates passed scores/guards but their positional accuracy was not compared against video
-- the Blender importer re-derives depth and ignores the exporter's alpha/width fade policy, so uncertain regions render like certain ones; suspected local depth sign inversion is uninvestigated
+- animated markers/halos still render at fixed alpha (only trails consume the fade policy since Loop 6); frame-level body depth remains an importer heuristic by design (pose_z carries only hip-relative local depth)
