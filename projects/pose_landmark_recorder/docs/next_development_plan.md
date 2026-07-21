@@ -452,12 +452,17 @@ Their outputs must be treated as candidates or generated layers, not measured da
 ## Recommended Next Implementation Order
 
 ```text
-1. fps-generalization holdout on a 60fps video                              [needs footage]
-2. Motion Profile Builder — start as a read-only statistics report only;
-   do NOT wire into acceptance thresholds yet (23.976fps-only sessions,
-   small sample: overfit risk per Codex cross-validation)                   [pending]
-3. Persistent Blender add-on / TouchDesigner importer parity                [pending]
+1. Persistent Blender add-on / TouchDesigner importer parity                [pending]
+2. Full positional verification of session_cpu_009 acceptances (P1 protocol)[pending]
+3. Motion Profile promotion to decision guard — only after more sessions
+   and blind-label validation                                               [deferred]
 4. Consider learned or generated motion backends only as separate research modules
+
+Done (2026-07-21): 60fps holdout passed on session_cpu_009 — spike floors
+convert exactly by fps, flagged-row physical velocity distributions match
+the 23.976fps sessions, and the motion profile shows consistent physical
+stats across frame rates. Motion Profile Builder implemented read-only
+(configs/motion_profile_default.json + report; not wired into thresholds).
 
 Loop 13 done (2026-07-21): per-frame marker/halo fade — markers/halos now
 consume the exporter's trajectory_alpha via object-color keyframes and

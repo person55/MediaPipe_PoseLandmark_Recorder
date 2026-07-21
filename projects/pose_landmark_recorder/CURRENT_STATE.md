@@ -17,6 +17,7 @@ scripts/minimize_pose_outliers.py
 scripts/export_trajectory.py
 scripts/open_blender_trajectory.py
 scripts/optimize_pose_skeleton.py
+scripts/build_motion_profile.py
 scripts/report_crosspass_agreement.py
 scripts/run_full_pipeline.py
 scripts/build_pipeline_app.py
@@ -122,6 +123,8 @@ Latest verified sessions (Windows 11, CPU delegate, Blender 5.2), v3 layers: `se
 
 Holdout session: `session_cpu_008` (3,254 frames, detection 91.3%, crop accept 1,560, full-frame accept 15, spike segments 612, export points 80,481 / segments 54,802, .blend 5.6MB, rows 214,764) — first unseen-footage validation, passed 2026-07-21; includes a correctly-handled camera-cut jump at f2096→f2139.
 
+60fps holdout session: `session_cpu_009` (dance_take_009.mov, 1920×1080 @ 60.0fps, 8,394 frames, different projection-mapped stage, detection 81.0%, crop accept 540, full-frame accept 38, spike segments 3,716 with median duration 0.017s, corrected 2,370, cross-pass agreement 78.8%, rows 554,004, .blend 13.2MB) — fps-generalization holdout, passed 2026-07-21: floors convert exactly (0.008 / 0.0031944 / 0.00191667 per-frame), flagged-row physical velocity distributions match the 23.976fps sessions (no 60/24 distortion).
+
 ## Earlier build reference
 
 Latest local PyInstaller build:
@@ -174,7 +177,7 @@ Use `export_trajectory.py` after `outlier_minimized`, which is produced from `re
 
 Use `open_blender_trajectory.py` to open the exported CSV in Blender and save `blender/blender_<session_id>_trajectory.blend`. The importer resets to a fresh startup scene, deletes the default `Cube`, then imports the trajectory. The current default camera is the fixed `-Y` view, marker/halo visibility is tuned for playback, overview trails are shown while paused, progressive trails draw during playback, and metadata labels are hidden unless `--show-camera-summary` is used.
 
-Next: Motion Profile Builder (read-only statistics report first), persistent Blender/TouchDesigner importer. Remaining external dependency: a 60fps video for fps-generalization holdout. Done: v3 integrated rerun, stratified accuracy verification (Codex P1), target-switch diagnostics (Loop 10), first holdout validation (session_cpu_008, passed), Loop 12 standardized cross-pass agreement report (crop stage output `crop_crosspass_agreement.csv` + report summary + backfill script; 006_v2/007_v2/008 backfilled), Loop 11 heel/foot guard investigated and held (current proxy metrics do not support a guard), Loop 13 per-frame marker/halo fade (markers/halos consume trajectory_alpha via object-color keyframes; alpha=1 renders unchanged; `--no-marker-frame-fade` opt-out).
+Next: persistent Blender/TouchDesigner importer, exhaustive positional verification of 009 acceptances (P1 protocol), Motion Profile guard promotion (only after more sessions + blind-label validation). Done 2026-07-21: Motion Profile Builder (read-only, `configs/motion_profile_default.json`), 60fps holdout passed (session_cpu_009). Done: v3 integrated rerun, stratified accuracy verification (Codex P1), target-switch diagnostics (Loop 10), first holdout validation (session_cpu_008, passed), Loop 12 standardized cross-pass agreement report (crop stage output `crop_crosspass_agreement.csv` + report summary + backfill script; 006_v2/007_v2/008 backfilled), Loop 11 heel/foot guard investigated and held (current proxy metrics do not support a guard), Loop 13 per-frame marker/halo fade (markers/halos consume trajectory_alpha via object-color keyframes; alpha=1 renders unchanged; `--no-marker-frame-fade` opt-out).
 
 ## Known limitations
 
@@ -182,7 +185,7 @@ No Hand Landmarker, persistent Blender add-on, TouchDesigner importer, learned t
 
 Open verification reservations (updated 2026-07-21):
 
-- margins/floors passed the first holdout on unseen same-fps footage (session_cpu_008), but fps generalization remains untested — all validated sessions are 23.976fps; a 60fps video is still needed
+- margins/floors passed the first holdout on unseen same-fps footage (session_cpu_008) and the 60fps holdout (session_cpu_009, 2026-07-21): floors convert exactly by metadata fps and flagged-row physical velocity distributions match across frame rates — fps generalization validated on real data; residual: 009's 540 accepted rows have sample-level (not exhaustive) positional verification, and its elevated spike rate is attributed to 81% detection difficulty plus 60fps resolving 1-frame micro-glitches
 - heel/foot acceptance quality was investigated (Loop 11, 2026-07-21, verdict hold): the current proxy metrics (score delta, visibility, presence, displacement) do not support a guard — but per Codex cross-validation this is not a completed "no discriminator" conclusion: foot low-agreement rates differ sharply by pass (forward 51.6% / mirror 42.6% / reverse 14.3%), and any restart should use blind stratified visual labels with segment-level PR/AUC instead of median comparisons; monitored per-session via the standardized cross-pass report
 - cross-pass agreement is a biased metric inside left-right-confusion segments (independent passes share cleaned's confusion), shown by holdout samples where low-agreement acceptances were visually correct — it cannot serve as a standalone acceptance criterion there (this caveat is embedded in the report's note field)
 - markers/halos now consume the per-frame fade policy (Loop 13); mild fades (alpha 0.85-0.9) remain subtle under emission saturation while strong fades (<=0.5) are clearly visible, and object-color alpha shows in rendered/material-preview modes only; frame-level body depth remains an importer heuristic by design (pose_z carries only hip-relative local depth)
