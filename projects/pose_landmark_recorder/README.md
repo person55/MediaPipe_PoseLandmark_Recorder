@@ -4,6 +4,68 @@ Python 3.11 tool for extracting MediaPipe Tasks Pose Landmarker data from a vide
 
 This project lives under `projects/pose_landmark_recorder/` so the upstream MediaPipe fork remains mostly unchanged.
 
+## Validation Report (Summary)
+
+> Full records: `docs/claude_loop_progress.md` (all improvement loops),
+> `docs/acceptance_exhaustive_verification.md` (exhaustive acceptance
+> verification), `CURRENT_STATE.md`. Verified release: merge commit of
+> `feat/claude-loop-pose-landmark-improvement` (168 tests passing).
+
+**Objective.** Make single-camera MediaPipe pose data reliable enough for
+Blender visualization by *selecting observations better* — never by
+generating motion. Every correction, rejection, and uncertainty is preserved
+in separate layers and quality flags.
+
+**Scope.** Solo performer, fixed camera (operational constraint), MediaPipe
+Pose Landmarker Full, offline 7-stage pipeline (record → clean → multi-pass
+crop re-detection → full-frame refine → outlier minimize → trajectory export
+→ Blender import, plus a reproducibility manifest). Out of scope by design:
+hand landmarker, multi-person, realtime, learned/generative reconstruction
+(a VideoPose3D research spike was rejected for failing observation-fidelity
+checks).
+
+**Key developments** (14 hypothesis-driven loops, each judged against a
+frozen baseline):
+
+- Correctness repairs: outlier decisions now reach the exported source;
+  16:9 aspect applied (span ratio exactly 1.778x); spike thresholds rebuilt
+  as median + MAD with physical floors (0.48 m/s, 11.5 m/s^2, 414 m/s^3)
+  converted by metadata fps — false spike segments −80%, false hip/ankle
+  breaks −90 to −97%, fps-invariant by construction.
+- Observation expansion: rotation-normalized, CLAHE-rescued, mirrored and
+  reversed crop re-detection passes competing under unchanged scoring
+  guards (isolated trackers, baseline byte-preserved); acceptances grew
+  from near-zero to hundreds of rows per session, with left/right-confusion
+  diagnostics as pure metadata.
+- Visualization contract: corrected depth sign, importer consumption of the
+  exporter fade policy including per-frame marker/halo fade, and a
+  non-destructive One-Euro smoothing layer (depth jitter −88%, raw columns
+  byte-identical, filters reset at breaks).
+- Diagnostics: standardized cross-pass agreement report (consistency
+  diagnostic only — explicitly not an acceptance criterion), read-only
+  statistical motion profile (hip p95 independently matches the validated
+  0.48 m/s floor), per-session reproducibility manifests.
+
+**Validation.**
+
+| Check | Result |
+|---|---|
+| Holdout 1 (24fps, unseen stage, camera-cut jump) | Cut handled with zero interpolation, zero bridging segments, smoothing reset |
+| Holdout 2 (60fps, hardest footage, 81% detection) | Floors convert exactly; flagged-row physical velocity matches 24fps sessions |
+| Holdout 3 (59.97fps, easy clip, 100% detection) | Honest no-op: zero re-detection attempts, zero hidden rows |
+| Holdout 4 (60fps with real camera pans) | Hip-relative spike judgment robust to pans; best cross-pass agreement (95.1%) |
+| Exhaustive visual verification | All 2,216 accepted rows across four sessions: 99.1% correct, 0.9% borderline, **zero errors** |
+| Independent cross-validation | Two Codex rounds reproduced code, numbers and samples (row-level match); third round (independent blind kappa) protocol documented |
+
+**Limitations.** Validated on six solo-dance sessions across five venues and
+two frame-rate families only; long occlusions and frame-outs are hidden or
+broken, not reconstructed (by design); pose depth is hip-relative
+visualization depth, not metric 3D; screen-origin trajectories mix camera
+pan into subject translation (avoided operationally by the fixed-camera
+constraint); the visual labeler is a single model with cross-checks but no
+fully independent blind kappa yet; the motion profile is observational and
+not wired into any threshold.
+
 ## Setup
 
 ```bash
