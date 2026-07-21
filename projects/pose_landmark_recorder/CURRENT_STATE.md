@@ -125,6 +125,8 @@ Holdout session: `session_cpu_008` (3,254 frames, detection 91.3%, crop accept 1
 
 60fps holdout session: `session_cpu_009` (dance_take_009.mov, 1920×1080 @ 60.0fps, 8,394 frames, different projection-mapped stage, detection 81.0%, crop accept 540, full-frame accept 38, spike segments 3,716 with median duration 0.017s, corrected 2,370, cross-pass agreement 78.8%, rows 554,004, .blend 13.2MB) — fps-generalization holdout, passed 2026-07-21: floors convert exactly (0.008 / 0.0031944 / 0.00191667 per-frame), flagged-row physical velocity distributions match the 23.976fps sessions (no 60/24 distortion).
 
+Third holdout (easy/short confirmation run): `session_cpu_010` (585 frames @ 59.969fps, ~9.8s) — passed 2026-07-21: detection 100%, zero hidden rows, zero re-detection attempts (honest no-op on clean footage; Loop 12 empty-input contract exercised in production), non-integer fps floor conversion exact (0.0080041/frame), spike rate per 1,000 frames (448) and median duration (0.017s) reproduce the 009 60fps micro-glitch pattern, rows 38,610, .blend 1.2MB.
+
 ## Earlier build reference
 
 Latest local PyInstaller build:
