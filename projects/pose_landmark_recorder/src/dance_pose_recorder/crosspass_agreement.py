@@ -35,9 +35,12 @@ AGREEMENT_COLUMNS = [
 ]
 
 _INTERPRETATION_NOTE = (
-    "Diagnostic metadata only; never used for acceptance. Low agreement inside "
-    "left-right confusion segments does not imply a wrong acceptance because "
-    "independent passes can share the cleaned value's confusion."
+    "Diagnostic metadata only; never used for acceptance. Read as cross-pass "
+    "consistency, not accuracy: passes share one model and image family (not "
+    "statistically independent samples), nearest-of-multiple distances are "
+    "optimistically small, and low agreement inside left-right confusion "
+    "segments does not imply a wrong acceptance because independent passes can "
+    "share the cleaned value's confusion."
 )
 
 

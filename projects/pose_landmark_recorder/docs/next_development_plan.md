@@ -452,9 +452,11 @@ Their outputs must be treated as candidates or generated layers, not measured da
 ## Recommended Next Implementation Order
 
 ```text
-1. Per-frame marker/halo fade in the Blender importer                       [pending]
+1. Per-frame marker/halo fade in the Blender importer                       [next — Codex-agreed]
 2. fps-generalization holdout on a 60fps video                              [needs footage]
-3. Add Motion Profile Builder for lightweight statistical prior             [pending]
+3. Motion Profile Builder — start as a read-only statistics report only;
+   do NOT wire into acceptance thresholds yet (23.976fps-only sessions,
+   small sample: overfit risk per Codex cross-validation)                   [pending]
 4. Persistent Blender add-on / TouchDesigner importer parity                [pending]
 5. Consider learned or generated motion backends only as separate research modules
 
