@@ -55,16 +55,18 @@ frozen baseline):
 | Holdout 3 (59.97fps, easy clip, 100% detection) | Honest no-op: zero re-detection attempts, zero hidden rows |
 | Holdout 4 (60fps with real camera pans) | Hip-relative spike judgment robust to pans; best cross-pass agreement (95.1%) |
 | Exhaustive visual verification | All 2,216 accepted rows across four sessions: 99.1% correct, 0.9% borderline, **zero errors** |
-| Independent cross-validation | Two Codex rounds reproduced code, numbers and samples (row-level match); third round (independent blind kappa) protocol documented |
+| Independent cross-validation | Two Codex rounds reproduced code, numbers and samples (row-level match) |
+| Independent blind re-labeling (round 3) | A fresh Codex session blind-labeled all 2,216 rows from a clean package: 99.05% raw agreement, **both raters found zero errors**; kappa = -0.0009 [-0.0024, 0.0000] is uninformative by prevalence paradox (pre-registered caveat); the borderline class proved rater-subjective with no decision impact |
 
 **Limitations.** Validated on six solo-dance sessions across five venues and
 two frame-rate families only; long occlusions and frame-outs are hidden or
 broken, not reconstructed (by design); pose depth is hip-relative
 visualization depth, not metric 3D; screen-origin trajectories mix camera
 pan into subject translation (avoided operationally by the fixed-camera
-constraint); the visual labeler is a single model with cross-checks but no
-fully independent blind kappa yet; the motion profile is observational and
-not wired into any threshold.
+constraint); the error-class conclusion is now confirmed by an independent
+blind rater, though kappa itself is uninformative at this class prevalence
+and the borderline annotation remains rater-subjective; the motion profile
+is observational and not wired into any threshold.
 
 ## Setup
 
