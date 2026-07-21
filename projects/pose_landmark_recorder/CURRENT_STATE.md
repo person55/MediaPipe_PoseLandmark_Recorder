@@ -127,6 +127,8 @@ Holdout session: `session_cpu_008` (3,254 frames, detection 91.3%, crop accept 1
 
 Third holdout (easy/short confirmation run): `session_cpu_010` (585 frames @ 59.969fps, ~9.8s) — passed 2026-07-21: detection 100%, zero hidden rows, zero re-detection attempts (honest no-op on clean footage; Loop 12 empty-input contract exercised in production), non-integer fps floor conversion exact (0.0080041/frame), spike rate per 1,000 frames (448) and median duration (0.017s) reproduce the 009 60fps micro-glitch pattern, rows 38,610, .blend 1.2MB.
 
+Fourth holdout (camera movement): `session_cpu_011` (376 frames @ 60fps, ballet, camera pans confirmed via background shift) — passed 2026-07-21: detection 100%, crop accept 123 with cross-pass agreement 95.1% (best of all sessions), spike rate 447/1,000 frames (third reproduction of the 60fps family), hip-relative spike judgment robust to pans (spike rows concentrate 6x in high-screen-motion frames but visual check shows they land exactly on genuinely invisible parts during jump-turns — legitimate judgments, not coordinate contamination). Known design characteristic recorded: screen_bottom_origin trajectories mix camera pan into subject translation; camera-motion compensation is a separate feature candidate. Motion profile now spans six sessions (3×24fps, 3×60fps, five venues).
+
 ## Earlier build reference
 
 Latest local PyInstaller build:
