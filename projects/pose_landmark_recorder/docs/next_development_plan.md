@@ -452,13 +452,18 @@ Their outputs must be treated as candidates or generated layers, not measured da
 ## Recommended Next Implementation Order
 
 ```text
-1. Loop 11: heel/foot acceptance guard (weakest cross-pass agreement group) [proposed]
-2. Loop 12: standardized cross-pass agreement report in crop refine stage   [proposed]
-3. Per-frame marker/halo fade in the Blender importer                       [pending]
-4. fps-generalization holdout on a 60fps video                              [needs footage]
-5. Add Motion Profile Builder for lightweight statistical prior             [pending]
-6. Persistent Blender add-on / TouchDesigner importer parity                [pending]
-7. Consider learned or generated motion backends only as separate research modules
+1. Per-frame marker/halo fade in the Blender importer                       [pending]
+2. fps-generalization holdout on a 60fps video                              [needs footage]
+3. Add Motion Profile Builder for lightweight statistical prior             [pending]
+4. Persistent Blender add-on / TouchDesigner importer parity                [pending]
+5. Consider learned or generated motion backends only as separate research modules
+
+Loop 12 done (2026-07-21): standardized cross-pass agreement report — crop stage
+now writes crop_crosspass_agreement.csv + a crosspass_agreement report summary;
+scripts/report_crosspass_agreement.py backfills existing sessions.
+Loop 11 held (2026-07-21): heel/foot guard hypothesis refuted by diagnostics
+(no metric separates low- from high-agreement foot acceptances; weakness was
+one hard segment in 008, not systematic) — monitored via the Loop 12 report.
 
 Done: Skeleton Optimizer kept diagnostic; Outlier Minimizer v2; screen-bottom-origin
 trajectory export; Loop 1-3 wiring/threshold/scoring fixes; Loop 4 fps-normalized

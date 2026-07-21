@@ -55,12 +55,14 @@ from dance_pose_recorder.crop_rotation import (
     unrotate_pose_landmarks,
     unrotate_world_landmarks,
 )
+from dance_pose_recorder.crosspass_agreement import build_crosspass_agreement
 from dance_pose_recorder.data_writer import frame_to_csv_rows, make_frame_record
 from dance_pose_recorder.output_layout import (
     CLEANED_FRAME_STATUS_CSV,
     CROP_REFINE_DIR,
     CROP_REFINE_CANDIDATE_SCORES_CSV,
     CROP_REFINE_CANDIDATES_CSV,
+    CROP_REFINE_CROSSPASS_CSV,
     CROP_REFINE_DEBUG_IMAGES_DIR,
     CROP_REFINE_POSE_CSV,
     CROP_REFINE_POSE_JSONL,
@@ -310,6 +312,9 @@ def crop_refine_pose(options: CropRefinementOptions) -> CropRefinementResult:
     confusion_csv = output_dir / "crop_confusion_diagnostics.csv"
     confusion_diagnostics.to_csv(confusion_csv, index=False)
 
+    crosspass_rows, crosspass_summary = build_crosspass_agreement(refined, candidates, cleaned)
+    crosspass_rows.to_csv(output_dir / CROP_REFINE_CROSSPASS_CSV, index=False)
+
     crop_candidate_scores_csv = output_dir / CROP_REFINE_CANDIDATE_SCORES_CSV
     pd.DataFrame(score_rows, columns=CROP_SCORE_COLUMNS).to_csv(crop_candidate_scores_csv, index=False)
 
@@ -337,6 +342,7 @@ def crop_refine_pose(options: CropRefinementOptions) -> CropRefinementResult:
         refined=refined,
         confusion_diagnostics=confusion_diagnostics,
     )
+    report["crosspass_agreement"] = crosspass_summary
     crop_refine_report = output_dir / CROP_REFINE_REPORT_JSON
     crop_refine_report.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
 

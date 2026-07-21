@@ -17,6 +17,7 @@ scripts/minimize_pose_outliers.py
 scripts/export_trajectory.py
 scripts/open_blender_trajectory.py
 scripts/optimize_pose_skeleton.py
+scripts/report_crosspass_agreement.py
 scripts/run_full_pipeline.py
 scripts/build_pipeline_app.py
 src/dance_pose_recorder/pipeline_runner.py
@@ -173,7 +174,7 @@ Use `export_trajectory.py` after `outlier_minimized`, which is produced from `re
 
 Use `open_blender_trajectory.py` to open the exported CSV in Blender and save `blender/blender_<session_id>_trajectory.blend`. The importer resets to a fresh startup scene, deletes the default `Cube`, then imports the trajectory. The current default camera is the fixed `-Y` view, marker/halo visibility is tuned for playback, overview trails are shown while paused, progressive trails draw during playback, and metadata labels are hidden unless `--show-camera-summary` is used.
 
-Next: proposed loop candidates — heel/foot acceptance guard (Loop 11), standardized cross-pass agreement report in the crop stage (Loop 12), per-frame marker/halo fade. Remaining external dependency: a 60fps video for fps-generalization holdout. Then: Motion Profile Builder, persistent Blender/TouchDesigner importer. Done: v3 integrated rerun, stratified accuracy verification (Codex P1), target-switch diagnostics (Loop 10), first holdout validation on unseen footage (session_cpu_008, 2026-07-21, passed).
+Next: per-frame marker/halo fade, Motion Profile Builder, persistent Blender/TouchDesigner importer. Remaining external dependency: a 60fps video for fps-generalization holdout. Done: v3 integrated rerun, stratified accuracy verification (Codex P1), target-switch diagnostics (Loop 10), first holdout validation (session_cpu_008, passed), Loop 12 standardized cross-pass agreement report (crop stage output `crop_crosspass_agreement.csv` + report summary + backfill script; 006_v2/007_v2/008 backfilled), Loop 11 heel/foot guard investigated and held (hypothesis refuted by diagnostics).
 
 ## Known limitations
 
@@ -182,6 +183,6 @@ No Hand Landmarker, persistent Blender add-on, TouchDesigner importer, learned t
 Open verification reservations (updated 2026-07-21):
 
 - margins/floors passed the first holdout on unseen same-fps footage (session_cpu_008), but fps generalization remains untested — all validated sessions are 23.976fps; a 60fps video is still needed
-- heel/foot acceptances are the weakest group: right_heel cross-pass agreement 43.8% (vs 62-91% elsewhere) and one borderline heel visual sample in the holdout — Loop 11 candidate
-- cross-pass agreement is a biased metric inside left-right-confusion segments (independent passes share cleaned's confusion), shown by holdout samples where low-agreement acceptances were visually correct — it cannot serve as a standalone acceptance criterion there
+- heel/foot acceptance quality was investigated (Loop 11, 2026-07-21) and the guard hypothesis was refuted: no available metric (score delta, visibility, presence) separates low-agreement from high-agreement foot acceptances, and 008's low-agreement foot rows concentrate in one floor-crawling segment where visual samples confirmed the acceptances were correct — verdict hold, monitored per-session via the standardized cross-pass report
+- cross-pass agreement is a biased metric inside left-right-confusion segments (independent passes share cleaned's confusion), shown by holdout samples where low-agreement acceptances were visually correct — it cannot serve as a standalone acceptance criterion there (this caveat is embedded in the report's note field)
 - animated markers/halos still render at fixed alpha (only trails consume the fade policy since Loop 6); frame-level body depth remains an importer heuristic by design (pose_z carries only hip-relative local depth)
