@@ -23,6 +23,7 @@ SRC_DIR = Path(__file__).resolve().parents[1] / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
+from dance_pose_recorder.marker_fade import alpha_from_value, build_marker_alpha_events  # noqa: E402
 from dance_pose_recorder.output_layout import (  # noqa: E402
     BLENDER_DIR,
     TRAJECTORY_EXPORT_DIR,
@@ -94,8 +95,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--x-factor",
         type=float,
-        default=2.2,
-        help="Visual scale applied to Blender X so screen width is not collapsed.",
+        default=1.0,
+        help="Extra visual scale applied to Blender X. The exporter now applies "
+        "the video aspect ratio, so 1.0 preserves true screen proportions.",
     )
     parser.add_argument(
         "--y-factor",
@@ -193,6 +195,30 @@ def build_parser() -> argparse.ArgumentParser:
         "--root-collection",
         default=None,
         help="Blender root collection name. Defaults to MPLR_<session_id>.",
+    )
+    parser.add_argument(
+        "--use-smoothed-trajectory",
+        action="store_true",
+        default=True,
+        help="Prefer the exporter's One-Euro *_smooth coordinates when present.",
+    )
+    parser.add_argument(
+        "--no-use-smoothed-trajectory",
+        action="store_false",
+        dest="use_smoothed_trajectory",
+        help="Render raw blender coordinates even when smoothed columns exist.",
+    )
+    parser.add_argument(
+        "--marker-frame-fade",
+        action="store_true",
+        default=True,
+        help="Animate marker/halo alpha per frame from the exporter's trajectory_alpha.",
+    )
+    parser.add_argument(
+        "--no-marker-frame-fade",
+        action="store_false",
+        dest="marker_frame_fade",
+        help="Render markers/halos at fixed alpha (pre-marker-fade behavior).",
     )
     return parser
 
@@ -413,6 +439,13 @@ def import_in_blender(args: argparse.Namespace) -> None:
         "right_foot_index",
     }
 
+    def smoothed_coord(row: dict[str, str], name: str) -> float:
+        if args.use_smoothed_trajectory:
+            value = row.get(f"{name}_smooth")
+            if value not in (None, ""):
+                return float(value)
+        return float(row[name])
+
     with args.points_csv.open("r", encoding="utf-8", newline="") as file:
         reader = csv.DictReader(file)
         for row in reader:
@@ -421,9 +454,9 @@ def import_in_blender(args: argparse.Namespace) -> None:
             try:
                 frame = int(float(row["frame"]))
                 landmark = row["landmark_name"]
-                x = float(row["blender_x"])
-                raw_y = float(row["blender_y"])
-                z = float(row["blender_z"])
+                x = smoothed_coord(row, "blender_x")
+                raw_y = smoothed_coord(row, "blender_y")
+                z = smoothed_coord(row, "blender_z")
                 screen_x = float(row.get("screen_x") or row.get("x") or 0.0)
                 screen_y = float(row.get("screen_y") or row.get("y") or 0.0)
                 if any(math.isnan(v) or math.isinf(v) for v in (x, raw_y, z, screen_x, screen_y)):
@@ -539,7 +572,15 @@ def import_in_blender(args: argparse.Namespace) -> None:
             return "right"
         return "center"
 
-    def make_material(name: str, color: tuple[float, float, float, float], *, emission: bool, strength: float, alpha: float | None = None) -> Any:
+    def make_material(
+        name: str,
+        color: tuple[float, float, float, float],
+        *,
+        emission: bool,
+        strength: float,
+        alpha: float | None = None,
+        object_alpha: bool = False,
+    ) -> Any:
         alpha = color[3] if alpha is None else alpha
         material = bpy.data.materials.get(name) or bpy.data.materials.new(name)
         material.diffuse_color = (color[0], color[1], color[2], alpha)
@@ -550,12 +591,34 @@ def import_in_blender(args: argparse.Namespace) -> None:
             node = material.node_tree.nodes.new(type="ShaderNodeEmission")
             node.inputs["Color"].default_value = (color[0], color[1], color[2], alpha)
             node.inputs["Strength"].default_value = strength
-            material.node_tree.links.new(node.outputs["Emission"], output.inputs["Surface"])
+            shader_socket = node.outputs["Emission"]
         else:
             node = material.node_tree.nodes.new(type="ShaderNodeBsdfPrincipled")
             node.inputs["Base Color"].default_value = (color[0], color[1], color[2], alpha)
             node.inputs["Alpha"].default_value = alpha
-            material.node_tree.links.new(node.outputs["BSDF"], output.inputs["Surface"])
+            shader_socket = node.outputs["BSDF"]
+        if object_alpha:
+            # Per-frame marker fade: object color alpha (keyframed from the
+            # exporter's trajectory_alpha) mixes toward transparent, and for
+            # emission shaders also scales the emission strength so fades stay
+            # legible despite emission saturation. At the default object alpha
+            # 1.0 both paths pass the original shader through unchanged, so
+            # non-faded frames render exactly as before.
+            object_info = material.node_tree.nodes.new(type="ShaderNodeObjectInfo")
+            transparent = material.node_tree.nodes.new(type="ShaderNodeBsdfTransparent")
+            mix = material.node_tree.nodes.new(type="ShaderNodeMixShader")
+            material.node_tree.links.new(object_info.outputs["Alpha"], mix.inputs["Fac"])
+            material.node_tree.links.new(transparent.outputs["BSDF"], mix.inputs[1])
+            material.node_tree.links.new(shader_socket, mix.inputs[2])
+            material.node_tree.links.new(mix.outputs["Shader"], output.inputs["Surface"])
+            if emission:
+                strength_scale = material.node_tree.nodes.new(type="ShaderNodeMath")
+                strength_scale.operation = "MULTIPLY"
+                strength_scale.inputs[1].default_value = strength
+                material.node_tree.links.new(object_info.outputs["Alpha"], strength_scale.inputs[0])
+                material.node_tree.links.new(strength_scale.outputs["Value"], node.inputs["Strength"])
+        else:
+            material.node_tree.links.new(shader_socket, output.inputs["Surface"])
         material.blend_method = "BLEND"
         material.show_transparent_back = True
         return material
@@ -567,6 +630,7 @@ def import_in_blender(args: argparse.Namespace) -> None:
             emission=True,
             strength=args.marker_emission_strength,
             alpha=color[3],
+            object_alpha=args.marker_frame_fade,
         )
         for group, color in colors.items()
     }
@@ -577,6 +641,7 @@ def import_in_blender(args: argparse.Namespace) -> None:
             emission=True,
             strength=args.halo_emission_strength,
             alpha=0.22,
+            object_alpha=args.marker_frame_fade,
         )
         for group, color in colors.items()
     }
@@ -637,6 +702,7 @@ def import_in_blender(args: argparse.Namespace) -> None:
             emission=True,
             strength=args.marker_emission_strength if side != "center" else 70.0,
             alpha=color[3],
+            object_alpha=args.marker_frame_fade,
         )
         for side, color in lr_colors.items()
     }
@@ -647,6 +713,7 @@ def import_in_blender(args: argparse.Namespace) -> None:
             emission=True,
             strength=args.halo_emission_strength if side != "center" else 130.0,
             alpha=0.22 if side != "center" else 0.26,
+            object_alpha=args.marker_frame_fade,
         )
         for side, color in lr_colors.items()
     }
@@ -670,7 +737,13 @@ def import_in_blender(args: argparse.Namespace) -> None:
             point.co = (co[0], co[1], co[2], 1.0)
         return True
 
-    segments_by_lm: dict[str, list[tuple[int, int, tuple[float, float, float], tuple[float, float, float]]]] = defaultdict(list)
+    # Fade policy contract: the exporter's trajectory_alpha/trajectory_width
+    # columns are consumed as-is (bucketed to one decimal) instead of being
+    # re-derived, so uncertain regions render fainter and thinner.
+    segments_by_lm: dict[
+        str, list[tuple[int, int, tuple[float, float, float], tuple[float, float, float], tuple[float, float]]]
+    ] = defaultdict(list)
+    fade_tier_counts: dict[str, int] = defaultdict(int)
     with args.segments_csv.open("r", encoding="utf-8", newline="") as file:
         reader = csv.DictReader(file)
         for row in reader:
@@ -678,58 +751,123 @@ def import_in_blender(args: argparse.Namespace) -> None:
                 landmark = row["landmark_name"]
                 frame_start_row = int(float(row["frame_start"]))
                 frame_end_row = int(float(row["frame_end"]))
-                p1 = mapped_location(frame_start_row, landmark, float(row["x1"]), float(row["y1"]), float(row["z1"]))
-                p2 = mapped_location(frame_end_row, landmark, float(row["x2"]), float(row["y2"]), float(row["z2"]))
+                p1 = mapped_location(
+                    frame_start_row,
+                    landmark,
+                    smoothed_coord(row, "x1"),
+                    smoothed_coord(row, "y1"),
+                    smoothed_coord(row, "z1"),
+                )
+                p2 = mapped_location(
+                    frame_end_row,
+                    landmark,
+                    smoothed_coord(row, "x2"),
+                    smoothed_coord(row, "y2"),
+                    smoothed_coord(row, "z2"),
+                )
+                alpha_value = float(row.get("trajectory_alpha") or 1.0)
+                width_value = float(row.get("trajectory_width") or 1.0)
             except Exception:
                 continue
-            segments_by_lm[landmark].append((frame_start_row, frame_end_row, p1, p2))
+            tier = (round(alpha_value, 1), round(width_value, 1))
+            fade_tier_counts[f"a{tier[0]:.1f}_w{tier[1]:.1f}"] += 1
+            segments_by_lm[landmark].append((frame_start_row, frame_end_row, p1, p2, tier))
+
+    tier_material_cache: dict[str, Any] = {}
+
+    def tier_suffix(alpha_bucket: float) -> str:
+        return f"A{int(round(alpha_bucket * 100)):03d}"
+
+    def overview_tier_material(side: str, group: str, alpha_bucket: float) -> Any:
+        if alpha_bucket >= 0.999:
+            return lr_overview_materials.get(
+                side, overview_materials.get(group, overview_materials["other"])
+            )
+        key = f"MPLR_LR_{side.upper()}_OVERVIEW_{tier_suffix(alpha_bucket)}"
+        if key not in tier_material_cache:
+            base = lr_colors.get(side, colors.get(group, colors["other"]))
+            tier_material_cache[key] = make_material(
+                key,
+                base,
+                emission=False,
+                strength=1.0,
+                alpha=args.overview_trail_alpha * alpha_bucket,
+            )
+        return tier_material_cache[key]
+
+    def progress_tier_material(side: str, group: str, alpha_bucket: float) -> Any:
+        if alpha_bucket >= 0.999:
+            return lr_progress_materials.get(
+                side, progress_materials.get(group, progress_materials["other"])
+            )
+        key = f"MPLR_LR_{side.upper()}_DRAW_{tier_suffix(alpha_bucket)}"
+        if key not in tier_material_cache:
+            base = lr_colors.get(side, colors.get(group, colors["other"]))
+            strength = (5.5 if side != "center" else 2.2) * alpha_bucket
+            tier_material_cache[key] = make_material(
+                key,
+                base,
+                emission=True,
+                strength=strength,
+                alpha=0.95 * alpha_bucket,
+            )
+        return tier_material_cache[key]
 
     overview_count = 0
     progress_count = 0
     for landmark, segments in sorted(segments_by_lm.items()):
         segments.sort(key=lambda item: (item[0], item[1]))
         group = landmark_group(landmark)
-        overview_curve = bpy.data.curves.new(f"MPLR_TRAJ_{landmark}", "CURVE")
-        overview_curve.dimensions = "3D"
-        overview_curve.resolution_u = 2
-        overview_curve.bevel_depth = 0.0038
-        overview_curve.bevel_resolution = 1
-        paths: list[tuple[int, int, list[tuple[float, float, float]]]] = []
+        side = landmark_side(landmark)
+        paths: list[tuple[int, int, tuple[float, float], list[tuple[float, float, float]]]] = []
         current: list[tuple[float, float, float]] = []
         start = None
         end = None
         prev_end = None
-        for start_frame_row, end_frame_row, p1, p2 in segments:
-            if prev_end is not None and start_frame_row == prev_end:
+        prev_tier: tuple[float, float] | None = None
+        for start_frame_row, end_frame_row, p1, p2, tier in segments:
+            if prev_end is not None and start_frame_row == prev_end and tier == prev_tier:
                 current.append(p2)
                 end = end_frame_row
             else:
-                if len(current) >= 2 and start is not None and end is not None:
-                    paths.append((start, end, list(current)))
-                    add_polyline(overview_curve, current)
+                if len(current) >= 2 and start is not None and end is not None and prev_tier is not None:
+                    paths.append((start, end, prev_tier, list(current)))
                 current = [p1, p2]
                 start = start_frame_row
                 end = end_frame_row
             prev_end = end_frame_row
-        if len(current) >= 2 and start is not None and end is not None:
-            paths.append((start, end, list(current)))
-            add_polyline(overview_curve, current)
-        overview_obj = bpy.data.objects.new(f"MPLR_TRAJ_{landmark}", overview_curve)
-        overview_obj.data.materials.append(
-            lr_overview_materials.get(
-                landmark_side(landmark),
-                overview_materials.get(group, overview_materials["other"]),
-            )
-        )
-        overview_obj["mplr_overview_curve"] = True
-        curves_col.objects.link(overview_obj)
-        overview_count += 1
+            prev_tier = tier
+        if len(current) >= 2 and start is not None and end is not None and prev_tier is not None:
+            paths.append((start, end, prev_tier, list(current)))
 
-        for index, (path_start, path_end, points) in enumerate(paths):
+        overview_paths_by_tier: dict[tuple[float, float], list[list[tuple[float, float, float]]]] = defaultdict(list)
+        for _path_start, _path_end, tier, points in paths:
+            overview_paths_by_tier[tier].append(points)
+        for tier, tier_paths in sorted(overview_paths_by_tier.items()):
+            alpha_bucket, width_bucket = tier
+            solid = alpha_bucket >= 0.999 and width_bucket >= 0.999
+            name = f"MPLR_TRAJ_{landmark}" if solid else f"MPLR_TRAJ_{landmark}_{tier_suffix(alpha_bucket)}"
+            overview_curve = bpy.data.curves.new(name, "CURVE")
+            overview_curve.dimensions = "3D"
+            overview_curve.resolution_u = 2
+            overview_curve.bevel_depth = 0.0038 * width_bucket
+            overview_curve.bevel_resolution = 1
+            for points in tier_paths:
+                add_polyline(overview_curve, points)
+            overview_obj = bpy.data.objects.new(name, overview_curve)
+            overview_obj.data.materials.append(overview_tier_material(side, group, alpha_bucket))
+            overview_obj["mplr_overview_curve"] = True
+            overview_obj["mplr_trajectory_alpha"] = float(alpha_bucket)
+            overview_obj["mplr_trajectory_width"] = float(width_bucket)
+            curves_col.objects.link(overview_obj)
+            overview_count += 1
+
+        for index, (path_start, path_end, tier, points) in enumerate(paths):
+            alpha_bucket, width_bucket = tier
             curve = bpy.data.curves.new(f"MPLR_DRAWPATH_{landmark}_{index:03d}", "CURVE")
             curve.dimensions = "3D"
             curve.resolution_u = 2
-            curve.bevel_depth = 0.0075
+            curve.bevel_depth = 0.0075 * width_bucket
             curve.bevel_resolution = 1
             curve.bevel_factor_start = 0.0
             curve.bevel_factor_end = 0.0
@@ -739,15 +877,12 @@ def import_in_blender(args: argparse.Namespace) -> None:
                 pass
             add_polyline(curve, points)
             obj = bpy.data.objects.new(f"MPLR_DRAWPATH_{landmark}_{index:03d}", curve)
-            obj.data.materials.append(
-                lr_progress_materials.get(
-                    landmark_side(landmark),
-                    progress_materials.get(group, progress_materials["other"]),
-                )
-            )
+            obj.data.materials.append(progress_tier_material(side, group, alpha_bucket))
             obj["mplr_progress_curve"] = True
             obj["mplr_start_frame"] = int(path_start)
             obj["mplr_end_frame"] = int(path_end)
+            obj["mplr_trajectory_alpha"] = float(alpha_bucket)
+            obj["mplr_trajectory_width"] = float(width_bucket)
             obj.hide_viewport = True
             obj.hide_render = True
             progress_col.objects.link(obj)
@@ -876,8 +1011,30 @@ def import_in_blender(args: argparse.Namespace) -> None:
             obj.keyframe_insert(data_path="hide_viewport", frame=frame)
             obj.keyframe_insert(data_path="hide_render", frame=frame)
 
+    def set_fcurve_interpolation(target: Any) -> None:
+        if not (target.animation_data and target.animation_data.action):
+            return
+        try:
+            for fcurve in target.animation_data.action.fcurves:
+                for keyframe in fcurve.keyframe_points:
+                    keyframe.interpolation = (
+                        "CONSTANT"
+                        if fcurve.data_path in {"hide_viewport", "hide_render", "color"}
+                        else "LINEAR"
+                    )
+        except Exception:
+            pass
+
+    def keyframe_object_alpha(target: Any, alpha_events: list[tuple[int, float]]) -> None:
+        for frame, alpha in alpha_events:
+            target.color = (1.0, 1.0, 1.0, alpha)
+            target.keyframe_insert(data_path="color", frame=frame)
+
     marker_count = 0
     halo_count = 0
+    marker_fade_keyframes = 0
+    marker_fade_faded_rows = 0
+    marker_fade_min_alpha = 1.0
     for landmark, records in sorted(rows_by_lm.items()):
         if landmark in face_marker_names_to_hide:
             continue
@@ -901,17 +1058,6 @@ def import_in_blender(args: argparse.Namespace) -> None:
             obj.location = mapped_location(frame, landmark, x, raw_y, z)
             obj.keyframe_insert(data_path="location", frame=frame)
         marker_visibility(obj, [record[0] for record in records])
-        if obj.animation_data and obj.animation_data.action:
-            try:
-                for fcurve in obj.animation_data.action.fcurves:
-                    for keyframe in fcurve.keyframe_points:
-                        keyframe.interpolation = (
-                            "CONSTANT"
-                            if fcurve.data_path in {"hide_viewport", "hide_render"}
-                            else "LINEAR"
-                        )
-            except Exception:
-                pass
         halo = bpy.data.objects.new(f"MPLR_HALO_{landmark}", get_halo_mesh(group))
         halo.parent = obj
         halo.location = (0.0, 0.0, 0.0)
@@ -924,6 +1070,22 @@ def import_in_blender(args: argparse.Namespace) -> None:
         )
         halo.show_in_front = True
         halo_col.objects.link(halo)
+        if args.marker_frame_fade:
+            frame_alphas = [
+                (record[0], alpha_from_value(record[7].get("trajectory_alpha")))
+                for record in records
+            ]
+            marker_fade_faded_rows += sum(1 for _, alpha in frame_alphas if alpha < 1.0)
+            if frame_alphas:
+                marker_fade_min_alpha = min(
+                    marker_fade_min_alpha, min(alpha for _, alpha in frame_alphas)
+                )
+            alpha_events = build_marker_alpha_events(frame_alphas)
+            keyframe_object_alpha(obj, alpha_events)
+            keyframe_object_alpha(halo, alpha_events)
+            marker_fade_keyframes += 2 * len(alpha_events)
+        set_fcurve_interpolation(obj)
+        set_fcurve_interpolation(halo)
         marker_count += 1
         halo_count += 1
 
@@ -1074,6 +1236,16 @@ def import_in_blender(args: argparse.Namespace) -> None:
                 "x_factor": args.x_factor,
                 "y_factor": args.y_factor,
                 "depth_range_m": [0.0, args.depth_meters * args.y_factor],
+                "use_smoothed_trajectory": args.use_smoothed_trajectory,
+                "fade_policy_source": "exporter trajectory_alpha/trajectory_width (trails bucketed to 0.1; markers/halos per-frame)",
+                "fade_policy_tiers": dict(sorted(fade_tier_counts.items())),
+                "marker_frame_fade": {
+                    "enabled": args.marker_frame_fade,
+                    "faded_point_rows": marker_fade_faded_rows,
+                    "alpha_keyframes": marker_fade_keyframes,
+                    "min_alpha": round(marker_fade_min_alpha, 3),
+                },
+                "local_depth_sign": "blender_y keeps pose_z sign (closer to camera = smaller y)",
                 "camera_location": args.camera_location,
                 "camera_rotation_degrees": args.camera_rotation,
                 "save_blend": str(args.save_blend) if args.save_blend else None,

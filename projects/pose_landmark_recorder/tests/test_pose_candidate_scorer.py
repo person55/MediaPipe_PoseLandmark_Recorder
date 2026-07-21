@@ -30,6 +30,40 @@ def test_large_jump_gets_lower_temporal_score():
     assert near > far
 
 
+def test_temporal_score_is_gap_invariant_for_plausible_motion():
+    near_anchors = pd.DataFrame(
+        [
+            {"frame": 4, "x": 4.0, "y": 0.0},
+            {"frame": 6, "x": 6.0, "y": 0.0},
+        ]
+    )
+    far_anchors = pd.DataFrame(
+        [
+            {"frame": 0, "x": 0.0, "y": 0.0},
+            {"frame": 10, "x": 10.0, "y": 0.0},
+        ]
+    )
+    row = {"frame": 5, "x": 5.0, "y": 0.0}
+
+    near = temporal_score(row, near_anchors, median_motion=1.0)
+    far = temporal_score(row, far_anchors, median_motion=1.0)
+
+    assert abs(near - far) < 1e-6
+
+
+def test_temporal_score_judges_per_frame_rate_not_raw_distance():
+    stable = pd.DataFrame(
+        [
+            {"frame": 0, "x": 0.0, "y": 0.0},
+            {"frame": 10, "x": 10.0, "y": 0.0},
+        ]
+    )
+
+    score = temporal_score({"frame": 5, "x": 5.0, "y": 0.0}, stable, median_motion=1.0)
+
+    assert abs(score - 0.5) < 1e-6
+
+
 def test_bone_score_prefers_median_length():
     close = bone_score_for_length(1.05, 1.0)
     far = bone_score_for_length(1.8, 1.0)

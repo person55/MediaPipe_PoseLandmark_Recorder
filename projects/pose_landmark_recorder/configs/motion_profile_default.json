@@ -1,0 +1,5765 @@
+{
+  "profile_version": 1,
+  "note": "Read-only statistical profile. Not wired into any pipeline threshold or acceptance decision; values are observational.",
+  "sessions": {
+    "session_cpu_006_v2": 23.976,
+    "session_cpu_007_v2": 23.976,
+    "session_cpu_008": 23.976,
+    "session_cpu_009": 60.0,
+    "session_cpu_010": 59.969,
+    "session_cpu_011": 60.0
+  },
+  "landmarks": {
+    "left_ankle": {
+      "velocity_m_per_s": {
+        "count": 14892,
+        "median": 0.5158,
+        "p95": 2.5197,
+        "p99": 4.5839,
+        "max": 19.9992
+      },
+      "acceleration_m_per_s2": {
+        "count": 14747,
+        "median": 6.7787,
+        "p95": 37.4762,
+        "p99": 99.0893,
+        "max": 890.2837
+      },
+      "jerk_m_per_s3": {
+        "count": 14610,
+        "median": 302.8243,
+        "p95": 2687.9932,
+        "p99": 8269.0007,
+        "max": 90978.7987
+      }
+    },
+    "left_ear": {
+      "velocity_m_per_s": {
+        "count": 15155,
+        "median": 0.4345,
+        "p95": 1.7679,
+        "p99": 2.5766,
+        "max": 5.0001
+      },
+      "acceleration_m_per_s2": {
+        "count": 15083,
+        "median": 4.9995,
+        "p95": 22.8197,
+        "p99": 44.0259,
+        "max": 380.9774
+      },
+      "jerk_m_per_s3": {
+        "count": 15014,
+        "median": 200.088,
+        "p95": 1461.0167,
+        "p99": 3122.7513,
+        "max": 31881.3457
+      }
+    },
+    "left_elbow": {
+      "velocity_m_per_s": {
+        "count": 11954,
+        "median": 0.7637,
+        "p95": 2.4106,
+        "p99": 3.9211,
+        "max": 13.0367
+      },
+      "acceleration_m_per_s2": {
+        "count": 11707,
+        "median": 8.4683,
+        "p95": 39.6028,
+        "p99": 111.7684,
+        "max": 790.0305
+      },
+      "jerk_m_per_s3": {
+        "count": 11484,
+        "median": 326.7885,
+        "p95": 2753.7866,
+        "p99": 8204.0672,
+        "max": 70174.3931
+      }
+    },
+    "left_eye": {
+      "velocity_m_per_s": {
+        "count": 15127,
+        "median": 0.505,
+        "p95": 2.023,
+        "p99": 2.9063,
+        "max": 5.9771
+      },
+      "acceleration_m_per_s2": {
+        "count": 15047,
+        "median": 6.0249,
+        "p95": 27.1799,
+        "p99": 54.9338,
+        "max": 375.5217
+      },
+      "jerk_m_per_s3": {
+        "count": 14970,
+        "median": 247.263,
+        "p95": 1825.7775,
+        "p99": 4001.9866,
+        "max": 33236.1017
+      }
+    },
+    "left_eye_inner": {
+      "velocity_m_per_s": {
+        "count": 15123,
+        "median": 0.505,
+        "p95": 2.021,
+        "p99": 2.9061,
+        "max": 5.9771
+      },
+      "acceleration_m_per_s2": {
+        "count": 15042,
+        "median": 6.0272,
+        "p95": 27.164,
+        "p99": 55.0018,
+        "max": 375.8091
+      },
+      "jerk_m_per_s3": {
+        "count": 14964,
+        "median": 247.4127,
+        "p95": 1825.2174,
+        "p99": 4002.8973,
+        "max": 33258.4482
+      }
+    },
+    "left_eye_outer": {
+      "velocity_m_per_s": {
+        "count": 15127,
+        "median": 0.5058,
+        "p95": 2.0238,
+        "p99": 2.9042,
+        "max": 5.9795
+      },
+      "acceleration_m_per_s2": {
+        "count": 15047,
+        "median": 6.0223,
+        "p95": 27.17,
+        "p99": 54.9582,
+        "max": 375.5897
+      },
+      "jerk_m_per_s3": {
+        "count": 14970,
+        "median": 247.6572,
+        "p95": 1824.2677,
+        "p99": 4000.7478,
+        "max": 33243.1491
+      }
+    },
+    "left_foot_index": {
+      "velocity_m_per_s": {
+        "count": 14914,
+        "median": 0.5932,
+        "p95": 2.9199,
+        "p99": 5.2417,
+        "max": 16.0534
+      },
+      "acceleration_m_per_s2": {
+        "count": 14778,
+        "median": 8.0327,
+        "p95": 44.066,
+        "p99": 103.691,
+        "max": 1065.185
+      },
+      "jerk_m_per_s3": {
+        "count": 14644,
+        "median": 376.0282,
+        "p95": 3029.3554,
+        "p99": 8819.5845,
+        "max": 107417.941
+      }
+    },
+    "left_heel": {
+      "velocity_m_per_s": {
+        "count": 14946,
+        "median": 0.549,
+        "p95": 2.7002,
+        "p99": 4.8787,
+        "max": 17.4561
+      },
+      "acceleration_m_per_s2": {
+        "count": 14815,
+        "median": 7.2673,
+        "p95": 40.3575,
+        "p99": 102.2238,
+        "max": 928.6513
+      },
+      "jerk_m_per_s3": {
+        "count": 14689,
+        "median": 328.2218,
+        "p95": 2871.2826,
+        "p99": 8503.8362,
+        "max": 95887.1268
+      }
+    },
+    "left_hip": {
+      "velocity_m_per_s": {
+        "count": 15098,
+        "median": 0.0956,
+        "p95": 0.4713,
+        "p99": 0.7937,
+        "max": 1.6794
+      },
+      "acceleration_m_per_s2": {
+        "count": 15009,
+        "median": 0.9557,
+        "p95": 5.795,
+        "p99": 17.8442,
+        "max": 69.4138
+      },
+      "jerk_m_per_s3": {
+        "count": 14928,
+        "median": 34.2019,
+        "p95": 300.6823,
+        "p99": 1276.7532,
+        "max": 5717.031
+      }
+    },
+    "left_index": {
+      "velocity_m_per_s": {
+        "count": 11697,
+        "median": 1.2387,
+        "p95": 4.0375,
+        "p99": 6.9044,
+        "max": 32.7215
+      },
+      "acceleration_m_per_s2": {
+        "count": 11524,
+        "median": 14.139,
+        "p95": 73.7236,
+        "p99": 237.1812,
+        "max": 2354.0069
+      },
+      "jerk_m_per_s3": {
+        "count": 11357,
+        "median": 554.0538,
+        "p95": 5199.2401,
+        "p99": 16486.3845,
+        "max": 237556.4446
+      }
+    },
+    "left_knee": {
+      "velocity_m_per_s": {
+        "count": 14801,
+        "median": 0.332,
+        "p95": 1.5747,
+        "p99": 2.555,
+        "max": 13.6533
+      },
+      "acceleration_m_per_s2": {
+        "count": 14633,
+        "median": 4.1206,
+        "p95": 21.5595,
+        "p99": 53.7182,
+        "max": 835.0574
+      },
+      "jerk_m_per_s3": {
+        "count": 14481,
+        "median": 177.0446,
+        "p95": 1411.1107,
+        "p99": 4838.1849,
+        "max": 37336.4081
+      }
+    },
+    "left_pinky": {
+      "velocity_m_per_s": {
+        "count": 11694,
+        "median": 1.2235,
+        "p95": 3.9964,
+        "p99": 6.9919,
+        "max": 33.8665
+      },
+      "acceleration_m_per_s2": {
+        "count": 11520,
+        "median": 13.9186,
+        "p95": 73.5308,
+        "p99": 241.5262,
+        "max": 2305.9924
+      },
+      "jerk_m_per_s3": {
+        "count": 11352,
+        "median": 545.6315,
+        "p95": 5258.0314,
+        "p99": 16225.6064,
+        "max": 235057.6269
+      }
+    },
+    "left_shoulder": {
+      "velocity_m_per_s": {
+        "count": 14957,
+        "median": 0.3946,
+        "p95": 1.4733,
+        "p99": 2.2929,
+        "max": 8.2587
+      },
+      "acceleration_m_per_s2": {
+        "count": 14829,
+        "median": 4.547,
+        "p95": 20.8184,
+        "p99": 46.6896,
+        "max": 477.6954
+      },
+      "jerk_m_per_s3": {
+        "count": 14709,
+        "median": 183.8116,
+        "p95": 1351.041,
+        "p99": 3460.6321,
+        "max": 44768.9383
+      }
+    },
+    "left_thumb": {
+      "velocity_m_per_s": {
+        "count": 11630,
+        "median": 1.1589,
+        "p95": 3.731,
+        "p99": 6.4385,
+        "max": 30.3765
+      },
+      "acceleration_m_per_s2": {
+        "count": 11456,
+        "median": 12.9333,
+        "p95": 67.0185,
+        "p99": 221.8814,
+        "max": 1733.6223
+      },
+      "jerk_m_per_s3": {
+        "count": 11286,
+        "median": 506.2851,
+        "p95": 4797.1444,
+        "p99": 14814.049,
+        "max": 156351.9322
+      }
+    },
+    "left_wrist": {
+      "velocity_m_per_s": {
+        "count": 11861,
+        "median": 1.1042,
+        "p95": 3.5502,
+        "p99": 5.4971,
+        "max": 20.354
+      },
+      "acceleration_m_per_s2": {
+        "count": 11611,
+        "median": 12.2302,
+        "p95": 61.1721,
+        "p99": 165.2371,
+        "max": 1244.2199
+      },
+      "jerk_m_per_s3": {
+        "count": 11384,
+        "median": 478.6447,
+        "p95": 4457.8706,
+        "p99": 13037.7642,
+        "max": 119874.0216
+      }
+    },
+    "mouth_left": {
+      "velocity_m_per_s": {
+        "count": 15123,
+        "median": 0.4697,
+        "p95": 1.845,
+        "p99": 2.6562,
+        "max": 5.6058
+      },
+      "acceleration_m_per_s2": {
+        "count": 15041,
+        "median": 5.4654,
+        "p95": 25.0204,
+        "p99": 50.5772,
+        "max": 348.0301
+      },
+      "jerk_m_per_s3": {
+        "count": 14963,
+        "median": 221.678,
+        "p95": 1667.2165,
+        "p99": 3695.4882,
+        "max": 30612.3849
+      }
+    },
+    "mouth_right": {
+      "velocity_m_per_s": {
+        "count": 15134,
+        "median": 0.4708,
+        "p95": 1.8231,
+        "p99": 2.6525,
+        "max": 5.6196
+      },
+      "acceleration_m_per_s2": {
+        "count": 15054,
+        "median": 5.5038,
+        "p95": 24.8785,
+        "p99": 51.4968,
+        "max": 342.7087
+      },
+      "jerk_m_per_s3": {
+        "count": 14979,
+        "median": 223.9365,
+        "p95": 1672.1154,
+        "p99": 3753.7769,
+        "max": 30094.4486
+      }
+    },
+    "nose": {
+      "velocity_m_per_s": {
+        "count": 15131,
+        "median": 0.515,
+        "p95": 2.0011,
+        "p99": 2.8955,
+        "max": 5.959
+      },
+      "acceleration_m_per_s2": {
+        "count": 15048,
+        "median": 6.2248,
+        "p95": 27.9611,
+        "p99": 55.7945,
+        "max": 371.3496
+      },
+      "jerk_m_per_s3": {
+        "count": 14970,
+        "median": 255.7127,
+        "p95": 1872.9175,
+        "p99": 4180.3593,
+        "max": 32578.6249
+      }
+    },
+    "right_ankle": {
+      "velocity_m_per_s": {
+        "count": 14942,
+        "median": 0.5453,
+        "p95": 2.7492,
+        "p99": 4.8592,
+        "max": 31.1679
+      },
+      "acceleration_m_per_s2": {
+        "count": 14804,
+        "median": 6.9324,
+        "p95": 42.8628,
+        "p99": 108.2878,
+        "max": 1000.5672
+      },
+      "jerk_m_per_s3": {
+        "count": 14675,
+        "median": 319.2351,
+        "p95": 2869.8408,
+        "p99": 9182.2079,
+        "max": 72943.6904
+      }
+    },
+    "right_ear": {
+      "velocity_m_per_s": {
+        "count": 15177,
+        "median": 0.4394,
+        "p95": 1.7326,
+        "p99": 2.5768,
+        "max": 5.3054
+      },
+      "acceleration_m_per_s2": {
+        "count": 15113,
+        "median": 5.068,
+        "p95": 22.3458,
+        "p99": 44.5315,
+        "max": 344.1538
+      },
+      "jerk_m_per_s3": {
+        "count": 15054,
+        "median": 201.8604,
+        "p95": 1410.0981,
+        "p99": 3287.8659,
+        "max": 27722.6495
+      }
+    },
+    "right_elbow": {
+      "velocity_m_per_s": {
+        "count": 14549,
+        "median": 0.7212,
+        "p95": 2.3976,
+        "p99": 3.5914,
+        "max": 20.2163
+      },
+      "acceleration_m_per_s2": {
+        "count": 14328,
+        "median": 8.8507,
+        "p95": 41.7306,
+        "p99": 94.5556,
+        "max": 1082.681
+      },
+      "jerk_m_per_s3": {
+        "count": 14122,
+        "median": 374.2696,
+        "p95": 3209.5199,
+        "p99": 7436.1065,
+        "max": 64092.2589
+      }
+    },
+    "right_eye": {
+      "velocity_m_per_s": {
+        "count": 15135,
+        "median": 0.5051,
+        "p95": 2.0111,
+        "p99": 2.9025,
+        "max": 6.0154
+      },
+      "acceleration_m_per_s2": {
+        "count": 15057,
+        "median": 6.0793,
+        "p95": 27.174,
+        "p99": 55.9772,
+        "max": 371.8178
+      },
+      "jerk_m_per_s3": {
+        "count": 14982,
+        "median": 246.6496,
+        "p95": 1824.1505,
+        "p99": 4085.8058,
+        "max": 32847.0637
+      }
+    },
+    "right_eye_inner": {
+      "velocity_m_per_s": {
+        "count": 15135,
+        "median": 0.5049,
+        "p95": 2.0092,
+        "p99": 2.8997,
+        "max": 6.0151
+      },
+      "acceleration_m_per_s2": {
+        "count": 15057,
+        "median": 6.0743,
+        "p95": 27.1749,
+        "p99": 55.8811,
+        "max": 372.2086
+      },
+      "jerk_m_per_s3": {
+        "count": 14982,
+        "median": 246.6271,
+        "p95": 1824.0051,
+        "p99": 4085.1229,
+        "max": 32871.2333
+      }
+    },
+    "right_eye_outer": {
+      "velocity_m_per_s": {
+        "count": 15135,
+        "median": 0.5053,
+        "p95": 2.0124,
+        "p99": 2.9066,
+        "max": 6.0095
+      },
+      "acceleration_m_per_s2": {
+        "count": 15057,
+        "median": 6.0789,
+        "p95": 27.1947,
+        "p99": 55.9436,
+        "max": 372.4806
+      },
+      "jerk_m_per_s3": {
+        "count": 14982,
+        "median": 246.6431,
+        "p95": 1821.5638,
+        "p99": 4080.2105,
+        "max": 32891.3036
+      }
+    },
+    "right_foot_index": {
+      "velocity_m_per_s": {
+        "count": 14945,
+        "median": 0.6144,
+        "p95": 3.1825,
+        "p99": 5.6128,
+        "max": 21.7154
+      },
+      "acceleration_m_per_s2": {
+        "count": 14805,
+        "median": 8.1588,
+        "p95": 50.0247,
+        "p99": 118.5657,
+        "max": 1140.0215
+      },
+      "jerk_m_per_s3": {
+        "count": 14673,
+        "median": 389.7206,
+        "p95": 3409.3353,
+        "p99": 10623.3568,
+        "max": 86613.8448
+      }
+    },
+    "right_heel": {
+      "velocity_m_per_s": {
+        "count": 14935,
+        "median": 0.5758,
+        "p95": 2.8669,
+        "p99": 5.0746,
+        "max": 13.0629
+      },
+      "acceleration_m_per_s2": {
+        "count": 14797,
+        "median": 7.3476,
+        "p95": 44.868,
+        "p99": 104.0596,
+        "max": 1014.868
+      },
+      "jerk_m_per_s3": {
+        "count": 14668,
+        "median": 342.8571,
+        "p95": 3038.4868,
+        "p99": 9433.1094,
+        "max": 77527.1434
+      }
+    },
+    "right_hip": {
+      "velocity_m_per_s": {
+        "count": 15083,
+        "median": 0.0949,
+        "p95": 0.4724,
+        "p99": 0.7996,
+        "max": 1.6733
+      },
+      "acceleration_m_per_s2": {
+        "count": 14991,
+        "median": 0.9512,
+        "p95": 5.7742,
+        "p99": 17.6504,
+        "max": 69.6561
+      },
+      "jerk_m_per_s3": {
+        "count": 14906,
+        "median": 34.1158,
+        "p95": 297.0841,
+        "p99": 1238.2127,
+        "max": 5729.7276
+      }
+    },
+    "right_index": {
+      "velocity_m_per_s": {
+        "count": 14440,
+        "median": 1.21,
+        "p95": 4.0418,
+        "p99": 6.5212,
+        "max": 31.2407
+      },
+      "acceleration_m_per_s2": {
+        "count": 14294,
+        "median": 15.6106,
+        "p95": 85.1743,
+        "p99": 247.7145,
+        "max": 958.8164
+      },
+      "jerk_m_per_s3": {
+        "count": 14153,
+        "median": 637.3028,
+        "p95": 6819.4275,
+        "p99": 17349.1903,
+        "max": 104012.3044
+      }
+    },
+    "right_knee": {
+      "velocity_m_per_s": {
+        "count": 14969,
+        "median": 0.3531,
+        "p95": 1.6941,
+        "p99": 2.669,
+        "max": 7.0033
+      },
+      "acceleration_m_per_s2": {
+        "count": 14842,
+        "median": 4.2394,
+        "p95": 25.603,
+        "p99": 61.9143,
+        "max": 409.9469
+      },
+      "jerk_m_per_s3": {
+        "count": 14720,
+        "median": 184.6996,
+        "p95": 1579.3607,
+        "p99": 4920.6219,
+        "max": 24584.2057
+      }
+    },
+    "right_pinky": {
+      "velocity_m_per_s": {
+        "count": 14464,
+        "median": 1.2051,
+        "p95": 4.0353,
+        "p99": 6.5949,
+        "max": 31.3173
+      },
+      "acceleration_m_per_s2": {
+        "count": 14321,
+        "median": 15.6021,
+        "p95": 86.536,
+        "p99": 243.373,
+        "max": 899.1088
+      },
+      "jerk_m_per_s3": {
+        "count": 14182,
+        "median": 636.1631,
+        "p95": 6920.1027,
+        "p99": 17051.196,
+        "max": 95749.7578
+      }
+    },
+    "right_shoulder": {
+      "velocity_m_per_s": {
+        "count": 15045,
+        "median": 0.4188,
+        "p95": 1.465,
+        "p99": 2.1968,
+        "max": 4.5438
+      },
+      "acceleration_m_per_s2": {
+        "count": 14934,
+        "median": 4.6864,
+        "p95": 20.7843,
+        "p99": 45.6137,
+        "max": 254.9858
+      },
+      "jerk_m_per_s3": {
+        "count": 14833,
+        "median": 186.0454,
+        "p95": 1327.3347,
+        "p99": 3344.0406,
+        "max": 19405.9605
+      }
+    },
+    "right_thumb": {
+      "velocity_m_per_s": {
+        "count": 14374,
+        "median": 1.1186,
+        "p95": 3.7897,
+        "p99": 6.1769,
+        "max": 23.575
+      },
+      "acceleration_m_per_s2": {
+        "count": 14219,
+        "median": 14.4038,
+        "p95": 78.3497,
+        "p99": 228.1568,
+        "max": 1819.258
+      },
+      "jerk_m_per_s3": {
+        "count": 14071,
+        "median": 583.0901,
+        "p95": 6237.6938,
+        "p99": 15810.7029,
+        "max": 189333.0596
+      }
+    },
+    "right_wrist": {
+      "velocity_m_per_s": {
+        "count": 14436,
+        "median": 1.0677,
+        "p95": 3.6575,
+        "p99": 5.5419,
+        "max": 30.6329
+      },
+      "acceleration_m_per_s2": {
+        "count": 14214,
+        "median": 13.499,
+        "p95": 71.5494,
+        "p99": 162.4028,
+        "max": 1758.0471
+      },
+      "jerk_m_per_s3": {
+        "count": 14001,
+        "median": 559.4635,
+        "p95": 5656.5353,
+        "p99": 13100.818,
+        "max": 103388.9639
+      }
+    }
+  },
+  "bones": {
+    "left_lower_arm": {
+      "count": 11621,
+      "median": 0.2129,
+      "p95": 0.2656,
+      "p99": 0.3015,
+      "max": 0.7089
+    },
+    "left_lower_leg": {
+      "count": 14875,
+      "median": 0.3551,
+      "p95": 0.4088,
+      "p99": 0.4441,
+      "max": 0.8519
+    },
+    "left_upper_arm": {
+      "count": 12142,
+      "median": 0.2168,
+      "p95": 0.2716,
+      "p99": 0.3397,
+      "max": 0.5834
+    },
+    "left_upper_leg": {
+      "count": 14930,
+      "median": 0.3951,
+      "p95": 0.4394,
+      "p99": 0.4535,
+      "max": 0.471
+    },
+    "right_lower_arm": {
+      "count": 14494,
+      "median": 0.2162,
+      "p95": 0.2658,
+      "p99": 0.2893,
+      "max": 0.6933
+    },
+    "right_lower_leg": {
+      "count": 14993,
+      "median": 0.3678,
+      "p95": 0.4017,
+      "p99": 0.4229,
+      "max": 0.4948
+    },
+    "right_upper_arm": {
+      "count": 14734,
+      "median": 0.2278,
+      "p95": 0.27,
+      "p99": 0.2893,
+      "max": 0.5668
+    },
+    "right_upper_leg": {
+      "count": 15044,
+      "median": 0.3853,
+      "p95": 0.4167,
+      "p99": 0.4294,
+      "max": 0.4642
+    }
+  },
+  "per_session": {
+    "session_cpu_006_v2": {
+      "fps": 23.976,
+      "landmarks": {
+        "nose": {
+          "velocity_m_per_s": {
+            "count": 3177,
+            "median": 0.7557,
+            "p95": 2.2306,
+            "p99": 2.8982,
+            "max": 3.5488
+          },
+          "acceleration_m_per_s2": {
+            "count": 3162,
+            "median": 6.2735,
+            "p95": 21.8607,
+            "p99": 33.0025,
+            "max": 82.5568
+          },
+          "jerk_m_per_s3": {
+            "count": 3149,
+            "median": 147.5309,
+            "p95": 569.2472,
+            "p99": 999.7539,
+            "max": 3254.5272
+          }
+        },
+        "left_eye_inner": {
+          "velocity_m_per_s": {
+            "count": 3170,
+            "median": 0.748,
+            "p95": 2.3127,
+            "p99": 3.0142,
+            "max": 3.6515
+          },
+          "acceleration_m_per_s2": {
+            "count": 3153,
+            "median": 6.1123,
+            "p95": 21.7445,
+            "p99": 32.9257,
+            "max": 87.5204
+          },
+          "jerk_m_per_s3": {
+            "count": 3138,
+            "median": 142.6243,
+            "p95": 557.6521,
+            "p99": 957.4695,
+            "max": 3379.8884
+          }
+        },
+        "left_eye": {
+          "velocity_m_per_s": {
+            "count": 3174,
+            "median": 0.7491,
+            "p95": 2.3143,
+            "p99": 3.0147,
+            "max": 3.653
+          },
+          "acceleration_m_per_s2": {
+            "count": 3158,
+            "median": 6.1238,
+            "p95": 21.9368,
+            "p99": 33.1298,
+            "max": 87.5984
+          },
+          "jerk_m_per_s3": {
+            "count": 3144,
+            "median": 143.3397,
+            "p95": 567.5232,
+            "p99": 970.7952,
+            "max": 3382.0601
+          }
+        },
+        "left_eye_outer": {
+          "velocity_m_per_s": {
+            "count": 3174,
+            "median": 0.7493,
+            "p95": 2.3148,
+            "p99": 3.0159,
+            "max": 3.6571
+          },
+          "acceleration_m_per_s2": {
+            "count": 3158,
+            "median": 6.1141,
+            "p95": 21.9537,
+            "p99": 33.1708,
+            "max": 87.4549
+          },
+          "jerk_m_per_s3": {
+            "count": 3144,
+            "median": 143.3116,
+            "p95": 567.1866,
+            "p99": 969.2317,
+            "max": 3377.0976
+          }
+        },
+        "right_eye_inner": {
+          "velocity_m_per_s": {
+            "count": 3170,
+            "median": 0.74,
+            "p95": 2.3103,
+            "p99": 2.9872,
+            "max": 3.5633
+          },
+          "acceleration_m_per_s2": {
+            "count": 3153,
+            "median": 6.1684,
+            "p95": 21.5505,
+            "p99": 32.7042,
+            "max": 87.3395
+          },
+          "jerk_m_per_s3": {
+            "count": 3138,
+            "median": 144.6921,
+            "p95": 554.7027,
+            "p99": 970.6716,
+            "max": 3381.8216
+          }
+        },
+        "right_eye": {
+          "velocity_m_per_s": {
+            "count": 3170,
+            "median": 0.74,
+            "p95": 2.3122,
+            "p99": 2.9904,
+            "max": 3.5657
+          },
+          "acceleration_m_per_s2": {
+            "count": 3153,
+            "median": 6.1646,
+            "p95": 21.572,
+            "p99": 32.7341,
+            "max": 87.3479
+          },
+          "jerk_m_per_s3": {
+            "count": 3138,
+            "median": 144.5154,
+            "p95": 555.3192,
+            "p99": 971.965,
+            "max": 3380.3321
+          }
+        },
+        "right_eye_outer": {
+          "velocity_m_per_s": {
+            "count": 3170,
+            "median": 0.7403,
+            "p95": 2.3135,
+            "p99": 2.9932,
+            "max": 3.575
+          },
+          "acceleration_m_per_s2": {
+            "count": 3153,
+            "median": 6.1588,
+            "p95": 21.5839,
+            "p99": 32.7229,
+            "max": 87.2062
+          },
+          "jerk_m_per_s3": {
+            "count": 3138,
+            "median": 144.2831,
+            "p95": 555.1344,
+            "p99": 972.4222,
+            "max": 3375.1386
+          }
+        },
+        "left_ear": {
+          "velocity_m_per_s": {
+            "count": 3169,
+            "median": 0.6226,
+            "p95": 2.0941,
+            "p99": 2.7368,
+            "max": 3.5259
+          },
+          "acceleration_m_per_s2": {
+            "count": 3151,
+            "median": 5.1817,
+            "p95": 18.3,
+            "p99": 29.1959,
+            "max": 88.8638
+          },
+          "jerk_m_per_s3": {
+            "count": 3135,
+            "median": 115.1187,
+            "p95": 494.3222,
+            "p99": 843.8419,
+            "max": 3137.7529
+          }
+        },
+        "right_ear": {
+          "velocity_m_per_s": {
+            "count": 3161,
+            "median": 0.6003,
+            "p95": 2.1124,
+            "p99": 2.6982,
+            "max": 3.3131
+          },
+          "acceleration_m_per_s2": {
+            "count": 3141,
+            "median": 5.0126,
+            "p95": 17.7686,
+            "p99": 28.3063,
+            "max": 82.8838
+          },
+          "jerk_m_per_s3": {
+            "count": 3123,
+            "median": 117.9065,
+            "p95": 467.8836,
+            "p99": 744.7808,
+            "max": 2770.3556
+          }
+        },
+        "mouth_left": {
+          "velocity_m_per_s": {
+            "count": 3170,
+            "median": 0.6937,
+            "p95": 2.0469,
+            "p99": 2.6716,
+            "max": 3.4355
+          },
+          "acceleration_m_per_s2": {
+            "count": 3153,
+            "median": 5.5779,
+            "p95": 19.4705,
+            "p99": 29.6218,
+            "max": 80.0508
+          },
+          "jerk_m_per_s3": {
+            "count": 3138,
+            "median": 128.3253,
+            "p95": 514.7336,
+            "p99": 900.8244,
+            "max": 3076.6357
+          }
+        },
+        "mouth_right": {
+          "velocity_m_per_s": {
+            "count": 3170,
+            "median": 0.6773,
+            "p95": 2.0682,
+            "p99": 2.6534,
+            "max": 3.3273
+          },
+          "acceleration_m_per_s2": {
+            "count": 3153,
+            "median": 5.5392,
+            "p95": 19.3331,
+            "p99": 29.9711,
+            "max": 79.6613
+          },
+          "jerk_m_per_s3": {
+            "count": 3138,
+            "median": 129.2556,
+            "p95": 514.6703,
+            "p99": 889.6192,
+            "max": 3056.2708
+          }
+        },
+        "left_shoulder": {
+          "velocity_m_per_s": {
+            "count": 3144,
+            "median": 0.5072,
+            "p95": 1.6847,
+            "p99": 2.2787,
+            "max": 6.327
+          },
+          "acceleration_m_per_s2": {
+            "count": 3113,
+            "median": 4.2803,
+            "p95": 15.9323,
+            "p99": 25.2449,
+            "max": 230.2501
+          },
+          "jerk_m_per_s3": {
+            "count": 3085,
+            "median": 100.6975,
+            "p95": 439.3894,
+            "p99": 806.902,
+            "max": 10644.3648
+          }
+        },
+        "right_shoulder": {
+          "velocity_m_per_s": {
+            "count": 3136,
+            "median": 0.4981,
+            "p95": 1.6335,
+            "p99": 2.129,
+            "max": 2.8199
+          },
+          "acceleration_m_per_s2": {
+            "count": 3105,
+            "median": 4.1994,
+            "p95": 14.4552,
+            "p99": 22.3452,
+            "max": 64.7566
+          },
+          "jerk_m_per_s3": {
+            "count": 3079,
+            "median": 100.0654,
+            "p95": 398.3925,
+            "p99": 700.7542,
+            "max": 2040.2406
+          }
+        },
+        "left_elbow": {
+          "velocity_m_per_s": {
+            "count": 2774,
+            "median": 0.8738,
+            "p95": 2.513,
+            "p99": 3.6945,
+            "max": 13.0367
+          },
+          "acceleration_m_per_s2": {
+            "count": 2701,
+            "median": 7.7358,
+            "p95": 30.6472,
+            "p99": 66.1162,
+            "max": 262.0737
+          },
+          "jerk_m_per_s3": {
+            "count": 2636,
+            "median": 189.817,
+            "p95": 936.593,
+            "p99": 2298.4731,
+            "max": 10912.9487
+          }
+        },
+        "right_elbow": {
+          "velocity_m_per_s": {
+            "count": 3042,
+            "median": 0.8565,
+            "p95": 2.4592,
+            "p99": 3.1947,
+            "max": 8.0798
+          },
+          "acceleration_m_per_s2": {
+            "count": 2983,
+            "median": 7.446,
+            "p95": 25.8424,
+            "p99": 52.2853,
+            "max": 247.3003
+          },
+          "jerk_m_per_s3": {
+            "count": 2931,
+            "median": 167.1515,
+            "p95": 777.9235,
+            "p99": 1633.8422,
+            "max": 10435.7446
+          }
+        },
+        "left_wrist": {
+          "velocity_m_per_s": {
+            "count": 2726,
+            "median": 1.2122,
+            "p95": 3.6693,
+            "p99": 4.8032,
+            "max": 16.4238
+          },
+          "acceleration_m_per_s2": {
+            "count": 2655,
+            "median": 11.2339,
+            "p95": 47.7424,
+            "p99": 98.7563,
+            "max": 439.4784
+          },
+          "jerk_m_per_s3": {
+            "count": 2590,
+            "median": 281.6962,
+            "p95": 1393.8078,
+            "p99": 2939.6236,
+            "max": 14070.8296
+          }
+        },
+        "right_wrist": {
+          "velocity_m_per_s": {
+            "count": 3033,
+            "median": 1.239,
+            "p95": 3.6456,
+            "p99": 4.5373,
+            "max": 20.7473
+          },
+          "acceleration_m_per_s2": {
+            "count": 2978,
+            "median": 11.0942,
+            "p95": 41.156,
+            "p99": 71.5754,
+            "max": 815.3893
+          },
+          "jerk_m_per_s3": {
+            "count": 2926,
+            "median": 256.0798,
+            "p95": 1198.5286,
+            "p99": 2241.4229,
+            "max": 29082.5447
+          }
+        },
+        "left_pinky": {
+          "velocity_m_per_s": {
+            "count": 2708,
+            "median": 1.4026,
+            "p95": 4.1073,
+            "p99": 5.5773,
+            "max": 20.6177
+          },
+          "acceleration_m_per_s2": {
+            "count": 2666,
+            "median": 13.3577,
+            "p95": 55.333,
+            "p99": 148.8069,
+            "max": 645.1033
+          },
+          "jerk_m_per_s3": {
+            "count": 2625,
+            "median": 343.259,
+            "p95": 1810.1881,
+            "p99": 6159.9913,
+            "max": 27100.3659
+          }
+        },
+        "right_pinky": {
+          "velocity_m_per_s": {
+            "count": 3049,
+            "median": 1.4634,
+            "p95": 4.0036,
+            "p99": 4.9318,
+            "max": 21.36
+          },
+          "acceleration_m_per_s2": {
+            "count": 3018,
+            "median": 13.3039,
+            "p95": 47.2183,
+            "p99": 90.804,
+            "max": 863.8699
+          },
+          "jerk_m_per_s3": {
+            "count": 2989,
+            "median": 306.4311,
+            "p95": 1391.1494,
+            "p99": 3105.3889,
+            "max": 30825.2168
+          }
+        },
+        "left_index": {
+          "velocity_m_per_s": {
+            "count": 2714,
+            "median": 1.395,
+            "p95": 4.1542,
+            "p99": 5.664,
+            "max": 20.2106
+          },
+          "acceleration_m_per_s2": {
+            "count": 2672,
+            "median": 13.3118,
+            "p95": 56.7874,
+            "p99": 141.9407,
+            "max": 631.4352
+          },
+          "jerk_m_per_s3": {
+            "count": 2631,
+            "median": 346.7305,
+            "p95": 1811.6172,
+            "p99": 6376.2963,
+            "max": 26408.0935
+          }
+        },
+        "right_index": {
+          "velocity_m_per_s": {
+            "count": 3042,
+            "median": 1.4548,
+            "p95": 4.0341,
+            "p99": 4.9807,
+            "max": 21.8205
+          },
+          "acceleration_m_per_s2": {
+            "count": 3009,
+            "median": 13.2755,
+            "p95": 46.1236,
+            "p99": 93.2968,
+            "max": 539.5821
+          },
+          "jerk_m_per_s3": {
+            "count": 2979,
+            "median": 309.069,
+            "p95": 1392.0701,
+            "p99": 3102.9806,
+            "max": 25548.8002
+          }
+        },
+        "left_thumb": {
+          "velocity_m_per_s": {
+            "count": 2693,
+            "median": 1.3247,
+            "p95": 3.8424,
+            "p99": 5.3508,
+            "max": 20.1278
+          },
+          "acceleration_m_per_s2": {
+            "count": 2649,
+            "median": 12.341,
+            "p95": 52.3302,
+            "p99": 131.2987,
+            "max": 594.2168
+          },
+          "jerk_m_per_s3": {
+            "count": 2606,
+            "median": 319.2425,
+            "p95": 1648.2781,
+            "p99": 5717.3771,
+            "max": 25042.6177
+          }
+        },
+        "right_thumb": {
+          "velocity_m_per_s": {
+            "count": 3023,
+            "median": 1.374,
+            "p95": 3.7384,
+            "p99": 4.6327,
+            "max": 20.8178
+          },
+          "acceleration_m_per_s2": {
+            "count": 2989,
+            "median": 12.3764,
+            "p95": 43.5419,
+            "p99": 82.0641,
+            "max": 802.7706
+          },
+          "jerk_m_per_s3": {
+            "count": 2958,
+            "median": 281.157,
+            "p95": 1304.1534,
+            "p99": 2704.4863,
+            "max": 28599.8253
+          }
+        },
+        "left_hip": {
+          "velocity_m_per_s": {
+            "count": 3153,
+            "median": 0.1043,
+            "p95": 0.4826,
+            "p99": 0.697,
+            "max": 0.7744
+          },
+          "acceleration_m_per_s2": {
+            "count": 3134,
+            "median": 0.7872,
+            "p95": 4.2536,
+            "p99": 7.8673,
+            "max": 15.3441
+          },
+          "jerk_m_per_s3": {
+            "count": 3117,
+            "median": 15.7605,
+            "p95": 104.7247,
+            "p99": 247.3916,
+            "max": 514.0985
+          }
+        },
+        "right_hip": {
+          "velocity_m_per_s": {
+            "count": 3149,
+            "median": 0.1032,
+            "p95": 0.4755,
+            "p99": 0.6954,
+            "max": 0.7767
+          },
+          "acceleration_m_per_s2": {
+            "count": 3129,
+            "median": 0.7859,
+            "p95": 4.1328,
+            "p99": 7.6018,
+            "max": 17.9268
+          },
+          "jerk_m_per_s3": {
+            "count": 3112,
+            "median": 15.7847,
+            "p95": 100.6175,
+            "p99": 232.9135,
+            "max": 449.0285
+          }
+        },
+        "left_knee": {
+          "velocity_m_per_s": {
+            "count": 3126,
+            "median": 0.4303,
+            "p95": 1.8555,
+            "p99": 2.537,
+            "max": 5.9017
+          },
+          "acceleration_m_per_s2": {
+            "count": 3095,
+            "median": 3.675,
+            "p95": 16.795,
+            "p99": 37.2722,
+            "max": 144.7203
+          },
+          "jerk_m_per_s3": {
+            "count": 3067,
+            "median": 91.9249,
+            "p95": 524.2818,
+            "p99": 1188.7304,
+            "max": 3352.3005
+          }
+        },
+        "right_knee": {
+          "velocity_m_per_s": {
+            "count": 3128,
+            "median": 0.3985,
+            "p95": 1.8885,
+            "p99": 2.6086,
+            "max": 6.1795
+          },
+          "acceleration_m_per_s2": {
+            "count": 3095,
+            "median": 3.3915,
+            "p95": 17.5771,
+            "p99": 39.8965,
+            "max": 187.4403
+          },
+          "jerk_m_per_s3": {
+            "count": 3066,
+            "median": 85.206,
+            "p95": 494.7082,
+            "p99": 1167.7493,
+            "max": 6415.0222
+          }
+        },
+        "left_ankle": {
+          "velocity_m_per_s": {
+            "count": 3150,
+            "median": 0.6213,
+            "p95": 2.8767,
+            "p99": 4.5038,
+            "max": 19.9992
+          },
+          "acceleration_m_per_s2": {
+            "count": 3120,
+            "median": 5.2468,
+            "p95": 28.1625,
+            "p99": 59.2508,
+            "max": 826.132
+          },
+          "jerk_m_per_s3": {
+            "count": 3091,
+            "median": 131.2974,
+            "p95": 892.4707,
+            "p99": 1937.4077,
+            "max": 31257.1183
+          }
+        },
+        "right_ankle": {
+          "velocity_m_per_s": {
+            "count": 3147,
+            "median": 0.5496,
+            "p95": 3.0049,
+            "p99": 4.8056,
+            "max": 21.8548
+          },
+          "acceleration_m_per_s2": {
+            "count": 3117,
+            "median": 4.7218,
+            "p95": 30.2421,
+            "p99": 72.7799,
+            "max": 980.2681
+          },
+          "jerk_m_per_s3": {
+            "count": 3089,
+            "median": 120.7042,
+            "p95": 897.5715,
+            "p99": 2215.3261,
+            "max": 43103.6764
+          }
+        },
+        "left_heel": {
+          "velocity_m_per_s": {
+            "count": 3158,
+            "median": 0.6586,
+            "p95": 3.066,
+            "p99": 4.8813,
+            "max": 7.3249
+          },
+          "acceleration_m_per_s2": {
+            "count": 3132,
+            "median": 5.5317,
+            "p95": 29.2459,
+            "p99": 61.8387,
+            "max": 196.2758
+          },
+          "jerk_m_per_s3": {
+            "count": 3107,
+            "median": 138.3455,
+            "p95": 914.0481,
+            "p99": 2062.977,
+            "max": 5916.5952
+          }
+        },
+        "right_heel": {
+          "velocity_m_per_s": {
+            "count": 3133,
+            "median": 0.5634,
+            "p95": 3.0267,
+            "p99": 4.811,
+            "max": 5.9528
+          },
+          "acceleration_m_per_s2": {
+            "count": 3100,
+            "median": 4.9803,
+            "p95": 30.5207,
+            "p99": 70.2465,
+            "max": 135.0505
+          },
+          "jerk_m_per_s3": {
+            "count": 3069,
+            "median": 127.2197,
+            "p95": 849.1575,
+            "p99": 1972.338,
+            "max": 4954.6581
+          }
+        },
+        "left_foot_index": {
+          "velocity_m_per_s": {
+            "count": 3152,
+            "median": 0.6934,
+            "p95": 3.3974,
+            "p99": 5.3321,
+            "max": 6.5008
+          },
+          "acceleration_m_per_s2": {
+            "count": 3127,
+            "median": 6.1283,
+            "p95": 33.2407,
+            "p99": 63.5427,
+            "max": 161.0682
+          },
+          "jerk_m_per_s3": {
+            "count": 3103,
+            "median": 157.141,
+            "p95": 987.4983,
+            "p99": 2142.6871,
+            "max": 3894.9125
+          }
+        },
+        "right_foot_index": {
+          "velocity_m_per_s": {
+            "count": 3140,
+            "median": 0.6212,
+            "p95": 3.3171,
+            "p99": 5.3136,
+            "max": 6.5761
+          },
+          "acceleration_m_per_s2": {
+            "count": 3108,
+            "median": 5.3955,
+            "p95": 33.8244,
+            "p99": 74.8682,
+            "max": 141.1634
+          },
+          "jerk_m_per_s3": {
+            "count": 3078,
+            "median": 145.8411,
+            "p95": 979.9757,
+            "p99": 2258.4438,
+            "max": 5341.8874
+          }
+        }
+      },
+      "bones": {
+        "left_upper_arm": {
+          "count": 2842,
+          "median": 0.2205,
+          "p95": 0.2867,
+          "p99": 0.4496,
+          "max": 0.5834
+        },
+        "left_lower_arm": {
+          "count": 2722,
+          "median": 0.1999,
+          "p95": 0.266,
+          "p99": 0.3274,
+          "max": 0.7089
+        },
+        "right_upper_arm": {
+          "count": 3091,
+          "median": 0.2244,
+          "p95": 0.2726,
+          "p99": 0.2934,
+          "max": 0.4425
+        },
+        "right_lower_arm": {
+          "count": 3064,
+          "median": 0.2118,
+          "p95": 0.2636,
+          "p99": 0.2903,
+          "max": 0.579
+        },
+        "left_upper_leg": {
+          "count": 3148,
+          "median": 0.3757,
+          "p95": 0.4245,
+          "p99": 0.4396,
+          "max": 0.4605
+        },
+        "left_lower_leg": {
+          "count": 3156,
+          "median": 0.3575,
+          "p95": 0.4345,
+          "p99": 0.4705,
+          "max": 0.5708
+        },
+        "right_upper_leg": {
+          "count": 3156,
+          "median": 0.3699,
+          "p95": 0.4157,
+          "p99": 0.4294,
+          "max": 0.4503
+        },
+        "right_lower_leg": {
+          "count": 3150,
+          "median": 0.3673,
+          "p95": 0.3995,
+          "p99": 0.4134,
+          "max": 0.4529
+        }
+      }
+    },
+    "session_cpu_007_v2": {
+      "fps": 23.976,
+      "landmarks": {
+        "nose": {
+          "velocity_m_per_s": {
+            "count": 1359,
+            "median": 0.7841,
+            "p95": 2.1971,
+            "p99": 2.6375,
+            "max": 3.152
+          },
+          "acceleration_m_per_s2": {
+            "count": 1345,
+            "median": 5.4971,
+            "p95": 18.8162,
+            "p99": 28.8249,
+            "max": 41.8108
+          },
+          "jerk_m_per_s3": {
+            "count": 1333,
+            "median": 127.3585,
+            "p95": 484.5089,
+            "p99": 780.0381,
+            "max": 1464.3572
+          }
+        },
+        "left_eye_inner": {
+          "velocity_m_per_s": {
+            "count": 1360,
+            "median": 0.7795,
+            "p95": 2.2408,
+            "p99": 2.699,
+            "max": 3.19
+          },
+          "acceleration_m_per_s2": {
+            "count": 1346,
+            "median": 5.4247,
+            "p95": 18.9227,
+            "p99": 29.9387,
+            "max": 42.2929
+          },
+          "jerk_m_per_s3": {
+            "count": 1333,
+            "median": 125.8592,
+            "p95": 460.944,
+            "p99": 766.9539,
+            "max": 1562.4181
+          }
+        },
+        "left_eye": {
+          "velocity_m_per_s": {
+            "count": 1360,
+            "median": 0.7801,
+            "p95": 2.2417,
+            "p99": 2.698,
+            "max": 3.1919
+          },
+          "acceleration_m_per_s2": {
+            "count": 1346,
+            "median": 5.4222,
+            "p95": 18.9176,
+            "p99": 29.9408,
+            "max": 42.3004
+          },
+          "jerk_m_per_s3": {
+            "count": 1333,
+            "median": 125.2705,
+            "p95": 461.1677,
+            "p99": 766.6076,
+            "max": 1560.8437
+          }
+        },
+        "left_eye_outer": {
+          "velocity_m_per_s": {
+            "count": 1360,
+            "median": 0.78,
+            "p95": 2.2414,
+            "p99": 2.7003,
+            "max": 3.1935
+          },
+          "acceleration_m_per_s2": {
+            "count": 1346,
+            "median": 5.4219,
+            "p95": 18.9047,
+            "p99": 29.9612,
+            "max": 42.3637
+          },
+          "jerk_m_per_s3": {
+            "count": 1333,
+            "median": 125.3649,
+            "p95": 460.3698,
+            "p99": 766.0124,
+            "max": 1563.8401
+          }
+        },
+        "right_eye_inner": {
+          "velocity_m_per_s": {
+            "count": 1360,
+            "median": 0.7889,
+            "p95": 2.2443,
+            "p99": 2.6916,
+            "max": 3.1665
+          },
+          "acceleration_m_per_s2": {
+            "count": 1346,
+            "median": 5.4094,
+            "p95": 19.0781,
+            "p99": 30.7094,
+            "max": 49.2894
+          },
+          "jerk_m_per_s3": {
+            "count": 1333,
+            "median": 124.3922,
+            "p95": 472.5884,
+            "p99": 822.3221,
+            "max": 1581.9862
+          }
+        },
+        "right_eye": {
+          "velocity_m_per_s": {
+            "count": 1360,
+            "median": 0.7885,
+            "p95": 2.2453,
+            "p99": 2.6939,
+            "max": 3.169
+          },
+          "acceleration_m_per_s2": {
+            "count": 1346,
+            "median": 5.4357,
+            "p95": 19.068,
+            "p99": 30.6742,
+            "max": 48.6347
+          },
+          "jerk_m_per_s3": {
+            "count": 1333,
+            "median": 124.4763,
+            "p95": 472.3858,
+            "p99": 822.4837,
+            "max": 1581.2102
+          }
+        },
+        "right_eye_outer": {
+          "velocity_m_per_s": {
+            "count": 1360,
+            "median": 0.7891,
+            "p95": 2.2461,
+            "p99": 2.6962,
+            "max": 3.1757
+          },
+          "acceleration_m_per_s2": {
+            "count": 1346,
+            "median": 5.4347,
+            "p95": 19.1025,
+            "p99": 30.6741,
+            "max": 48.4687
+          },
+          "jerk_m_per_s3": {
+            "count": 1333,
+            "median": 124.4566,
+            "p95": 472.9032,
+            "p99": 818.6766,
+            "max": 1578.7159
+          }
+        },
+        "left_ear": {
+          "velocity_m_per_s": {
+            "count": 1363,
+            "median": 0.6444,
+            "p95": 2.0029,
+            "p99": 2.3199,
+            "max": 2.8862
+          },
+          "acceleration_m_per_s2": {
+            "count": 1350,
+            "median": 4.5663,
+            "p95": 15.6269,
+            "p99": 27.2194,
+            "max": 44.4332
+          },
+          "jerk_m_per_s3": {
+            "count": 1338,
+            "median": 104.0805,
+            "p95": 406.3279,
+            "p99": 725.8757,
+            "max": 1667.9356
+          }
+        },
+        "right_ear": {
+          "velocity_m_per_s": {
+            "count": 1361,
+            "median": 0.6486,
+            "p95": 2.0083,
+            "p99": 2.3725,
+            "max": 3.014
+          },
+          "acceleration_m_per_s2": {
+            "count": 1348,
+            "median": 4.6156,
+            "p95": 16.083,
+            "p99": 27.2721,
+            "max": 50.4468
+          },
+          "jerk_m_per_s3": {
+            "count": 1337,
+            "median": 104.2513,
+            "p95": 432.133,
+            "p99": 872.302,
+            "max": 2386.2484
+          }
+        },
+        "mouth_left": {
+          "velocity_m_per_s": {
+            "count": 1360,
+            "median": 0.7001,
+            "p95": 2.02,
+            "p99": 2.4282,
+            "max": 3.1451
+          },
+          "acceleration_m_per_s2": {
+            "count": 1346,
+            "median": 4.8734,
+            "p95": 17.2205,
+            "p99": 27.3841,
+            "max": 41.4005
+          },
+          "jerk_m_per_s3": {
+            "count": 1334,
+            "median": 113.3947,
+            "p95": 431.9113,
+            "p99": 780.6465,
+            "max": 1449.8191
+          }
+        },
+        "mouth_right": {
+          "velocity_m_per_s": {
+            "count": 1360,
+            "median": 0.7121,
+            "p95": 2.0251,
+            "p99": 2.4491,
+            "max": 3.1629
+          },
+          "acceleration_m_per_s2": {
+            "count": 1346,
+            "median": 4.9152,
+            "p95": 17.0483,
+            "p99": 28.2239,
+            "max": 44.1329
+          },
+          "jerk_m_per_s3": {
+            "count": 1334,
+            "median": 112.1557,
+            "p95": 448.8392,
+            "p99": 807.1675,
+            "max": 1497.5101
+          }
+        },
+        "left_shoulder": {
+          "velocity_m_per_s": {
+            "count": 1330,
+            "median": 0.4852,
+            "p95": 1.5574,
+            "p99": 1.8198,
+            "max": 2.0462
+          },
+          "acceleration_m_per_s2": {
+            "count": 1312,
+            "median": 3.6953,
+            "p95": 13.4029,
+            "p99": 21.0843,
+            "max": 44.3962
+          },
+          "jerk_m_per_s3": {
+            "count": 1295,
+            "median": 88.2329,
+            "p95": 344.4798,
+            "p99": 754.9188,
+            "max": 1498.9242
+          }
+        },
+        "right_shoulder": {
+          "velocity_m_per_s": {
+            "count": 1340,
+            "median": 0.5315,
+            "p95": 1.583,
+            "p99": 1.9714,
+            "max": 2.717
+          },
+          "acceleration_m_per_s2": {
+            "count": 1323,
+            "median": 3.888,
+            "p95": 14.2707,
+            "p99": 24.7561,
+            "max": 51.6429
+          },
+          "jerk_m_per_s3": {
+            "count": 1308,
+            "median": 90.009,
+            "p95": 400.5457,
+            "p99": 717.0088,
+            "max": 1587.3233
+          }
+        },
+        "left_elbow": {
+          "velocity_m_per_s": {
+            "count": 1200,
+            "median": 0.8625,
+            "p95": 2.523,
+            "p99": 3.1819,
+            "max": 11.1605
+          },
+          "acceleration_m_per_s2": {
+            "count": 1171,
+            "median": 6.4064,
+            "p95": 25.1493,
+            "p99": 62.2816,
+            "max": 278.3382
+          },
+          "jerk_m_per_s3": {
+            "count": 1145,
+            "median": 151.8841,
+            "p95": 746.0446,
+            "p99": 1581.0802,
+            "max": 7773.0425
+          }
+        },
+        "right_elbow": {
+          "velocity_m_per_s": {
+            "count": 1266,
+            "median": 0.8346,
+            "p95": 2.5655,
+            "p99": 3.3475,
+            "max": 10.3284
+          },
+          "acceleration_m_per_s2": {
+            "count": 1235,
+            "median": 6.6514,
+            "p95": 29.0472,
+            "p99": 61.6436,
+            "max": 316.3476
+          },
+          "jerk_m_per_s3": {
+            "count": 1206,
+            "median": 167.8388,
+            "p95": 936.4915,
+            "p99": 2366.4018,
+            "max": 11774.5037
+          }
+        },
+        "left_wrist": {
+          "velocity_m_per_s": {
+            "count": 1197,
+            "median": 1.2802,
+            "p95": 3.6588,
+            "p99": 4.4098,
+            "max": 9.5053
+          },
+          "acceleration_m_per_s2": {
+            "count": 1170,
+            "median": 9.8679,
+            "p95": 36.7522,
+            "p99": 59.8173,
+            "max": 432.6575
+          },
+          "jerk_m_per_s3": {
+            "count": 1145,
+            "median": 221.6167,
+            "p95": 1121.5458,
+            "p99": 2012.5395,
+            "max": 19447.9209
+          }
+        },
+        "right_wrist": {
+          "velocity_m_per_s": {
+            "count": 1262,
+            "median": 1.2851,
+            "p95": 3.5687,
+            "p99": 4.6634,
+            "max": 7.8803
+          },
+          "acceleration_m_per_s2": {
+            "count": 1234,
+            "median": 10.0669,
+            "p95": 41.061,
+            "p99": 66.7714,
+            "max": 123.5276
+          },
+          "jerk_m_per_s3": {
+            "count": 1208,
+            "median": 237.7638,
+            "p95": 1212.2128,
+            "p99": 2032.0448,
+            "max": 3179.5111
+          }
+        },
+        "left_pinky": {
+          "velocity_m_per_s": {
+            "count": 1211,
+            "median": 1.3917,
+            "p95": 4.0643,
+            "p99": 6.0881,
+            "max": 25.3041
+          },
+          "acceleration_m_per_s2": {
+            "count": 1188,
+            "median": 11.0433,
+            "p95": 46.9724,
+            "p99": 145.3601,
+            "max": 871.819
+          },
+          "jerk_m_per_s3": {
+            "count": 1165,
+            "median": 258.2015,
+            "p95": 1396.6283,
+            "p99": 5715.0215,
+            "max": 35341.1492
+          }
+        },
+        "right_pinky": {
+          "velocity_m_per_s": {
+            "count": 1298,
+            "median": 1.4194,
+            "p95": 3.93,
+            "p99": 5.2327,
+            "max": 16.0852
+          },
+          "acceleration_m_per_s2": {
+            "count": 1281,
+            "median": 11.7439,
+            "p95": 50.7135,
+            "p99": 128.5097,
+            "max": 465.4725
+          },
+          "jerk_m_per_s3": {
+            "count": 1264,
+            "median": 302.8449,
+            "p95": 1668.1651,
+            "p99": 5103.9608,
+            "max": 17670.233
+          }
+        },
+        "left_index": {
+          "velocity_m_per_s": {
+            "count": 1212,
+            "median": 1.3975,
+            "p95": 4.0218,
+            "p99": 5.2915,
+            "max": 24.7417
+          },
+          "acceleration_m_per_s2": {
+            "count": 1189,
+            "median": 11.4624,
+            "p95": 46.6709,
+            "p99": 106.4668,
+            "max": 856.029
+          },
+          "jerk_m_per_s3": {
+            "count": 1166,
+            "median": 262.9308,
+            "p95": 1420.1945,
+            "p99": 3831.7599,
+            "max": 34597.8854
+          }
+        },
+        "right_index": {
+          "velocity_m_per_s": {
+            "count": 1297,
+            "median": 1.4135,
+            "p95": 3.9845,
+            "p99": 5.2703,
+            "max": 15.2224
+          },
+          "acceleration_m_per_s2": {
+            "count": 1280,
+            "median": 11.8439,
+            "p95": 50.5303,
+            "p99": 145.6829,
+            "max": 463.3282
+          },
+          "jerk_m_per_s3": {
+            "count": 1263,
+            "median": 305.4839,
+            "p95": 1631.4953,
+            "p99": 4793.4732,
+            "max": 17454.7779
+          }
+        },
+        "left_thumb": {
+          "velocity_m_per_s": {
+            "count": 1210,
+            "median": 1.3299,
+            "p95": 3.8233,
+            "p99": 5.6212,
+            "max": 17.2842
+          },
+          "acceleration_m_per_s2": {
+            "count": 1187,
+            "median": 10.5255,
+            "p95": 43.8086,
+            "p99": 127.269,
+            "max": 777.0363
+          },
+          "jerk_m_per_s3": {
+            "count": 1164,
+            "median": 240.0542,
+            "p95": 1381.0321,
+            "p99": 5134.6872,
+            "max": 29638.0505
+          }
+        },
+        "right_thumb": {
+          "velocity_m_per_s": {
+            "count": 1294,
+            "median": 1.3319,
+            "p95": 3.7084,
+            "p99": 4.9664,
+            "max": 14.5556
+          },
+          "acceleration_m_per_s2": {
+            "count": 1277,
+            "median": 11.0295,
+            "p95": 47.5654,
+            "p99": 145.545,
+            "max": 417.5717
+          },
+          "jerk_m_per_s3": {
+            "count": 1260,
+            "median": 274.5165,
+            "p95": 1548.1267,
+            "p99": 5018.9805,
+            "max": 15814.2869
+          }
+        },
+        "left_hip": {
+          "velocity_m_per_s": {
+            "count": 1359,
+            "median": 0.1165,
+            "p95": 0.5201,
+            "p99": 0.6754,
+            "max": 0.7551
+          },
+          "acceleration_m_per_s2": {
+            "count": 1346,
+            "median": 0.8239,
+            "p95": 4.4667,
+            "p99": 7.9928,
+            "max": 16.2662
+          },
+          "jerk_m_per_s3": {
+            "count": 1333,
+            "median": 16.5098,
+            "p95": 108.7127,
+            "p99": 209.9087,
+            "max": 417.1702
+          }
+        },
+        "left_knee": {
+          "velocity_m_per_s": {
+            "count": 1318,
+            "median": 0.4486,
+            "p95": 1.5756,
+            "p99": 2.2233,
+            "max": 2.4791
+          },
+          "acceleration_m_per_s2": {
+            "count": 1300,
+            "median": 3.329,
+            "p95": 15.5121,
+            "p99": 32.4407,
+            "max": 63.1766
+          },
+          "jerk_m_per_s3": {
+            "count": 1282,
+            "median": 84.9098,
+            "p95": 416.0397,
+            "p99": 968.1437,
+            "max": 2172.071
+          }
+        },
+        "left_ankle": {
+          "velocity_m_per_s": {
+            "count": 1333,
+            "median": 0.6567,
+            "p95": 2.6452,
+            "p99": 3.6939,
+            "max": 7.7212
+          },
+          "acceleration_m_per_s2": {
+            "count": 1317,
+            "median": 5.5231,
+            "p95": 25.5696,
+            "p99": 58.3744,
+            "max": 182.2679
+          },
+          "jerk_m_per_s3": {
+            "count": 1302,
+            "median": 132.433,
+            "p95": 822.007,
+            "p99": 1959.6879,
+            "max": 7545.6501
+          }
+        },
+        "left_heel": {
+          "velocity_m_per_s": {
+            "count": 1349,
+            "median": 0.6985,
+            "p95": 2.8224,
+            "p99": 4.0166,
+            "max": 8.0017
+          },
+          "acceleration_m_per_s2": {
+            "count": 1337,
+            "median": 5.9906,
+            "p95": 29.4161,
+            "p99": 63.3741,
+            "max": 265.6748
+          },
+          "jerk_m_per_s3": {
+            "count": 1325,
+            "median": 147.6855,
+            "p95": 960.0913,
+            "p99": 3685.0781,
+            "max": 10538.6677
+          }
+        },
+        "left_foot_index": {
+          "velocity_m_per_s": {
+            "count": 1337,
+            "median": 0.7346,
+            "p95": 3.1241,
+            "p99": 4.1234,
+            "max": 16.0534
+          },
+          "acceleration_m_per_s2": {
+            "count": 1321,
+            "median": 6.1478,
+            "p95": 30.2325,
+            "p99": 51.1542,
+            "max": 378.0352
+          },
+          "jerk_m_per_s3": {
+            "count": 1305,
+            "median": 154.4059,
+            "p95": 842.9832,
+            "p99": 1645.7047,
+            "max": 8342.1537
+          }
+        },
+        "right_foot_index": {
+          "velocity_m_per_s": {
+            "count": 1336,
+            "median": 0.7755,
+            "p95": 3.1473,
+            "p99": 5.0833,
+            "max": 6.7554
+          },
+          "acceleration_m_per_s2": {
+            "count": 1321,
+            "median": 6.534,
+            "p95": 34.3698,
+            "p99": 63.4382,
+            "max": 156.0513
+          },
+          "jerk_m_per_s3": {
+            "count": 1307,
+            "median": 166.7319,
+            "p95": 1057.325,
+            "p99": 2137.3214,
+            "max": 4526.6235
+          }
+        },
+        "right_hip": {
+          "velocity_m_per_s": {
+            "count": 1360,
+            "median": 0.1175,
+            "p95": 0.5199,
+            "p99": 0.6735,
+            "max": 0.7525
+          },
+          "acceleration_m_per_s2": {
+            "count": 1348,
+            "median": 0.8263,
+            "p95": 4.572,
+            "p99": 7.7231,
+            "max": 16.2415
+          },
+          "jerk_m_per_s3": {
+            "count": 1336,
+            "median": 16.7767,
+            "p95": 111.6358,
+            "p99": 211.9396,
+            "max": 392.5588
+          }
+        },
+        "right_knee": {
+          "velocity_m_per_s": {
+            "count": 1333,
+            "median": 0.4228,
+            "p95": 1.8824,
+            "p99": 2.6412,
+            "max": 2.8515
+          },
+          "acceleration_m_per_s2": {
+            "count": 1315,
+            "median": 3.65,
+            "p95": 18.7056,
+            "p99": 34.2836,
+            "max": 74.3524
+          },
+          "jerk_m_per_s3": {
+            "count": 1297,
+            "median": 95.6435,
+            "p95": 581.0491,
+            "p99": 1032.951,
+            "max": 2327.9154
+          }
+        },
+        "right_ankle": {
+          "velocity_m_per_s": {
+            "count": 1329,
+            "median": 0.6617,
+            "p95": 2.7482,
+            "p99": 4.426,
+            "max": 6.3683
+          },
+          "acceleration_m_per_s2": {
+            "count": 1311,
+            "median": 5.508,
+            "p95": 28.8641,
+            "p99": 53.5211,
+            "max": 143.4272
+          },
+          "jerk_m_per_s3": {
+            "count": 1294,
+            "median": 142.5654,
+            "p95": 827.6161,
+            "p99": 1501.0954,
+            "max": 3374.6571
+          }
+        },
+        "right_heel": {
+          "velocity_m_per_s": {
+            "count": 1329,
+            "median": 0.6987,
+            "p95": 2.8852,
+            "p99": 4.5671,
+            "max": 5.2646
+          },
+          "acceleration_m_per_s2": {
+            "count": 1312,
+            "median": 5.7601,
+            "p95": 30.2054,
+            "p99": 53.8906,
+            "max": 126.7061
+          },
+          "jerk_m_per_s3": {
+            "count": 1296,
+            "median": 149.3514,
+            "p95": 882.8438,
+            "p99": 1636.8179,
+            "max": 3037.9084
+          }
+        }
+      },
+      "bones": {
+        "left_upper_arm": {
+          "count": 1222,
+          "median": 0.2163,
+          "p95": 0.2678,
+          "p99": 0.2816,
+          "max": 0.4933
+        },
+        "left_lower_arm": {
+          "count": 1192,
+          "median": 0.2111,
+          "p95": 0.2619,
+          "p99": 0.3119,
+          "max": 0.6446
+        },
+        "right_upper_arm": {
+          "count": 1297,
+          "median": 0.2202,
+          "p95": 0.2697,
+          "p99": 0.3427,
+          "max": 0.4379
+        },
+        "right_lower_arm": {
+          "count": 1258,
+          "median": 0.2053,
+          "p95": 0.2633,
+          "p99": 0.2826,
+          "max": 0.5389
+        },
+        "left_upper_leg": {
+          "count": 1338,
+          "median": 0.3885,
+          "p95": 0.4234,
+          "p99": 0.4447,
+          "max": 0.471
+        },
+        "left_lower_leg": {
+          "count": 1334,
+          "median": 0.3563,
+          "p95": 0.4052,
+          "p99": 0.4457,
+          "max": 0.6437
+        },
+        "right_upper_leg": {
+          "count": 1350,
+          "median": 0.3748,
+          "p95": 0.4197,
+          "p99": 0.4326,
+          "max": 0.4642
+        },
+        "right_lower_leg": {
+          "count": 1337,
+          "median": 0.3764,
+          "p95": 0.4071,
+          "p99": 0.4246,
+          "max": 0.4507
+        }
+      }
+    },
+    "session_cpu_008": {
+      "fps": 23.976,
+      "landmarks": {
+        "nose": {
+          "velocity_m_per_s": {
+            "count": 2934,
+            "median": 0.4862,
+            "p95": 2.0189,
+            "p99": 2.8706,
+            "max": 3.6271
+          },
+          "acceleration_m_per_s2": {
+            "count": 2915,
+            "median": 4.3064,
+            "p95": 17.7275,
+            "p99": 34.5205,
+            "max": 68.1008
+          },
+          "jerk_m_per_s3": {
+            "count": 2896,
+            "median": 108.2731,
+            "p95": 510.4371,
+            "p99": 940.3076,
+            "max": 2780.81
+          }
+        },
+        "left_eye_inner": {
+          "velocity_m_per_s": {
+            "count": 2931,
+            "median": 0.4816,
+            "p95": 2.0548,
+            "p99": 2.9415,
+            "max": 3.6791
+          },
+          "acceleration_m_per_s2": {
+            "count": 2913,
+            "median": 4.2085,
+            "p95": 17.4986,
+            "p99": 34.5357,
+            "max": 71.1807
+          },
+          "jerk_m_per_s3": {
+            "count": 2895,
+            "median": 105.8065,
+            "p95": 493.2588,
+            "p99": 963.3852,
+            "max": 2897.3888
+          }
+        },
+        "left_eye": {
+          "velocity_m_per_s": {
+            "count": 2931,
+            "median": 0.4821,
+            "p95": 2.059,
+            "p99": 2.9427,
+            "max": 3.6793
+          },
+          "acceleration_m_per_s2": {
+            "count": 2913,
+            "median": 4.2029,
+            "p95": 17.4515,
+            "p99": 34.5447,
+            "max": 71.117
+          },
+          "jerk_m_per_s3": {
+            "count": 2895,
+            "median": 105.6881,
+            "p95": 489.8695,
+            "p99": 957.696,
+            "max": 2895.2501
+          }
+        },
+        "left_eye_outer": {
+          "velocity_m_per_s": {
+            "count": 2931,
+            "median": 0.4821,
+            "p95": 2.0587,
+            "p99": 2.9422,
+            "max": 3.6793
+          },
+          "acceleration_m_per_s2": {
+            "count": 2913,
+            "median": 4.2051,
+            "p95": 17.4597,
+            "p99": 34.5134,
+            "max": 71.0946
+          },
+          "jerk_m_per_s3": {
+            "count": 2895,
+            "median": 105.5548,
+            "p95": 490.0358,
+            "p99": 956.5937,
+            "max": 2893.7929
+          }
+        },
+        "right_eye_inner": {
+          "velocity_m_per_s": {
+            "count": 2932,
+            "median": 0.4844,
+            "p95": 2.0168,
+            "p99": 2.8819,
+            "max": 3.6873
+          },
+          "acceleration_m_per_s2": {
+            "count": 2914,
+            "median": 4.2447,
+            "p95": 17.6558,
+            "p99": 33.9177,
+            "max": 70.7769
+          },
+          "jerk_m_per_s3": {
+            "count": 2896,
+            "median": 105.7378,
+            "p95": 498.5197,
+            "p99": 916.3989,
+            "max": 2864.2446
+          }
+        },
+        "right_eye": {
+          "velocity_m_per_s": {
+            "count": 2932,
+            "median": 0.4846,
+            "p95": 2.0186,
+            "p99": 2.8843,
+            "max": 3.6912
+          },
+          "acceleration_m_per_s2": {
+            "count": 2914,
+            "median": 4.2429,
+            "p95": 17.7042,
+            "p99": 33.8908,
+            "max": 70.7858
+          },
+          "jerk_m_per_s3": {
+            "count": 2896,
+            "median": 106.0387,
+            "p95": 498.3794,
+            "p99": 915.1002,
+            "max": 2864.8469
+          }
+        },
+        "right_eye_outer": {
+          "velocity_m_per_s": {
+            "count": 2932,
+            "median": 0.4848,
+            "p95": 2.0194,
+            "p99": 2.8847,
+            "max": 3.6961
+          },
+          "acceleration_m_per_s2": {
+            "count": 2914,
+            "median": 4.2381,
+            "p95": 17.6574,
+            "p99": 33.8728,
+            "max": 70.7465
+          },
+          "jerk_m_per_s3": {
+            "count": 2896,
+            "median": 106.24,
+            "p95": 498.0556,
+            "p99": 915.7205,
+            "max": 2863.2189
+          }
+        },
+        "left_ear": {
+          "velocity_m_per_s": {
+            "count": 2937,
+            "median": 0.4131,
+            "p95": 1.9046,
+            "p99": 2.621,
+            "max": 3.4496
+          },
+          "acceleration_m_per_s2": {
+            "count": 2922,
+            "median": 3.7285,
+            "p95": 15.5994,
+            "p99": 29.0973,
+            "max": 71.7627
+          },
+          "jerk_m_per_s3": {
+            "count": 2907,
+            "median": 94.1404,
+            "p95": 437.8729,
+            "p99": 852.9893,
+            "max": 2901.8508
+          }
+        },
+        "right_ear": {
+          "velocity_m_per_s": {
+            "count": 2944,
+            "median": 0.4186,
+            "p95": 1.7506,
+            "p99": 2.5691,
+            "max": 3.498
+          },
+          "acceleration_m_per_s2": {
+            "count": 2931,
+            "median": 3.6869,
+            "p95": 15.8539,
+            "p99": 27.6393,
+            "max": 70.9372
+          },
+          "jerk_m_per_s3": {
+            "count": 2918,
+            "median": 96.6315,
+            "p95": 448.0604,
+            "p99": 828.4968,
+            "max": 2700.2266
+          }
+        },
+        "mouth_left": {
+          "velocity_m_per_s": {
+            "count": 2931,
+            "median": 0.4499,
+            "p95": 1.8741,
+            "p99": 2.6539,
+            "max": 3.405
+          },
+          "acceleration_m_per_s2": {
+            "count": 2913,
+            "median": 3.8458,
+            "p95": 16.1949,
+            "p99": 32.3954,
+            "max": 66.814
+          },
+          "jerk_m_per_s3": {
+            "count": 2895,
+            "median": 96.4397,
+            "p95": 455.9583,
+            "p99": 921.1824,
+            "max": 2732.3913
+          }
+        },
+        "mouth_right": {
+          "velocity_m_per_s": {
+            "count": 2933,
+            "median": 0.452,
+            "p95": 1.8631,
+            "p99": 2.6324,
+            "max": 3.4051
+          },
+          "acceleration_m_per_s2": {
+            "count": 2914,
+            "median": 3.8592,
+            "p95": 16.1437,
+            "p99": 32.2442,
+            "max": 66.5318
+          },
+          "jerk_m_per_s3": {
+            "count": 2895,
+            "median": 97.4038,
+            "p95": 460.6574,
+            "p99": 879.9975,
+            "max": 2684.0163
+          }
+        },
+        "left_shoulder": {
+          "velocity_m_per_s": {
+            "count": 2844,
+            "median": 0.3852,
+            "p95": 1.4943,
+            "p99": 2.2448,
+            "max": 2.9097
+          },
+          "acceleration_m_per_s2": {
+            "count": 2805,
+            "median": 3.3407,
+            "p95": 13.8003,
+            "p99": 25.8345,
+            "max": 53.1131
+          },
+          "jerk_m_per_s3": {
+            "count": 2769,
+            "median": 88.4409,
+            "p95": 391.4923,
+            "p99": 742.0668,
+            "max": 2147.1136
+          }
+        },
+        "right_shoulder": {
+          "velocity_m_per_s": {
+            "count": 2912,
+            "median": 0.3737,
+            "p95": 1.3939,
+            "p99": 2.1536,
+            "max": 3.2475
+          },
+          "acceleration_m_per_s2": {
+            "count": 2885,
+            "median": 3.3888,
+            "p95": 13.8884,
+            "p99": 24.6747,
+            "max": 49.8701
+          },
+          "jerk_m_per_s3": {
+            "count": 2858,
+            "median": 92.4778,
+            "p95": 397.368,
+            "p99": 706.3171,
+            "max": 1444.1668
+          }
+        },
+        "left_elbow": {
+          "velocity_m_per_s": {
+            "count": 2643,
+            "median": 0.7112,
+            "p95": 2.3441,
+            "p99": 3.3566,
+            "max": 6.8248
+          },
+          "acceleration_m_per_s2": {
+            "count": 2581,
+            "median": 6.2405,
+            "p95": 25.4566,
+            "p99": 44.5049,
+            "max": 216.8958
+          },
+          "jerk_m_per_s3": {
+            "count": 2526,
+            "median": 167.3955,
+            "p95": 774.5975,
+            "p99": 1574.4076,
+            "max": 8482.0348
+          }
+        },
+        "right_elbow": {
+          "velocity_m_per_s": {
+            "count": 2737,
+            "median": 0.6405,
+            "p95": 2.2237,
+            "p99": 2.9957,
+            "max": 8.8414
+          },
+          "acceleration_m_per_s2": {
+            "count": 2678,
+            "median": 5.9381,
+            "p95": 25.4533,
+            "p99": 42.8054,
+            "max": 280.4069
+          },
+          "jerk_m_per_s3": {
+            "count": 2621,
+            "median": 152.072,
+            "p95": 756.8443,
+            "p99": 1539.8516,
+            "max": 9993.5391
+          }
+        },
+        "left_wrist": {
+          "velocity_m_per_s": {
+            "count": 2681,
+            "median": 1.0474,
+            "p95": 3.438,
+            "p99": 4.61,
+            "max": 13.1543
+          },
+          "acceleration_m_per_s2": {
+            "count": 2620,
+            "median": 9.4573,
+            "p95": 38.2515,
+            "p99": 64.9771,
+            "max": 422.59
+          },
+          "jerk_m_per_s3": {
+            "count": 2567,
+            "median": 245.0583,
+            "p95": 1129.8814,
+            "p99": 1937.1582,
+            "max": 19009.2043
+          }
+        },
+        "right_wrist": {
+          "velocity_m_per_s": {
+            "count": 2814,
+            "median": 0.8704,
+            "p95": 3.3387,
+            "p99": 4.3285,
+            "max": 20.2427
+          },
+          "acceleration_m_per_s2": {
+            "count": 2764,
+            "median": 8.343,
+            "p95": 37.542,
+            "p99": 61.829,
+            "max": 840.2013
+          },
+          "jerk_m_per_s3": {
+            "count": 2715,
+            "median": 233.1808,
+            "p95": 1092.3108,
+            "p99": 2096.1345,
+            "max": 31471.1053
+          }
+        },
+        "left_pinky": {
+          "velocity_m_per_s": {
+            "count": 2720,
+            "median": 1.1632,
+            "p95": 3.8105,
+            "p99": 5.1574,
+            "max": 21.3503
+          },
+          "acceleration_m_per_s2": {
+            "count": 2682,
+            "median": 10.7951,
+            "p95": 47.9099,
+            "p99": 168.2914,
+            "max": 699.6636
+          },
+          "jerk_m_per_s3": {
+            "count": 2647,
+            "median": 285.1868,
+            "p95": 1407.0454,
+            "p99": 5852.0311,
+            "max": 28049.9673
+          }
+        },
+        "right_pinky": {
+          "velocity_m_per_s": {
+            "count": 2868,
+            "median": 1.0114,
+            "p95": 3.7358,
+            "p99": 5.1035,
+            "max": 31.3173
+          },
+          "acceleration_m_per_s2": {
+            "count": 2839,
+            "median": 9.7676,
+            "p95": 44.5882,
+            "p99": 155.0149,
+            "max": 870.9069
+          },
+          "jerk_m_per_s3": {
+            "count": 2810,
+            "median": 265.0084,
+            "p95": 1282.7527,
+            "p99": 6939.4259,
+            "max": 37544.8161
+          }
+        },
+        "left_index": {
+          "velocity_m_per_s": {
+            "count": 2722,
+            "median": 1.1755,
+            "p95": 3.8731,
+            "p99": 5.2355,
+            "max": 12.7701
+          },
+          "acceleration_m_per_s2": {
+            "count": 2684,
+            "median": 10.9609,
+            "p95": 47.6235,
+            "p99": 141.4135,
+            "max": 452.5614
+          },
+          "jerk_m_per_s3": {
+            "count": 2648,
+            "median": 284.2512,
+            "p95": 1419.7603,
+            "p99": 5513.7485,
+            "max": 15235.2179
+          }
+        },
+        "right_index": {
+          "velocity_m_per_s": {
+            "count": 2872,
+            "median": 1.0076,
+            "p95": 3.7533,
+            "p99": 5.1387,
+            "max": 31.2407
+          },
+          "acceleration_m_per_s2": {
+            "count": 2843,
+            "median": 9.7031,
+            "p95": 44.5401,
+            "p99": 163.8113,
+            "max": 828.6461
+          },
+          "jerk_m_per_s3": {
+            "count": 2814,
+            "median": 263.6968,
+            "p95": 1269.7459,
+            "p99": 6492.3663,
+            "max": 37544.1534
+          }
+        },
+        "left_thumb": {
+          "velocity_m_per_s": {
+            "count": 2680,
+            "median": 1.0991,
+            "p95": 3.5506,
+            "p99": 4.9032,
+            "max": 11.8267
+          },
+          "acceleration_m_per_s2": {
+            "count": 2644,
+            "median": 10.0867,
+            "p95": 42.5493,
+            "p99": 118.5454,
+            "max": 294.8245
+          },
+          "jerk_m_per_s3": {
+            "count": 2609,
+            "median": 262.3763,
+            "p95": 1306.6079,
+            "p99": 4977.4714,
+            "max": 12818.1653
+          }
+        },
+        "right_thumb": {
+          "velocity_m_per_s": {
+            "count": 2865,
+            "median": 0.9422,
+            "p95": 3.4644,
+            "p99": 4.6957,
+            "max": 23.5332
+          },
+          "acceleration_m_per_s2": {
+            "count": 2834,
+            "median": 8.9905,
+            "p95": 41.0276,
+            "p99": 105.3254,
+            "max": 787.9754
+          },
+          "jerk_m_per_s3": {
+            "count": 2804,
+            "median": 242.8566,
+            "p95": 1173.2865,
+            "p99": 3967.6845,
+            "max": 30796.6931
+          }
+        },
+        "left_hip": {
+          "velocity_m_per_s": {
+            "count": 2914,
+            "median": 0.0935,
+            "p95": 0.4536,
+            "p99": 0.6035,
+            "max": 0.6953
+          },
+          "acceleration_m_per_s2": {
+            "count": 2890,
+            "median": 0.6875,
+            "p95": 3.9459,
+            "p99": 7.5594,
+            "max": 17.0346
+          },
+          "jerk_m_per_s3": {
+            "count": 2869,
+            "median": 16.9211,
+            "p95": 104.9038,
+            "p99": 219.041,
+            "max": 451.7566
+          }
+        },
+        "left_knee": {
+          "velocity_m_per_s": {
+            "count": 2855,
+            "median": 0.2382,
+            "p95": 1.4705,
+            "p99": 2.5273,
+            "max": 10.1732
+          },
+          "acceleration_m_per_s2": {
+            "count": 2812,
+            "median": 2.1982,
+            "p95": 14.9345,
+            "p99": 32.4657,
+            "max": 387.2735
+          },
+          "jerk_m_per_s3": {
+            "count": 2773,
+            "median": 61.6009,
+            "p95": 378.3714,
+            "p99": 939.0827,
+            "max": 14033.3517
+          }
+        },
+        "left_ankle": {
+          "velocity_m_per_s": {
+            "count": 2854,
+            "median": 0.3729,
+            "p95": 2.4199,
+            "p99": 4.4189,
+            "max": 9.0215
+          },
+          "acceleration_m_per_s2": {
+            "count": 2814,
+            "median": 3.4405,
+            "p95": 23.8748,
+            "p99": 48.446,
+            "max": 211.9694
+          },
+          "jerk_m_per_s3": {
+            "count": 2778,
+            "median": 96.282,
+            "p95": 651.2584,
+            "p99": 1323.9401,
+            "max": 5052.9941
+          }
+        },
+        "right_ankle": {
+          "velocity_m_per_s": {
+            "count": 2875,
+            "median": 0.4263,
+            "p95": 2.7994,
+            "p99": 4.7344,
+            "max": 31.1679
+          },
+          "acceleration_m_per_s2": {
+            "count": 2837,
+            "median": 3.724,
+            "p95": 25.738,
+            "p99": 62.3386,
+            "max": 345.9131
+          },
+          "jerk_m_per_s3": {
+            "count": 2803,
+            "median": 101.6262,
+            "p95": 780.3662,
+            "p99": 1903.7954,
+            "max": 13211.8587
+          }
+        },
+        "left_heel": {
+          "velocity_m_per_s": {
+            "count": 2876,
+            "median": 0.3964,
+            "p95": 2.6717,
+            "p99": 4.6922,
+            "max": 17.4561
+          },
+          "acceleration_m_per_s2": {
+            "count": 2838,
+            "median": 3.6579,
+            "p95": 26.9095,
+            "p99": 53.3693,
+            "max": 421.8475
+          },
+          "jerk_m_per_s3": {
+            "count": 2803,
+            "median": 102.7016,
+            "p95": 721.2822,
+            "p99": 1574.9837,
+            "max": 3872.65
+          }
+        },
+        "right_heel": {
+          "velocity_m_per_s": {
+            "count": 2883,
+            "median": 0.4468,
+            "p95": 2.9179,
+            "p99": 5.0085,
+            "max": 6.7316
+          },
+          "acceleration_m_per_s2": {
+            "count": 2848,
+            "median": 3.9139,
+            "p95": 27.0011,
+            "p99": 71.7693,
+            "max": 283.8081
+          },
+          "jerk_m_per_s3": {
+            "count": 2816,
+            "median": 108.1916,
+            "p95": 817.9754,
+            "p99": 1969.9767,
+            "max": 11827.4378
+          }
+        },
+        "left_foot_index": {
+          "velocity_m_per_s": {
+            "count": 2874,
+            "median": 0.4208,
+            "p95": 2.8815,
+            "p99": 5.1548,
+            "max": 6.4963
+          },
+          "acceleration_m_per_s2": {
+            "count": 2837,
+            "median": 4.0362,
+            "p95": 29.4524,
+            "p99": 53.9503,
+            "max": 105.3415
+          },
+          "jerk_m_per_s3": {
+            "count": 2800,
+            "median": 112.8285,
+            "p95": 823.4132,
+            "p99": 1573.1873,
+            "max": 3025.6651
+          }
+        },
+        "right_foot_index": {
+          "velocity_m_per_s": {
+            "count": 2873,
+            "median": 0.4741,
+            "p95": 3.2593,
+            "p99": 5.459,
+            "max": 21.7154
+          },
+          "acceleration_m_per_s2": {
+            "count": 2834,
+            "median": 4.139,
+            "p95": 29.5185,
+            "p99": 71.7098,
+            "max": 845.0789
+          },
+          "jerk_m_per_s3": {
+            "count": 2798,
+            "median": 118.109,
+            "p95": 979.8732,
+            "p99": 2073.6918,
+            "max": 29862.0791
+          }
+        },
+        "right_hip": {
+          "velocity_m_per_s": {
+            "count": 2906,
+            "median": 0.0917,
+            "p95": 0.4546,
+            "p99": 0.5975,
+            "max": 0.6967
+          },
+          "acceleration_m_per_s2": {
+            "count": 2882,
+            "median": 0.6783,
+            "p95": 3.9815,
+            "p99": 7.6804,
+            "max": 17.011
+          },
+          "jerk_m_per_s3": {
+            "count": 2859,
+            "median": 16.8524,
+            "p95": 105.9708,
+            "p99": 222.4866,
+            "max": 452.2243
+          }
+        },
+        "right_knee": {
+          "velocity_m_per_s": {
+            "count": 2867,
+            "median": 0.2699,
+            "p95": 1.5912,
+            "p99": 2.4741,
+            "max": 7.0033
+          },
+          "acceleration_m_per_s2": {
+            "count": 2832,
+            "median": 2.3732,
+            "p95": 16.1756,
+            "p99": 37.4591,
+            "max": 157.6386
+          },
+          "jerk_m_per_s3": {
+            "count": 2797,
+            "median": 64.8044,
+            "p95": 526.2289,
+            "p99": 1285.151,
+            "max": 7202.305
+          }
+        }
+      },
+      "bones": {
+        "left_upper_arm": {
+          "count": 2698,
+          "median": 0.2172,
+          "p95": 0.2726,
+          "p99": 0.4414,
+          "max": 0.4881
+        },
+        "left_lower_arm": {
+          "count": 2661,
+          "median": 0.2208,
+          "p95": 0.2688,
+          "p99": 0.2933,
+          "max": 0.5378
+        },
+        "right_upper_arm": {
+          "count": 2792,
+          "median": 0.2274,
+          "p95": 0.2785,
+          "p99": 0.3263,
+          "max": 0.5668
+        },
+        "right_lower_arm": {
+          "count": 2783,
+          "median": 0.2158,
+          "p95": 0.274,
+          "p99": 0.2966,
+          "max": 0.6933
+        },
+        "left_upper_leg": {
+          "count": 2889,
+          "median": 0.4027,
+          "p95": 0.437,
+          "p99": 0.4581,
+          "max": 0.4697
+        },
+        "left_lower_leg": {
+          "count": 2871,
+          "median": 0.3653,
+          "p95": 0.4067,
+          "p99": 0.4386,
+          "max": 0.8519
+        },
+        "right_upper_leg": {
+          "count": 2891,
+          "median": 0.3869,
+          "p95": 0.4217,
+          "p99": 0.4308,
+          "max": 0.4481
+        },
+        "right_lower_leg": {
+          "count": 2890,
+          "median": 0.3749,
+          "p95": 0.4103,
+          "p99": 0.4358,
+          "max": 0.4948
+        }
+      }
+    },
+    "session_cpu_009": {
+      "fps": 60.0,
+      "landmarks": {
+        "nose": {
+          "velocity_m_per_s": {
+            "count": 6713,
+            "median": 0.46,
+            "p95": 1.6442,
+            "p99": 3.0183,
+            "max": 5.959
+          },
+          "acceleration_m_per_s2": {
+            "count": 6684,
+            "median": 7.4705,
+            "p95": 35.0326,
+            "p99": 77.0448,
+            "max": 371.3496
+          },
+          "jerk_m_per_s3": {
+            "count": 6656,
+            "median": 530.8416,
+            "p95": 2781.8352,
+            "p99": 5789.5944,
+            "max": 32578.6249
+          }
+        },
+        "left_eye_inner": {
+          "velocity_m_per_s": {
+            "count": 6712,
+            "median": 0.4509,
+            "p95": 1.6237,
+            "p99": 2.9203,
+            "max": 5.9771
+          },
+          "acceleration_m_per_s2": {
+            "count": 6685,
+            "median": 7.1354,
+            "p95": 33.4333,
+            "p99": 71.2632,
+            "max": 375.8091
+          },
+          "jerk_m_per_s3": {
+            "count": 6658,
+            "median": 498.5587,
+            "p95": 2679.9224,
+            "p99": 5510.4908,
+            "max": 33258.4482
+          }
+        },
+        "left_eye": {
+          "velocity_m_per_s": {
+            "count": 6712,
+            "median": 0.4508,
+            "p95": 1.6242,
+            "p99": 2.9206,
+            "max": 5.9771
+          },
+          "acceleration_m_per_s2": {
+            "count": 6685,
+            "median": 7.127,
+            "p95": 33.4276,
+            "p99": 71.1935,
+            "max": 375.5217
+          },
+          "jerk_m_per_s3": {
+            "count": 6658,
+            "median": 498.3874,
+            "p95": 2674.6159,
+            "p99": 5497.9803,
+            "max": 33236.1017
+          }
+        },
+        "left_eye_outer": {
+          "velocity_m_per_s": {
+            "count": 6712,
+            "median": 0.4512,
+            "p95": 1.6239,
+            "p99": 2.919,
+            "max": 5.9795
+          },
+          "acceleration_m_per_s2": {
+            "count": 6685,
+            "median": 7.1366,
+            "p95": 33.432,
+            "p99": 71.2016,
+            "max": 375.5897
+          },
+          "jerk_m_per_s3": {
+            "count": 6658,
+            "median": 497.7078,
+            "p95": 2673.8331,
+            "p99": 5492.1954,
+            "max": 33243.1491
+          }
+        },
+        "right_eye_inner": {
+          "velocity_m_per_s": {
+            "count": 6720,
+            "median": 0.4485,
+            "p95": 1.6055,
+            "p99": 2.9055,
+            "max": 6.0151
+          },
+          "acceleration_m_per_s2": {
+            "count": 6695,
+            "median": 7.1935,
+            "p95": 33.7472,
+            "p99": 74.3791,
+            "max": 372.2086
+          },
+          "jerk_m_per_s3": {
+            "count": 6670,
+            "median": 500.9661,
+            "p95": 2676.9179,
+            "p99": 5692.2161,
+            "max": 32871.2333
+          }
+        },
+        "right_eye": {
+          "velocity_m_per_s": {
+            "count": 6720,
+            "median": 0.4492,
+            "p95": 1.6034,
+            "p99": 2.9057,
+            "max": 6.0154
+          },
+          "acceleration_m_per_s2": {
+            "count": 6695,
+            "median": 7.2076,
+            "p95": 33.7683,
+            "p99": 74.273,
+            "max": 371.8178
+          },
+          "jerk_m_per_s3": {
+            "count": 6670,
+            "median": 501.1054,
+            "p95": 2677.5616,
+            "p99": 5691.4584,
+            "max": 32847.0637
+          }
+        },
+        "right_eye_outer": {
+          "velocity_m_per_s": {
+            "count": 6720,
+            "median": 0.4494,
+            "p95": 1.6051,
+            "p99": 2.9036,
+            "max": 6.0095
+          },
+          "acceleration_m_per_s2": {
+            "count": 6695,
+            "median": 7.2025,
+            "p95": 33.712,
+            "p99": 74.0419,
+            "max": 372.4806
+          },
+          "jerk_m_per_s3": {
+            "count": 6670,
+            "median": 501.6243,
+            "p95": 2665.8619,
+            "p99": 5675.0489,
+            "max": 32891.3036
+          }
+        },
+        "left_ear": {
+          "velocity_m_per_s": {
+            "count": 6733,
+            "median": 0.3895,
+            "p95": 1.4045,
+            "p99": 2.514,
+            "max": 5.0001
+          },
+          "acceleration_m_per_s2": {
+            "count": 6711,
+            "median": 5.6483,
+            "p95": 28.0289,
+            "p99": 59.2339,
+            "max": 380.9774
+          },
+          "jerk_m_per_s3": {
+            "count": 6689,
+            "median": 381.3155,
+            "p95": 2199.8505,
+            "p99": 4386.8857,
+            "max": 31881.3457
+          }
+        },
+        "right_ear": {
+          "velocity_m_per_s": {
+            "count": 6760,
+            "median": 0.3941,
+            "p95": 1.2855,
+            "p99": 2.387,
+            "max": 5.3054
+          },
+          "acceleration_m_per_s2": {
+            "count": 6746,
+            "median": 5.8518,
+            "p95": 27.9379,
+            "p99": 63.7971,
+            "max": 344.1538
+          },
+          "jerk_m_per_s3": {
+            "count": 6733,
+            "median": 392.7474,
+            "p95": 2121.0573,
+            "p99": 5522.1567,
+            "max": 27722.6495
+          }
+        },
+        "mouth_left": {
+          "velocity_m_per_s": {
+            "count": 6707,
+            "median": 0.4213,
+            "p95": 1.5148,
+            "p99": 2.7281,
+            "max": 5.6058
+          },
+          "acceleration_m_per_s2": {
+            "count": 6677,
+            "median": 6.3745,
+            "p95": 31.4161,
+            "p99": 64.1294,
+            "max": 348.0301
+          },
+          "jerk_m_per_s3": {
+            "count": 6647,
+            "median": 438.4908,
+            "p95": 2421.1616,
+            "p99": 4841.6342,
+            "max": 30612.3849
+          }
+        },
+        "mouth_right": {
+          "velocity_m_per_s": {
+            "count": 6718,
+            "median": 0.4186,
+            "p95": 1.4807,
+            "p99": 2.7044,
+            "max": 5.6196
+          },
+          "acceleration_m_per_s2": {
+            "count": 6692,
+            "median": 6.4596,
+            "p95": 31.2671,
+            "p99": 66.7874,
+            "max": 342.7087
+          },
+          "jerk_m_per_s3": {
+            "count": 6667,
+            "median": 444.532,
+            "p95": 2455.0809,
+            "p99": 5163.0382,
+            "max": 30094.4486
+          }
+        },
+        "left_shoulder": {
+          "velocity_m_per_s": {
+            "count": 6688,
+            "median": 0.3618,
+            "p95": 1.1606,
+            "p99": 2.306,
+            "max": 8.2587
+          },
+          "acceleration_m_per_s2": {
+            "count": 6653,
+            "median": 5.3675,
+            "p95": 25.9406,
+            "p99": 61.6256,
+            "max": 477.6954
+          },
+          "jerk_m_per_s3": {
+            "count": 6619,
+            "median": 349.3084,
+            "p95": 1976.124,
+            "p99": 5751.0995,
+            "max": 44768.9383
+          }
+        },
+        "right_shoulder": {
+          "velocity_m_per_s": {
+            "count": 6705,
+            "median": 0.3982,
+            "p95": 1.2425,
+            "p99": 2.2886,
+            "max": 4.5438
+          },
+          "acceleration_m_per_s2": {
+            "count": 6673,
+            "median": 5.6941,
+            "p95": 25.9962,
+            "p99": 63.506,
+            "max": 254.9858
+          },
+          "jerk_m_per_s3": {
+            "count": 6644,
+            "median": 369.1178,
+            "p95": 1979.6103,
+            "p99": 4900.7076,
+            "max": 19405.9605
+          }
+        },
+        "left_elbow": {
+          "velocity_m_per_s": {
+            "count": 4419,
+            "median": 0.7277,
+            "p95": 2.1652,
+            "p99": 5.0029,
+            "max": 10.3376
+          },
+          "acceleration_m_per_s2": {
+            "count": 4343,
+            "median": 10.8298,
+            "p95": 57.6159,
+            "p99": 171.5989,
+            "max": 790.0305
+          },
+          "jerk_m_per_s3": {
+            "count": 4273,
+            "median": 780.9692,
+            "p95": 5141.7878,
+            "p99": 13978.2186,
+            "max": 70174.3931
+          }
+        },
+        "right_elbow": {
+          "velocity_m_per_s": {
+            "count": 6568,
+            "median": 0.7016,
+            "p95": 2.3616,
+            "p99": 4.1614,
+            "max": 20.2163
+          },
+          "acceleration_m_per_s2": {
+            "count": 6502,
+            "median": 11.905,
+            "p95": 56.121,
+            "p99": 116.4779,
+            "max": 1082.681
+          },
+          "jerk_m_per_s3": {
+            "count": 6440,
+            "median": 847.1216,
+            "p95": 4483.6673,
+            "p99": 10500.9354,
+            "max": 64092.2589
+          }
+        },
+        "left_wrist": {
+          "velocity_m_per_s": {
+            "count": 4339,
+            "median": 1.0487,
+            "p95": 3.3846,
+            "p99": 7.5361,
+            "max": 20.354
+          },
+          "acceleration_m_per_s2": {
+            "count": 4257,
+            "median": 15.5232,
+            "p95": 95.2176,
+            "p99": 259.5841,
+            "max": 1244.2199
+          },
+          "jerk_m_per_s3": {
+            "count": 4182,
+            "median": 1174.6817,
+            "p95": 8181.8123,
+            "p99": 23949.3255,
+            "max": 119874.0216
+          }
+        },
+        "right_wrist": {
+          "velocity_m_per_s": {
+            "count": 6399,
+            "median": 1.0809,
+            "p95": 3.8131,
+            "p99": 6.0569,
+            "max": 30.6329
+          },
+          "acceleration_m_per_s2": {
+            "count": 6318,
+            "median": 18.9381,
+            "p95": 95.8016,
+            "p99": 215.6332,
+            "max": 1758.0471
+          },
+          "jerk_m_per_s3": {
+            "count": 6240,
+            "median": 1434.2734,
+            "p95": 8481.9615,
+            "p99": 17533.744,
+            "max": 103388.9639
+          }
+        },
+        "left_pinky": {
+          "velocity_m_per_s": {
+            "count": 4137,
+            "median": 1.1382,
+            "p95": 3.8613,
+            "p99": 8.866,
+            "max": 29.9907
+          },
+          "acceleration_m_per_s2": {
+            "count": 4073,
+            "median": 17.6003,
+            "p95": 106.7706,
+            "p99": 327.0996,
+            "max": 2305.9924
+          },
+          "jerk_m_per_s3": {
+            "count": 4011,
+            "median": 1329.1511,
+            "p95": 9309.7979,
+            "p99": 29238.3853,
+            "max": 235057.6269
+          }
+        },
+        "right_pinky": {
+          "velocity_m_per_s": {
+            "count": 6323,
+            "median": 1.1947,
+            "p95": 4.2449,
+            "p99": 7.0727,
+            "max": 11.1652
+          },
+          "acceleration_m_per_s2": {
+            "count": 6263,
+            "median": 21.7701,
+            "p95": 117.5261,
+            "p99": 295.3527,
+            "max": 717.8074
+          },
+          "jerk_m_per_s3": {
+            "count": 6204,
+            "median": 1628.7374,
+            "p95": 10613.1589,
+            "p99": 22655.4661,
+            "max": 58192.1163
+          }
+        },
+        "left_index": {
+          "velocity_m_per_s": {
+            "count": 4136,
+            "median": 1.1596,
+            "p95": 3.8373,
+            "p99": 9.0214,
+            "max": 29.6962
+          },
+          "acceleration_m_per_s2": {
+            "count": 4073,
+            "median": 17.8807,
+            "p95": 105.4816,
+            "p99": 341.6018,
+            "max": 2354.0069
+          },
+          "jerk_m_per_s3": {
+            "count": 4013,
+            "median": 1345.773,
+            "p95": 9296.1661,
+            "p99": 29622.4417,
+            "max": 237556.4446
+          }
+        },
+        "right_index": {
+          "velocity_m_per_s": {
+            "count": 6302,
+            "median": 1.2051,
+            "p95": 4.2073,
+            "p99": 6.9004,
+            "max": 11.0731
+          },
+          "acceleration_m_per_s2": {
+            "count": 6241,
+            "median": 21.6046,
+            "p95": 115.7698,
+            "p99": 288.1502,
+            "max": 702.7213
+          },
+          "jerk_m_per_s3": {
+            "count": 6181,
+            "median": 1621.3596,
+            "p95": 10460.8429,
+            "p99": 22848.8475,
+            "max": 59050.0786
+          }
+        },
+        "left_thumb": {
+          "velocity_m_per_s": {
+            "count": 4134,
+            "median": 1.0766,
+            "p95": 3.559,
+            "p99": 8.1513,
+            "max": 12.1183
+          },
+          "acceleration_m_per_s2": {
+            "count": 4070,
+            "median": 16.1229,
+            "p95": 98.6856,
+            "p99": 303.2551,
+            "max": 733.5141
+          },
+          "jerk_m_per_s3": {
+            "count": 4008,
+            "median": 1213.0924,
+            "p95": 8543.2467,
+            "p99": 25874.1843,
+            "max": 63571.3329
+          }
+        },
+        "right_thumb": {
+          "velocity_m_per_s": {
+            "count": 6268,
+            "median": 1.1027,
+            "p95": 4.0241,
+            "p99": 6.6684,
+            "max": 23.575
+          },
+          "acceleration_m_per_s2": {
+            "count": 6200,
+            "median": 19.9837,
+            "p95": 107.1328,
+            "p99": 276.4034,
+            "max": 1819.258
+          },
+          "jerk_m_per_s3": {
+            "count": 6135,
+            "median": 1486.201,
+            "p95": 9444.0898,
+            "p99": 21994.8519,
+            "max": 189333.0596
+          }
+        },
+        "left_hip": {
+          "velocity_m_per_s": {
+            "count": 6719,
+            "median": 0.0889,
+            "p95": 0.4361,
+            "p99": 0.9849,
+            "max": 1.3652
+          },
+          "acceleration_m_per_s2": {
+            "count": 6689,
+            "median": 1.1206,
+            "p95": 7.7017,
+            "p99": 25.2493,
+            "max": 69.4138
+          },
+          "jerk_m_per_s3": {
+            "count": 6662,
+            "median": 63.1682,
+            "p95": 549.1185,
+            "p99": 2059.251,
+            "max": 5717.031
+          }
+        },
+        "right_hip": {
+          "velocity_m_per_s": {
+            "count": 6718,
+            "median": 0.0888,
+            "p95": 0.4362,
+            "p99": 0.9869,
+            "max": 1.3661
+          },
+          "acceleration_m_per_s2": {
+            "count": 6688,
+            "median": 1.1192,
+            "p95": 7.6142,
+            "p99": 23.9116,
+            "max": 69.6561
+          },
+          "jerk_m_per_s3": {
+            "count": 6661,
+            "median": 62.7216,
+            "p95": 533.6621,
+            "p99": 1854.6285,
+            "max": 5729.7276
+          }
+        },
+        "left_knee": {
+          "velocity_m_per_s": {
+            "count": 6565,
+            "median": 0.3075,
+            "p95": 1.3283,
+            "p99": 2.8794,
+            "max": 13.6533
+          },
+          "acceleration_m_per_s2": {
+            "count": 6496,
+            "median": 5.1207,
+            "p95": 25.6153,
+            "p99": 89.0899,
+            "max": 835.0574
+          },
+          "jerk_m_per_s3": {
+            "count": 6436,
+            "median": 342.5796,
+            "p95": 2272.4456,
+            "p99": 6768.9312,
+            "max": 37336.4081
+          }
+        },
+        "right_knee": {
+          "velocity_m_per_s": {
+            "count": 6704,
+            "median": 0.3391,
+            "p95": 1.3706,
+            "p99": 2.6517,
+            "max": 5.3367
+          },
+          "acceleration_m_per_s2": {
+            "count": 6671,
+            "median": 5.3492,
+            "p95": 28.987,
+            "p99": 78.6589,
+            "max": 323.9194
+          },
+          "jerk_m_per_s3": {
+            "count": 6639,
+            "median": 363.9467,
+            "p95": 2268.8554,
+            "p99": 6586.6626,
+            "max": 20297.3263
+          }
+        },
+        "left_ankle": {
+          "velocity_m_per_s": {
+            "count": 6627,
+            "median": 0.4975,
+            "p95": 2.0594,
+            "p99": 4.594,
+            "max": 13.6586
+          },
+          "acceleration_m_per_s2": {
+            "count": 6577,
+            "median": 8.9375,
+            "p95": 49.3926,
+            "p99": 156.6375,
+            "max": 890.2837
+          },
+          "jerk_m_per_s3": {
+            "count": 6529,
+            "median": 666.1072,
+            "p95": 4273.9887,
+            "p99": 12138.3059,
+            "max": 90978.7987
+          }
+        },
+        "right_ankle": {
+          "velocity_m_per_s": {
+            "count": 6677,
+            "median": 0.555,
+            "p95": 2.2266,
+            "p99": 4.6669,
+            "max": 17.7273
+          },
+          "acceleration_m_per_s2": {
+            "count": 6637,
+            "median": 9.6583,
+            "p95": 49.4035,
+            "p99": 156.0664,
+            "max": 1000.5672
+          },
+          "jerk_m_per_s3": {
+            "count": 6599,
+            "median": 718.6062,
+            "p95": 4200.7908,
+            "p99": 11381.6133,
+            "max": 72943.6904
+          }
+        },
+        "left_heel": {
+          "velocity_m_per_s": {
+            "count": 6635,
+            "median": 0.5249,
+            "p95": 2.1569,
+            "p99": 4.8397,
+            "max": 14.2815
+          },
+          "acceleration_m_per_s2": {
+            "count": 6589,
+            "median": 9.5789,
+            "p95": 51.3459,
+            "p99": 147.1205,
+            "max": 928.6513
+          },
+          "jerk_m_per_s3": {
+            "count": 6544,
+            "median": 718.7557,
+            "p95": 4417.1423,
+            "p99": 11976.0262,
+            "max": 95887.1268
+          }
+        },
+        "right_heel": {
+          "velocity_m_per_s": {
+            "count": 6672,
+            "median": 0.5862,
+            "p95": 2.3303,
+            "p99": 4.9199,
+            "max": 13.0629
+          },
+          "acceleration_m_per_s2": {
+            "count": 6631,
+            "median": 10.3752,
+            "p95": 51.4906,
+            "p99": 159.8996,
+            "max": 1014.868
+          },
+          "jerk_m_per_s3": {
+            "count": 6592,
+            "median": 778.3185,
+            "p95": 4403.7844,
+            "p99": 13564.8041,
+            "max": 77527.1434
+          }
+        },
+        "left_foot_index": {
+          "velocity_m_per_s": {
+            "count": 6615,
+            "median": 0.5755,
+            "p95": 2.2818,
+            "p99": 5.212,
+            "max": 15.7393
+          },
+          "acceleration_m_per_s2": {
+            "count": 6564,
+            "median": 11.0325,
+            "p95": 54.668,
+            "p99": 151.669,
+            "max": 1065.185
+          },
+          "jerk_m_per_s3": {
+            "count": 6514,
+            "median": 833.7074,
+            "p95": 4695.4286,
+            "p99": 13054.7706,
+            "max": 107417.941
+          }
+        },
+        "right_foot_index": {
+          "velocity_m_per_s": {
+            "count": 6679,
+            "median": 0.6288,
+            "p95": 2.6662,
+            "p99": 5.5029,
+            "max": 17.471
+          },
+          "acceleration_m_per_s2": {
+            "count": 6637,
+            "median": 11.7353,
+            "p95": 59.0316,
+            "p99": 179.3847,
+            "max": 1140.0215
+          },
+          "jerk_m_per_s3": {
+            "count": 6597,
+            "median": 884.0169,
+            "p95": 5029.094,
+            "p99": 14459.3882,
+            "max": 86613.8448
+          }
+        }
+      },
+      "bones": {
+        "left_upper_arm": {
+          "count": 4459,
+          "median": 0.2121,
+          "p95": 0.2685,
+          "p99": 0.2803,
+          "max": 0.4005
+        },
+        "left_lower_arm": {
+          "count": 4133,
+          "median": 0.2095,
+          "p95": 0.2581,
+          "p99": 0.2706,
+          "max": 0.4615
+        },
+        "right_upper_arm": {
+          "count": 6615,
+          "median": 0.2283,
+          "p95": 0.2656,
+          "p99": 0.277,
+          "max": 0.308
+        },
+        "right_lower_arm": {
+          "count": 6457,
+          "median": 0.2182,
+          "p95": 0.2632,
+          "p99": 0.2881,
+          "max": 0.5442
+        },
+        "left_upper_leg": {
+          "count": 6610,
+          "median": 0.3981,
+          "p95": 0.4434,
+          "p99": 0.4565,
+          "max": 0.4687
+        },
+        "left_lower_leg": {
+          "count": 6587,
+          "median": 0.3517,
+          "p95": 0.393,
+          "p99": 0.4204,
+          "max": 0.6289
+        },
+        "right_upper_leg": {
+          "count": 6700,
+          "median": 0.3893,
+          "p95": 0.4148,
+          "p99": 0.4265,
+          "max": 0.4427
+        },
+        "right_lower_leg": {
+          "count": 6690,
+          "median": 0.3628,
+          "p95": 0.3919,
+          "p99": 0.4132,
+          "max": 0.4457
+        }
+      }
+    },
+    "session_cpu_010": {
+      "fps": 59.969,
+      "landmarks": {
+        "nose": {
+          "velocity_m_per_s": {
+            "count": 580,
+            "median": 0.2856,
+            "p95": 1.4631,
+            "p99": 2.4399,
+            "max": 4.2441
+          },
+          "acceleration_m_per_s2": {
+            "count": 577,
+            "median": 5.653,
+            "p95": 34.2559,
+            "p99": 68.6217,
+            "max": 139.0385
+          },
+          "jerk_m_per_s3": {
+            "count": 574,
+            "median": 401.9554,
+            "p95": 2310.0965,
+            "p99": 4369.4729,
+            "max": 13050.3424
+          }
+        },
+        "left_eye_inner": {
+          "velocity_m_per_s": {
+            "count": 582,
+            "median": 0.2899,
+            "p95": 1.5036,
+            "p99": 2.3196,
+            "max": 4.1387
+          },
+          "acceleration_m_per_s2": {
+            "count": 580,
+            "median": 5.3791,
+            "p95": 32.9723,
+            "p99": 56.9412,
+            "max": 131.5908
+          },
+          "jerk_m_per_s3": {
+            "count": 578,
+            "median": 405.8494,
+            "p95": 2400.8717,
+            "p99": 4307.2261,
+            "max": 9898.9981
+          }
+        },
+        "left_eye": {
+          "velocity_m_per_s": {
+            "count": 582,
+            "median": 0.2902,
+            "p95": 1.5023,
+            "p99": 2.32,
+            "max": 4.1389
+          },
+          "acceleration_m_per_s2": {
+            "count": 580,
+            "median": 5.4902,
+            "p95": 32.8094,
+            "p99": 56.9862,
+            "max": 131.5975
+          },
+          "jerk_m_per_s3": {
+            "count": 578,
+            "median": 406.4808,
+            "p95": 2387.363,
+            "p99": 4291.6373,
+            "max": 9899.2463
+          }
+        },
+        "left_eye_outer": {
+          "velocity_m_per_s": {
+            "count": 582,
+            "median": 0.2895,
+            "p95": 1.5011,
+            "p99": 2.3166,
+            "max": 4.1401
+          },
+          "acceleration_m_per_s2": {
+            "count": 580,
+            "median": 5.3704,
+            "p95": 32.7366,
+            "p99": 57.0493,
+            "max": 131.685
+          },
+          "jerk_m_per_s3": {
+            "count": 578,
+            "median": 406.0673,
+            "p95": 2384.9962,
+            "p99": 4293.6327,
+            "max": 9907.2795
+          }
+        },
+        "right_eye_inner": {
+          "velocity_m_per_s": {
+            "count": 582,
+            "median": 0.2941,
+            "p95": 1.4856,
+            "p99": 2.4154,
+            "max": 4.1416
+          },
+          "acceleration_m_per_s2": {
+            "count": 580,
+            "median": 5.5365,
+            "p95": 33.8993,
+            "p99": 66.3488,
+            "max": 134.8981
+          },
+          "jerk_m_per_s3": {
+            "count": 578,
+            "median": 407.4894,
+            "p95": 2485.4655,
+            "p99": 4507.638,
+            "max": 12696.8761
+          }
+        },
+        "right_eye": {
+          "velocity_m_per_s": {
+            "count": 582,
+            "median": 0.2948,
+            "p95": 1.4888,
+            "p99": 2.4184,
+            "max": 4.1447
+          },
+          "acceleration_m_per_s2": {
+            "count": 580,
+            "median": 5.5323,
+            "p95": 33.9089,
+            "p99": 66.3898,
+            "max": 134.9408
+          },
+          "jerk_m_per_s3": {
+            "count": 578,
+            "median": 405.7383,
+            "p95": 2491.1953,
+            "p99": 4517.8843,
+            "max": 12702.1134
+          }
+        },
+        "right_eye_outer": {
+          "velocity_m_per_s": {
+            "count": 582,
+            "median": 0.2938,
+            "p95": 1.4898,
+            "p99": 2.4138,
+            "max": 4.1411
+          },
+          "acceleration_m_per_s2": {
+            "count": 580,
+            "median": 5.54,
+            "p95": 33.9397,
+            "p99": 66.3748,
+            "max": 134.9258
+          },
+          "jerk_m_per_s3": {
+            "count": 578,
+            "median": 405.3145,
+            "p95": 2484.1619,
+            "p99": 4515.8762,
+            "max": 12703.5657
+          }
+        },
+        "left_ear": {
+          "velocity_m_per_s": {
+            "count": 582,
+            "median": 0.3175,
+            "p95": 1.3055,
+            "p99": 1.9313,
+            "max": 3.39
+          },
+          "acceleration_m_per_s2": {
+            "count": 580,
+            "median": 5.3088,
+            "p95": 30.4649,
+            "p99": 50.2612,
+            "max": 101.3226
+          },
+          "jerk_m_per_s3": {
+            "count": 578,
+            "median": 385.6388,
+            "p95": 1978.2304,
+            "p99": 3579.7471,
+            "max": 7897.2621
+          }
+        },
+        "right_ear": {
+          "velocity_m_per_s": {
+            "count": 580,
+            "median": 0.3115,
+            "p95": 1.2846,
+            "p99": 1.9523,
+            "max": 3.2813
+          },
+          "acceleration_m_per_s2": {
+            "count": 578,
+            "median": 5.1904,
+            "p95": 28.61,
+            "p99": 53.3839,
+            "max": 100.3153
+          },
+          "jerk_m_per_s3": {
+            "count": 576,
+            "median": 369.394,
+            "p95": 1899.1949,
+            "p99": 3354.1454,
+            "max": 9203.1598
+          }
+        },
+        "mouth_left": {
+          "velocity_m_per_s": {
+            "count": 584,
+            "median": 0.2818,
+            "p95": 1.4782,
+            "p99": 2.4192,
+            "max": 3.9508
+          },
+          "acceleration_m_per_s2": {
+            "count": 583,
+            "median": 5.4507,
+            "p95": 34.3798,
+            "p99": 66.0389,
+            "max": 126.7971
+          },
+          "jerk_m_per_s3": {
+            "count": 582,
+            "median": 387.5869,
+            "p95": 2349.3753,
+            "p99": 4147.7632,
+            "max": 11796.9106
+          }
+        },
+        "mouth_right": {
+          "velocity_m_per_s": {
+            "count": 582,
+            "median": 0.2769,
+            "p95": 1.4658,
+            "p99": 2.3904,
+            "max": 3.9017
+          },
+          "acceleration_m_per_s2": {
+            "count": 580,
+            "median": 5.4518,
+            "p95": 32.8473,
+            "p99": 63.1486,
+            "max": 124.4185
+          },
+          "jerk_m_per_s3": {
+            "count": 578,
+            "median": 379.8236,
+            "p95": 2391.2252,
+            "p99": 4294.4615,
+            "max": 11573.1733
+          }
+        },
+        "left_shoulder": {
+          "velocity_m_per_s": {
+            "count": 582,
+            "median": 0.3456,
+            "p95": 1.2824,
+            "p99": 2.0583,
+            "max": 3.1696
+          },
+          "acceleration_m_per_s2": {
+            "count": 580,
+            "median": 5.395,
+            "p95": 32.2173,
+            "p99": 53.4229,
+            "max": 94.0466
+          },
+          "jerk_m_per_s3": {
+            "count": 578,
+            "median": 357.6126,
+            "p95": 2127.2745,
+            "p99": 2902.2381,
+            "max": 8922.703
+          }
+        },
+        "right_shoulder": {
+          "velocity_m_per_s": {
+            "count": 580,
+            "median": 0.3326,
+            "p95": 1.2399,
+            "p99": 1.966,
+            "max": 2.8091
+          },
+          "acceleration_m_per_s2": {
+            "count": 578,
+            "median": 5.5495,
+            "p95": 27.1264,
+            "p99": 51.3379,
+            "max": 87.3796
+          },
+          "jerk_m_per_s3": {
+            "count": 576,
+            "median": 368.445,
+            "p95": 1842.5516,
+            "p99": 3102.5642,
+            "max": 7671.2426
+          }
+        },
+        "left_wrist": {
+          "velocity_m_per_s": {
+            "count": 553,
+            "median": 0.9709,
+            "p95": 3.5371,
+            "p99": 5.0219,
+            "max": 6.1718
+          },
+          "acceleration_m_per_s2": {
+            "count": 548,
+            "median": 12.289,
+            "p95": 64.4569,
+            "p99": 116.465,
+            "max": 257.5014
+          },
+          "jerk_m_per_s3": {
+            "count": 543,
+            "median": 825.6656,
+            "p95": 4924.1277,
+            "p99": 9237.5131,
+            "max": 15442.1623
+          }
+        },
+        "left_pinky": {
+          "velocity_m_per_s": {
+            "count": 551,
+            "median": 1.0921,
+            "p95": 4.0433,
+            "p99": 5.0093,
+            "max": 6.5411
+          },
+          "acceleration_m_per_s2": {
+            "count": 547,
+            "median": 14.3822,
+            "p95": 72.5742,
+            "p99": 148.9204,
+            "max": 225.0458
+          },
+          "jerk_m_per_s3": {
+            "count": 543,
+            "median": 898.0783,
+            "p95": 6116.0711,
+            "p99": 10975.1985,
+            "max": 23569.8289
+          }
+        },
+        "left_index": {
+          "velocity_m_per_s": {
+            "count": 545,
+            "median": 1.0669,
+            "p95": 4.0199,
+            "p99": 5.0583,
+            "max": 6.6638
+          },
+          "acceleration_m_per_s2": {
+            "count": 541,
+            "median": 14.6158,
+            "p95": 72.2392,
+            "p99": 147.9616,
+            "max": 221.5531
+          },
+          "jerk_m_per_s3": {
+            "count": 537,
+            "median": 904.7979,
+            "p95": 5308.5924,
+            "p99": 10566.7724,
+            "max": 22847.3133
+          }
+        },
+        "left_thumb": {
+          "velocity_m_per_s": {
+            "count": 546,
+            "median": 0.9926,
+            "p95": 3.8404,
+            "p99": 4.7383,
+            "max": 6.2181
+          },
+          "acceleration_m_per_s2": {
+            "count": 542,
+            "median": 13.017,
+            "p95": 67.0512,
+            "p99": 134.373,
+            "max": 208.1236
+          },
+          "jerk_m_per_s3": {
+            "count": 538,
+            "median": 825.0299,
+            "p95": 5119.3325,
+            "p99": 10032.9816,
+            "max": 21822.3864
+          }
+        },
+        "right_hip": {
+          "velocity_m_per_s": {
+            "count": 575,
+            "median": 0.0834,
+            "p95": 0.441,
+            "p99": 0.8184,
+            "max": 1.0642
+          },
+          "acceleration_m_per_s2": {
+            "count": 570,
+            "median": 1.2204,
+            "p95": 8.8219,
+            "p99": 22.3049,
+            "max": 43.1976
+          },
+          "jerk_m_per_s3": {
+            "count": 565,
+            "median": 69.111,
+            "p95": 588.9645,
+            "p99": 1773.5119,
+            "max": 2976.7087
+          }
+        },
+        "right_knee": {
+          "velocity_m_per_s": {
+            "count": 562,
+            "median": 0.479,
+            "p95": 2.8705,
+            "p99": 3.9096,
+            "max": 6.836
+          },
+          "acceleration_m_per_s2": {
+            "count": 555,
+            "median": 7.4819,
+            "p95": 61.8769,
+            "p99": 153.263,
+            "max": 409.9469
+          },
+          "jerk_m_per_s3": {
+            "count": 548,
+            "median": 525.9113,
+            "p95": 5360.3339,
+            "p99": 10799.0067,
+            "max": 24584.2057
+          }
+        },
+        "left_heel": {
+          "velocity_m_per_s": {
+            "count": 559,
+            "median": 0.5877,
+            "p95": 3.1132,
+            "p99": 6.1085,
+            "max": 7.5325
+          },
+          "acceleration_m_per_s2": {
+            "count": 552,
+            "median": 10.1015,
+            "p95": 94.7377,
+            "p99": 204.1404,
+            "max": 327.6989
+          },
+          "jerk_m_per_s3": {
+            "count": 545,
+            "median": 818.9482,
+            "p95": 7313.0789,
+            "p99": 15895.2358,
+            "max": 19651.8565
+          }
+        },
+        "right_heel": {
+          "velocity_m_per_s": {
+            "count": 543,
+            "median": 0.6727,
+            "p95": 5.7811,
+            "p99": 7.8314,
+            "max": 10.8696
+          },
+          "acceleration_m_per_s2": {
+            "count": 532,
+            "median": 10.9869,
+            "p95": 114.355,
+            "p99": 332.943,
+            "max": 677.7952
+          },
+          "jerk_m_per_s3": {
+            "count": 522,
+            "median": 836.2203,
+            "p95": 10172.7766,
+            "p99": 30677.7368,
+            "max": 51023.5637
+          }
+        },
+        "left_foot_index": {
+          "velocity_m_per_s": {
+            "count": 567,
+            "median": 0.6561,
+            "p95": 2.9759,
+            "p99": 6.5784,
+            "max": 6.9352
+          },
+          "acceleration_m_per_s2": {
+            "count": 562,
+            "median": 12.2505,
+            "p95": 91.1963,
+            "p99": 222.7883,
+            "max": 356.3178
+          },
+          "jerk_m_per_s3": {
+            "count": 557,
+            "median": 958.8926,
+            "p95": 7801.9606,
+            "p99": 16508.2918,
+            "max": 23333.7837
+          }
+        },
+        "right_foot_index": {
+          "velocity_m_per_s": {
+            "count": 542,
+            "median": 0.6758,
+            "p95": 6.3192,
+            "p99": 8.7534,
+            "max": 12.1497
+          },
+          "acceleration_m_per_s2": {
+            "count": 531,
+            "median": 11.5265,
+            "p95": 117.1166,
+            "p99": 381.6117,
+            "max": 740.0365
+          },
+          "jerk_m_per_s3": {
+            "count": 520,
+            "median": 892.3018,
+            "p95": 9639.5221,
+            "p99": 35667.5649,
+            "max": 55629.0401
+          }
+        },
+        "left_ankle": {
+          "velocity_m_per_s": {
+            "count": 559,
+            "median": 0.5498,
+            "p95": 2.6163,
+            "p99": 5.5564,
+            "max": 7.3111
+          },
+          "acceleration_m_per_s2": {
+            "count": 552,
+            "median": 9.4415,
+            "p95": 82.0088,
+            "p99": 184.4764,
+            "max": 314.0044
+          },
+          "jerk_m_per_s3": {
+            "count": 545,
+            "median": 771.1569,
+            "p95": 6959.8604,
+            "p99": 15603.151,
+            "max": 20368.0758
+          }
+        },
+        "right_ankle": {
+          "velocity_m_per_s": {
+            "count": 539,
+            "median": 0.6351,
+            "p95": 5.4287,
+            "p99": 7.4528,
+            "max": 10.0448
+          },
+          "acceleration_m_per_s2": {
+            "count": 528,
+            "median": 10.2773,
+            "p95": 115.2412,
+            "p99": 312.3155,
+            "max": 646.5239
+          },
+          "jerk_m_per_s3": {
+            "count": 517,
+            "median": 749.9844,
+            "p95": 10025.4928,
+            "p99": 30455.9631,
+            "max": 48396.3805
+          }
+        },
+        "left_hip": {
+          "velocity_m_per_s": {
+            "count": 578,
+            "median": 0.0881,
+            "p95": 0.4084,
+            "p99": 0.6388,
+            "max": 0.7954
+          },
+          "acceleration_m_per_s2": {
+            "count": 576,
+            "median": 1.2811,
+            "p95": 8.1579,
+            "p99": 19.5852,
+            "max": 28.7203
+          },
+          "jerk_m_per_s3": {
+            "count": 574,
+            "median": 69.5252,
+            "p95": 527.7156,
+            "p99": 1339.5268,
+            "max": 3010.872
+          }
+        },
+        "left_knee": {
+          "velocity_m_per_s": {
+            "count": 570,
+            "median": 0.3423,
+            "p95": 1.4914,
+            "p99": 2.0853,
+            "max": 3.5218
+          },
+          "acceleration_m_per_s2": {
+            "count": 565,
+            "median": 6.465,
+            "p95": 38.6717,
+            "p99": 65.7601,
+            "max": 153.0121
+          },
+          "jerk_m_per_s3": {
+            "count": 560,
+            "median": 472.9723,
+            "p95": 2792.5302,
+            "p99": 4889.8936,
+            "max": 10180.1002
+          }
+        },
+        "left_elbow": {
+          "velocity_m_per_s": {
+            "count": 545,
+            "median": 0.5828,
+            "p95": 2.2222,
+            "p99": 2.9445,
+            "max": 3.4922
+          },
+          "acceleration_m_per_s2": {
+            "count": 540,
+            "median": 9.3725,
+            "p95": 38.1535,
+            "p99": 65.3673,
+            "max": 91.1787
+          },
+          "jerk_m_per_s3": {
+            "count": 535,
+            "median": 560.2072,
+            "p95": 2506.2775,
+            "p99": 4478.0282,
+            "max": 5951.8449
+          }
+        },
+        "right_elbow": {
+          "velocity_m_per_s": {
+            "count": 564,
+            "median": 0.5,
+            "p95": 2.2938,
+            "p99": 2.9539,
+            "max": 3.2799
+          },
+          "acceleration_m_per_s2": {
+            "count": 560,
+            "median": 8.6571,
+            "p95": 44.1716,
+            "p99": 78.1679,
+            "max": 157.5273
+          },
+          "jerk_m_per_s3": {
+            "count": 556,
+            "median": 600.5607,
+            "p95": 3769.4288,
+            "p99": 6084.0876,
+            "max": 9571.9026
+          }
+        },
+        "right_wrist": {
+          "velocity_m_per_s": {
+            "count": 560,
+            "median": 0.6438,
+            "p95": 3.5299,
+            "p99": 5.1951,
+            "max": 5.4366
+          },
+          "acceleration_m_per_s2": {
+            "count": 556,
+            "median": 12.8787,
+            "p95": 77.1128,
+            "p99": 145.3773,
+            "max": 239.3242
+          },
+          "jerk_m_per_s3": {
+            "count": 552,
+            "median": 923.0226,
+            "p95": 6091.4453,
+            "p99": 11686.6983,
+            "max": 16236.3942
+          }
+        },
+        "right_pinky": {
+          "velocity_m_per_s": {
+            "count": 561,
+            "median": 0.6746,
+            "p95": 3.8748,
+            "p99": 5.5962,
+            "max": 7.4386
+          },
+          "acceleration_m_per_s2": {
+            "count": 558,
+            "median": 14.6284,
+            "p95": 92.1084,
+            "p99": 161.2293,
+            "max": 268.2929
+          },
+          "jerk_m_per_s3": {
+            "count": 555,
+            "median": 1050.8305,
+            "p95": 6784.0093,
+            "p99": 12455.1966,
+            "max": 24306.2427
+          }
+        },
+        "right_index": {
+          "velocity_m_per_s": {
+            "count": 561,
+            "median": 0.6623,
+            "p95": 3.9332,
+            "p99": 5.5164,
+            "max": 7.403
+          },
+          "acceleration_m_per_s2": {
+            "count": 558,
+            "median": 14.9308,
+            "p95": 89.0444,
+            "p99": 160.5564,
+            "max": 268.6678
+          },
+          "jerk_m_per_s3": {
+            "count": 555,
+            "median": 1049.8605,
+            "p95": 6521.8545,
+            "p99": 12027.7615,
+            "max": 24067.4174
+          }
+        },
+        "right_thumb": {
+          "velocity_m_per_s": {
+            "count": 560,
+            "median": 0.6255,
+            "p95": 3.6341,
+            "p99": 5.2174,
+            "max": 6.8402
+          },
+          "acceleration_m_per_s2": {
+            "count": 557,
+            "median": 13.6062,
+            "p95": 84.8451,
+            "p99": 148.1204,
+            "max": 254.7635
+          },
+          "jerk_m_per_s3": {
+            "count": 554,
+            "median": 947.3109,
+            "p95": 6220.3203,
+            "p99": 11452.695,
+            "max": 22612.0943
+          }
+        }
+      },
+      "bones": {
+        "left_upper_arm": {
+          "count": 550,
+          "median": 0.2175,
+          "p95": 0.2458,
+          "p99": 0.2588,
+          "max": 0.2734
+        },
+        "left_lower_arm": {
+          "count": 543,
+          "median": 0.2309,
+          "p95": 0.2601,
+          "p99": 0.278,
+          "max": 0.2789
+        },
+        "right_upper_arm": {
+          "count": 565,
+          "median": 0.2373,
+          "p95": 0.2649,
+          "p99": 0.2724,
+          "max": 0.2831
+        },
+        "right_lower_arm": {
+          "count": 562,
+          "median": 0.2164,
+          "p95": 0.2621,
+          "p99": 0.2832,
+          "max": 0.3066
+        },
+        "left_upper_leg": {
+          "count": 576,
+          "median": 0.4065,
+          "p95": 0.4242,
+          "p99": 0.4311,
+          "max": 0.4429
+        },
+        "left_lower_leg": {
+          "count": 558,
+          "median": 0.3475,
+          "p95": 0.3961,
+          "p99": 0.4034,
+          "max": 0.4096
+        },
+        "right_upper_leg": {
+          "count": 571,
+          "median": 0.3777,
+          "p95": 0.4078,
+          "p99": 0.4117,
+          "max": 0.4154
+        },
+        "right_lower_leg": {
+          "count": 550,
+          "median": 0.3759,
+          "p95": 0.3916,
+          "p99": 0.4019,
+          "max": 0.4187
+        }
+      }
+    },
+    "session_cpu_011": {
+      "fps": 60.0,
+      "landmarks": {
+        "nose": {
+          "velocity_m_per_s": {
+            "count": 368,
+            "median": 0.3655,
+            "p95": 2.6613,
+            "p99": 3.0313,
+            "max": 3.4214
+          },
+          "acceleration_m_per_s2": {
+            "count": 365,
+            "median": 5.744,
+            "p95": 44.0866,
+            "p99": 84.3307,
+            "max": 104.4917
+          },
+          "jerk_m_per_s3": {
+            "count": 362,
+            "median": 312.1265,
+            "p95": 2187.2694,
+            "p99": 3546.3527,
+            "max": 4445.9337
+          }
+        },
+        "left_eye_inner": {
+          "velocity_m_per_s": {
+            "count": 368,
+            "median": 0.3625,
+            "p95": 2.3512,
+            "p99": 2.6983,
+            "max": 3.0136
+          },
+          "acceleration_m_per_s2": {
+            "count": 365,
+            "median": 5.6725,
+            "p95": 37.9483,
+            "p99": 77.1331,
+            "max": 98.5727
+          },
+          "jerk_m_per_s3": {
+            "count": 362,
+            "median": 315.1212,
+            "p95": 1880.7455,
+            "p99": 3829.2791,
+            "max": 4529.8518
+          }
+        },
+        "left_eye": {
+          "velocity_m_per_s": {
+            "count": 368,
+            "median": 0.3625,
+            "p95": 2.3535,
+            "p99": 2.7016,
+            "max": 3.0164
+          },
+          "acceleration_m_per_s2": {
+            "count": 365,
+            "median": 5.6694,
+            "p95": 37.8832,
+            "p99": 77.3205,
+            "max": 98.8234
+          },
+          "jerk_m_per_s3": {
+            "count": 362,
+            "median": 315.1817,
+            "p95": 1875.6374,
+            "p99": 3843.0079,
+            "max": 4526.0683
+          }
+        },
+        "left_eye_outer": {
+          "velocity_m_per_s": {
+            "count": 368,
+            "median": 0.3627,
+            "p95": 2.3551,
+            "p99": 2.7007,
+            "max": 3.0151
+          },
+          "acceleration_m_per_s2": {
+            "count": 365,
+            "median": 5.6715,
+            "p95": 37.9538,
+            "p99": 77.3641,
+            "max": 98.5693
+          },
+          "jerk_m_per_s3": {
+            "count": 362,
+            "median": 314.0339,
+            "p95": 1878.802,
+            "p99": 3832.2162,
+            "max": 4519.5181
+          }
+        },
+        "right_eye_inner": {
+          "velocity_m_per_s": {
+            "count": 371,
+            "median": 0.3708,
+            "p95": 2.3509,
+            "p99": 2.8585,
+            "max": 3.2826
+          },
+          "acceleration_m_per_s2": {
+            "count": 369,
+            "median": 5.8837,
+            "p95": 37.9644,
+            "p99": 79.974,
+            "max": 99.6431
+          },
+          "jerk_m_per_s3": {
+            "count": 367,
+            "median": 329.5102,
+            "p95": 2221.6688,
+            "p99": 3981.6402,
+            "max": 4780.9908
+          }
+        },
+        "right_eye": {
+          "velocity_m_per_s": {
+            "count": 371,
+            "median": 0.3717,
+            "p95": 2.3478,
+            "p99": 2.8564,
+            "max": 3.2811
+          },
+          "acceleration_m_per_s2": {
+            "count": 369,
+            "median": 5.8893,
+            "p95": 37.8713,
+            "p99": 80.0475,
+            "max": 99.6447
+          },
+          "jerk_m_per_s3": {
+            "count": 367,
+            "median": 328.6195,
+            "p95": 2243.5426,
+            "p99": 3980.7828,
+            "max": 4786.8549
+          }
+        },
+        "right_eye_outer": {
+          "velocity_m_per_s": {
+            "count": 371,
+            "median": 0.3738,
+            "p95": 2.3472,
+            "p99": 2.859,
+            "max": 3.278
+          },
+          "acceleration_m_per_s2": {
+            "count": 369,
+            "median": 5.889,
+            "p95": 37.9729,
+            "p99": 80.1325,
+            "max": 99.7617
+          },
+          "jerk_m_per_s3": {
+            "count": 367,
+            "median": 329.8867,
+            "p95": 2285.7327,
+            "p99": 3983.4471,
+            "max": 4787.1334
+          }
+        },
+        "left_ear": {
+          "velocity_m_per_s": {
+            "count": 371,
+            "median": 0.3821,
+            "p95": 1.8675,
+            "p99": 2.4269,
+            "max": 2.5237
+          },
+          "acceleration_m_per_s2": {
+            "count": 369,
+            "median": 5.4782,
+            "p95": 32.3807,
+            "p99": 52.821,
+            "max": 69.8197
+          },
+          "jerk_m_per_s3": {
+            "count": 367,
+            "median": 323.2881,
+            "p95": 1840.7315,
+            "p99": 2670.975,
+            "max": 3061.2724
+          }
+        },
+        "right_ear": {
+          "velocity_m_per_s": {
+            "count": 371,
+            "median": 0.3651,
+            "p95": 1.7069,
+            "p99": 2.6618,
+            "max": 3.0651
+          },
+          "acceleration_m_per_s2": {
+            "count": 369,
+            "median": 5.2538,
+            "p95": 29.6557,
+            "p99": 46.7127,
+            "max": 76.0259
+          },
+          "jerk_m_per_s3": {
+            "count": 367,
+            "median": 325.1095,
+            "p95": 1726.9086,
+            "p99": 3433.8451,
+            "max": 4122.2476
+          }
+        },
+        "mouth_left": {
+          "velocity_m_per_s": {
+            "count": 371,
+            "median": 0.3572,
+            "p95": 2.3177,
+            "p99": 2.6782,
+            "max": 3.1974
+          },
+          "acceleration_m_per_s2": {
+            "count": 369,
+            "median": 5.6791,
+            "p95": 36.7175,
+            "p99": 71.0593,
+            "max": 93.0784
+          },
+          "jerk_m_per_s3": {
+            "count": 367,
+            "median": 305.4718,
+            "p95": 1791.0837,
+            "p99": 3738.1751,
+            "max": 4421.5351
+          }
+        },
+        "mouth_right": {
+          "velocity_m_per_s": {
+            "count": 371,
+            "median": 0.3525,
+            "p95": 2.2782,
+            "p99": 2.7982,
+            "max": 3.1398
+          },
+          "acceleration_m_per_s2": {
+            "count": 369,
+            "median": 5.6029,
+            "p95": 33.1764,
+            "p99": 74.3731,
+            "max": 93.1145
+          },
+          "jerk_m_per_s3": {
+            "count": 367,
+            "median": 310.0504,
+            "p95": 2037.8565,
+            "p99": 3584.5447,
+            "max": 4337.7127
+          }
+        },
+        "left_shoulder": {
+          "velocity_m_per_s": {
+            "count": 369,
+            "median": 0.3679,
+            "p95": 2.3771,
+            "p99": 2.957,
+            "max": 3.4602
+          },
+          "acceleration_m_per_s2": {
+            "count": 366,
+            "median": 5.0111,
+            "p95": 44.3267,
+            "p99": 67.2755,
+            "max": 100.4161
+          },
+          "jerk_m_per_s3": {
+            "count": 363,
+            "median": 277.8896,
+            "p95": 1775.3524,
+            "p99": 3154.3709,
+            "max": 4894.6541
+          }
+        },
+        "right_shoulder": {
+          "velocity_m_per_s": {
+            "count": 372,
+            "median": 0.3781,
+            "p95": 2.1991,
+            "p99": 2.6615,
+            "max": 3.0096
+          },
+          "acceleration_m_per_s2": {
+            "count": 370,
+            "median": 5.6717,
+            "p95": 41.7108,
+            "p99": 69.3772,
+            "max": 133.9912
+          },
+          "jerk_m_per_s3": {
+            "count": 368,
+            "median": 326.0348,
+            "p95": 2141.8379,
+            "p99": 4799.3034,
+            "max": 6676.7919
+          }
+        },
+        "left_elbow": {
+          "velocity_m_per_s": {
+            "count": 373,
+            "median": 0.8857,
+            "p95": 3.5255,
+            "p99": 4.0719,
+            "max": 5.846
+          },
+          "acceleration_m_per_s2": {
+            "count": 371,
+            "median": 8.6024,
+            "p95": 68.1117,
+            "p99": 146.7063,
+            "max": 290.7533
+          },
+          "jerk_m_per_s3": {
+            "count": 369,
+            "median": 470.2233,
+            "p95": 4037.6316,
+            "p99": 10528.2203,
+            "max": 18124.4874
+          }
+        },
+        "right_elbow": {
+          "velocity_m_per_s": {
+            "count": 372,
+            "median": 0.6917,
+            "p95": 3.7661,
+            "p99": 4.4126,
+            "max": 4.5802
+          },
+          "acceleration_m_per_s2": {
+            "count": 370,
+            "median": 7.8092,
+            "p95": 66.8274,
+            "p99": 136.0981,
+            "max": 191.5895
+          },
+          "jerk_m_per_s3": {
+            "count": 368,
+            "median": 414.6685,
+            "p95": 4770.9362,
+            "p99": 8506.0293,
+            "max": 11495.3722
+          }
+        },
+        "left_wrist": {
+          "velocity_m_per_s": {
+            "count": 365,
+            "median": 1.4156,
+            "p95": 4.1218,
+            "p99": 8.2838,
+            "max": 12.2252
+          },
+          "acceleration_m_per_s2": {
+            "count": 361,
+            "median": 12.7188,
+            "p95": 94.6862,
+            "p99": 282.3142,
+            "max": 735.997
+          },
+          "jerk_m_per_s3": {
+            "count": 357,
+            "median": 568.7122,
+            "p95": 5756.5598,
+            "p99": 21920.5201,
+            "max": 44159.8223
+          }
+        },
+        "right_wrist": {
+          "velocity_m_per_s": {
+            "count": 368,
+            "median": 0.9855,
+            "p95": 6.5124,
+            "p99": 6.8288,
+            "max": 8.3564
+          },
+          "acceleration_m_per_s2": {
+            "count": 364,
+            "median": 10.5195,
+            "p95": 109.7487,
+            "p99": 266.8923,
+            "max": 529.376
+          },
+          "jerk_m_per_s3": {
+            "count": 360,
+            "median": 500.289,
+            "p95": 8615.217,
+            "p99": 21726.5121,
+            "max": 37517.0974
+          }
+        },
+        "left_pinky": {
+          "velocity_m_per_s": {
+            "count": 367,
+            "median": 1.5995,
+            "p95": 5.6198,
+            "p99": 9.8503,
+            "max": 33.8665
+          },
+          "acceleration_m_per_s2": {
+            "count": 364,
+            "median": 15.1586,
+            "p95": 142.7727,
+            "p99": 783.2775,
+            "max": 1919.0073
+          },
+          "jerk_m_per_s3": {
+            "count": 361,
+            "median": 644.999,
+            "p95": 8438.422,
+            "p99": 81507.2105,
+            "max": 167806.8313
+          }
+        },
+        "right_pinky": {
+          "velocity_m_per_s": {
+            "count": 365,
+            "median": 1.0979,
+            "p95": 7.2385,
+            "p99": 9.9019,
+            "max": 17.1455
+          },
+          "acceleration_m_per_s2": {
+            "count": 362,
+            "median": 13.0775,
+            "p95": 152.2705,
+            "p99": 289.1692,
+            "max": 899.1088
+          },
+          "jerk_m_per_s3": {
+            "count": 360,
+            "median": 620.6503,
+            "p95": 12248.1377,
+            "p99": 30594.8058,
+            "max": 95749.7578
+          }
+        },
+        "left_index": {
+          "velocity_m_per_s": {
+            "count": 368,
+            "median": 1.6574,
+            "p95": 5.6132,
+            "p99": 9.4421,
+            "max": 32.7215
+          },
+          "acceleration_m_per_s2": {
+            "count": 365,
+            "median": 16.1807,
+            "p95": 141.3803,
+            "p99": 668.0577,
+            "max": 1864.1408
+          },
+          "jerk_m_per_s3": {
+            "count": 362,
+            "median": 658.7808,
+            "p95": 7426.8024,
+            "p99": 81892.2698,
+            "max": 169511.1395
+          }
+        },
+        "right_index": {
+          "velocity_m_per_s": {
+            "count": 366,
+            "median": 1.055,
+            "p95": 7.3317,
+            "p99": 9.9295,
+            "max": 17.8128
+          },
+          "acceleration_m_per_s2": {
+            "count": 363,
+            "median": 13.3654,
+            "p95": 147.0269,
+            "p99": 314.527,
+            "max": 958.8164
+          },
+          "jerk_m_per_s3": {
+            "count": 361,
+            "median": 635.0509,
+            "p95": 12159.783,
+            "p99": 32903.0799,
+            "max": 104012.3044
+          }
+        },
+        "left_thumb": {
+          "velocity_m_per_s": {
+            "count": 367,
+            "median": 1.4657,
+            "p95": 5.0478,
+            "p99": 8.5789,
+            "max": 30.3765
+          },
+          "acceleration_m_per_s2": {
+            "count": 364,
+            "median": 14.3675,
+            "p95": 130.7031,
+            "p99": 603.4762,
+            "max": 1733.6223
+          },
+          "jerk_m_per_s3": {
+            "count": 361,
+            "median": 601.3005,
+            "p95": 8060.7046,
+            "p99": 72029.3657,
+            "max": 156351.9322
+          }
+        },
+        "right_thumb": {
+          "velocity_m_per_s": {
+            "count": 364,
+            "median": 1.0275,
+            "p95": 6.5551,
+            "p99": 9.2211,
+            "max": 16.1715
+          },
+          "acceleration_m_per_s2": {
+            "count": 362,
+            "median": 12.2666,
+            "p95": 136.1957,
+            "p99": 290.4764,
+            "max": 856.3845
+          },
+          "jerk_m_per_s3": {
+            "count": 360,
+            "median": 566.9573,
+            "p95": 10517.2404,
+            "p99": 27690.6272,
+            "max": 91963.6387
+          }
+        },
+        "left_hip": {
+          "velocity_m_per_s": {
+            "count": 375,
+            "median": 0.1205,
+            "p95": 1.3105,
+            "p99": 1.5778,
+            "max": 1.6794
+          },
+          "acceleration_m_per_s2": {
+            "count": 374,
+            "median": 1.4305,
+            "p95": 22.7664,
+            "p99": 35.6302,
+            "max": 43.0824
+          },
+          "jerk_m_per_s3": {
+            "count": 373,
+            "median": 54.6095,
+            "p95": 887.4295,
+            "p99": 1438.3468,
+            "max": 2410.5097
+          }
+        },
+        "right_hip": {
+          "velocity_m_per_s": {
+            "count": 375,
+            "median": 0.1201,
+            "p95": 1.3016,
+            "p99": 1.5744,
+            "max": 1.6733
+          },
+          "acceleration_m_per_s2": {
+            "count": 374,
+            "median": 1.4145,
+            "p95": 22.6736,
+            "p99": 35.618,
+            "max": 42.9683
+          },
+          "jerk_m_per_s3": {
+            "count": 373,
+            "median": 55.4475,
+            "p95": 888.8382,
+            "p99": 1439.1547,
+            "max": 2412.9043
+          }
+        },
+        "left_knee": {
+          "velocity_m_per_s": {
+            "count": 367,
+            "median": 0.6115,
+            "p95": 1.9957,
+            "p99": 2.4008,
+            "max": 2.5176
+          },
+          "acceleration_m_per_s2": {
+            "count": 365,
+            "median": 8.9817,
+            "p95": 33.6435,
+            "p99": 45.7686,
+            "max": 80.4131
+          },
+          "jerk_m_per_s3": {
+            "count": 363,
+            "median": 441.6271,
+            "p95": 1888.9242,
+            "p99": 3737.247,
+            "max": 5815.3773
+          }
+        },
+        "right_knee": {
+          "velocity_m_per_s": {
+            "count": 375,
+            "median": 0.5963,
+            "p95": 1.949,
+            "p99": 2.3479,
+            "max": 2.5026
+          },
+          "acceleration_m_per_s2": {
+            "count": 374,
+            "median": 9.2172,
+            "p95": 37.6605,
+            "p99": 55.983,
+            "max": 60.9091
+          },
+          "jerk_m_per_s3": {
+            "count": 373,
+            "median": 453.9584,
+            "p95": 2017.5838,
+            "p99": 3164.0995,
+            "max": 4371.4973
+          }
+        },
+        "left_ankle": {
+          "velocity_m_per_s": {
+            "count": 369,
+            "median": 0.8206,
+            "p95": 3.6456,
+            "p99": 4.9781,
+            "max": 5.4027
+          },
+          "acceleration_m_per_s2": {
+            "count": 367,
+            "median": 13.8547,
+            "p95": 49.828,
+            "p99": 78.401,
+            "max": 99.4155
+          },
+          "jerk_m_per_s3": {
+            "count": 365,
+            "median": 779.9718,
+            "p95": 3555.04,
+            "p99": 6247.7995,
+            "max": 8127.8627
+          }
+        },
+        "right_ankle": {
+          "velocity_m_per_s": {
+            "count": 375,
+            "median": 0.8972,
+            "p95": 2.169,
+            "p99": 2.5578,
+            "max": 3.025
+          },
+          "acceleration_m_per_s2": {
+            "count": 374,
+            "median": 13.0383,
+            "p95": 47.3982,
+            "p99": 88.3559,
+            "max": 111.2381
+          },
+          "jerk_m_per_s3": {
+            "count": 373,
+            "median": 768.8301,
+            "p95": 3367.6349,
+            "p99": 5713.6904,
+            "max": 8061.4085
+          }
+        },
+        "left_heel": {
+          "velocity_m_per_s": {
+            "count": 369,
+            "median": 0.8567,
+            "p95": 3.9153,
+            "p99": 5.2837,
+            "max": 5.7057
+          },
+          "acceleration_m_per_s2": {
+            "count": 367,
+            "median": 14.9483,
+            "p95": 53.5614,
+            "p99": 83.8159,
+            "max": 103.3494
+          },
+          "jerk_m_per_s3": {
+            "count": 365,
+            "median": 847.9487,
+            "p95": 3792.0526,
+            "p99": 6706.4371,
+            "max": 8531.648
+          }
+        },
+        "right_heel": {
+          "velocity_m_per_s": {
+            "count": 375,
+            "median": 0.9307,
+            "p95": 2.2913,
+            "p99": 2.6151,
+            "max": 3.0841
+          },
+          "acceleration_m_per_s2": {
+            "count": 374,
+            "median": 13.8686,
+            "p95": 48.831,
+            "p99": 93.8984,
+            "max": 119.9918
+          },
+          "jerk_m_per_s3": {
+            "count": 373,
+            "median": 811.2014,
+            "p95": 3522.3049,
+            "p99": 6241.3178,
+            "max": 8560.5105
+          }
+        },
+        "left_foot_index": {
+          "velocity_m_per_s": {
+            "count": 369,
+            "median": 0.9114,
+            "p95": 4.3612,
+            "p99": 5.5477,
+            "max": 5.8573
+          },
+          "acceleration_m_per_s2": {
+            "count": 367,
+            "median": 16.6871,
+            "p95": 53.0428,
+            "p99": 78.4004,
+            "max": 112.6596
+          },
+          "jerk_m_per_s3": {
+            "count": 365,
+            "median": 945.4859,
+            "p95": 3538.8487,
+            "p99": 7455.2262,
+            "max": 9363.1152
+          }
+        },
+        "right_foot_index": {
+          "velocity_m_per_s": {
+            "count": 375,
+            "median": 0.9024,
+            "p95": 2.5124,
+            "p99": 2.8538,
+            "max": 3.2711
+          },
+          "acceleration_m_per_s2": {
+            "count": 374,
+            "median": 14.7804,
+            "p95": 51.5042,
+            "p99": 100.825,
+            "max": 116.4629
+          },
+          "jerk_m_per_s3": {
+            "count": 373,
+            "median": 892.2696,
+            "p95": 3652.7697,
+            "p99": 6180.4041,
+            "max": 9245.5964
+          }
+        }
+      },
+      "bones": {
+        "left_upper_arm": {
+          "count": 371,
+          "median": 0.234,
+          "p95": 0.2667,
+          "p99": 0.2798,
+          "max": 0.3313
+        },
+        "left_lower_arm": {
+          "count": 370,
+          "median": 0.2587,
+          "p95": 0.2773,
+          "p99": 0.3196,
+          "max": 0.3741
+        },
+        "right_upper_arm": {
+          "count": 374,
+          "median": 0.2468,
+          "p95": 0.2709,
+          "p99": 0.2812,
+          "max": 0.2846
+        },
+        "right_lower_arm": {
+          "count": 370,
+          "median": 0.241,
+          "p95": 0.266,
+          "p99": 0.2707,
+          "max": 0.2717
+        },
+        "left_upper_leg": {
+          "count": 369,
+          "median": 0.4037,
+          "p95": 0.436,
+          "p99": 0.4453,
+          "max": 0.4464
+        },
+        "left_lower_leg": {
+          "count": 369,
+          "median": 0.3694,
+          "p95": 0.3961,
+          "p99": 0.4264,
+          "max": 0.43
+        },
+        "right_upper_leg": {
+          "count": 376,
+          "median": 0.3987,
+          "p95": 0.4295,
+          "p99": 0.4347,
+          "max": 0.436
+        },
+        "right_lower_leg": {
+          "count": 376,
+          "median": 0.3833,
+          "p95": 0.421,
+          "p99": 0.4391,
+          "max": 0.4441
+        }
+      }
+    }
+  }
+}

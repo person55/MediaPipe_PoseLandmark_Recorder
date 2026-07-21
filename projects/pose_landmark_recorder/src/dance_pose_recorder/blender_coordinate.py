@@ -27,7 +27,10 @@ def to_screen_bottom_origin_position(
     if depth_mode == "none":
         blender_y = 0.0
     elif depth_mode == "pose_z":
-        blender_y = -z * float(depth_scale)
+        # MediaPipe z decreases toward the camera; the Blender scene camera sits
+        # at -Y looking toward +Y, so depth must keep the same sign as z for
+        # closer landmarks to render closer to the camera.
+        blender_y = z * float(depth_scale)
     else:
         raise ValueError(f"Unsupported depth mode for screen_bottom_origin: {depth_mode}")
 

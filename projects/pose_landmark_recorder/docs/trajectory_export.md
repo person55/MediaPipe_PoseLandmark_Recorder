@@ -42,8 +42,12 @@ The default mapping is:
 ```text
 blender_x = (x - screen_origin_x) * screen_width_scale
 blender_z = (screen_origin_y - y) * screen_height_scale
-blender_y = -z * depth_scale
+blender_y = z * depth_scale
 ```
+
+`blender_y` keeps the MediaPipe `pose_z` sign: z decreases toward the camera, and
+the default Blender camera looks from -Y, so a closer landmark maps to a smaller
+`blender_y` and renders closer to the camera.
 
 This is a visualization coordinate system, not real camera calibration or real-world 3D reconstruction.
 

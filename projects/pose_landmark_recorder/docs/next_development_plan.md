@@ -8,11 +8,36 @@ Skeleton optimization has been tested and found useful mainly as a diagnostic/re
 
 Therefore, do not prioritize stronger skeleton optimization unless the project explicitly shifts toward learned motion reconstruction or generated interpolation.
 
-The next implementation priority is:
+Status update (2026-07-20): Outlier Minimizer v2 is implemented (`minimize_pose_outliers.py`), and the Claude Loop 1-3 improvements (export wiring + aspect ratio, robust spike thresholds, fair re-detection scoring) are merged as pipeline defaults. See `docs/claude_loop_progress.md`.
+
+The next implementation priorities are validation-first:
 
 ```text
-Outlier Minimizer v2
+1. holdout validation of margins/floors on a third video (different environment/fps) [awaiting footage]
 ```
+
+Done 2026-07-20 (Loop 4): fps normalization of spike floors — floors are now defined
+in m/s units and converted to per-frame values by metadata fps.
+
+Done 2026-07-20 (Loop 6): Blender importer fade-policy contract restored (trails
+consume exporter trajectory_alpha/trajectory_width) and export depth sign corrected
+(`blender_y = z * depth_scale`, verified against video frames).
+
+Done 2026-07-20 (Loop 7): One-Euro visualization smoothing layer in trajectory
+export (the "confidence-aware smoothing" filtering candidate below) — separate
+*_smooth columns, break-aware filter resets, importer consumes them by default.
+
+Done 2026-07-20 (Loops 8-10): rotation-augmented, CLAHE-enhanced, and
+mirror/reverse crop re-detection passes with target-switch confusion
+diagnostics — crop acceptances 11→1,284 (006_v2) and 0→789 (007_v2) with zero
+baseline regression.
+
+Done 2026-07-20: v3 integrated rerun (Loop 8-10 crop outputs through
+refine/outlier/export/Blender) and stratified positional-accuracy verification
+of accepted re-detections (Codex P1) — cross-pass agreement plus stratified
+visual samples, all on-body.
+
+After that: Motion Profile Builder (Priority 2 below), persistent importer work (Priority 3 below), per-frame marker/halo fade.
 
 The default visualization-oriented path should be:
 
@@ -68,7 +93,9 @@ Use refined or outlier-minimized coordinates for visual continuity.
 Use optimizer reports as overlays, warnings, or review guides.
 ```
 
-## Priority 1 - Outlier Minimizer v2
+## Priority 1 - Outlier Minimizer v2 (implemented)
+
+Implemented as `scripts/minimize_pose_outliers.py` + `src/dance_pose_recorder/outlier_minimizer.py`, `temporal_features.py`, `trajectory_policy.py`, `outlier_report.py`. The section below is kept as the original design reference.
 
 ### Purpose
 
@@ -425,12 +452,39 @@ Their outputs must be treated as candidates or generated layers, not measured da
 ## Recommended Next Implementation Order
 
 ```text
-1. Keep Skeleton Optimizer as optional diagnostic layer
-2. Limit crop refinement to selected short/mixed problem segments
-3. Implement Outlier Minimizer v2
-4. Use screen-bottom-origin trajectory export for Blender/TouchDesigner points and segments
-5. Add Motion Profile Builder for lightweight statistical prior
-6. Consider learned or generated motion backends only as separate research modules
+1. Persistent Blender add-on / TouchDesigner importer parity                [pending]
+2. Full positional verification of session_cpu_009 acceptances (P1 protocol)[pending]
+3. Motion Profile promotion to decision guard — only after more sessions
+   and blind-label validation                                               [deferred]
+4. Consider learned or generated motion backends only as separate research modules
+
+Done (2026-07-21): 60fps holdout passed on session_cpu_009 — spike floors
+convert exactly by fps, flagged-row physical velocity distributions match
+the 23.976fps sessions, and the motion profile shows consistent physical
+stats across frame rates. Motion Profile Builder implemented read-only
+(configs/motion_profile_default.json + report; not wired into thresholds).
+
+Loop 13 done (2026-07-21): per-frame marker/halo fade — markers/halos now
+consume the exporter's trajectory_alpha via object-color keyframes and
+Object Info shader nodes (emission strength also scaled); alpha=1 frames
+render identically to before; --no-marker-frame-fade restores fixed alpha.
+
+Loop 12 done (2026-07-21): standardized cross-pass agreement report — crop stage
+now writes crop_crosspass_agreement.csv + a crosspass_agreement report summary;
+scripts/report_crosspass_agreement.py backfills existing sessions.
+Loop 11 held (2026-07-21): heel/foot guard hypothesis refuted by diagnostics
+(no metric separates low- from high-agreement foot acceptances; weakness was
+one hard segment in 008, not systematic) — monitored via the Loop 12 report.
+
+Done: Skeleton Optimizer kept diagnostic; Outlier Minimizer v2; screen-bottom-origin
+trajectory export; Loop 1-3 wiring/threshold/scoring fixes; Loop 4 fps-normalized
+spike floors; Loop 6 importer fade-policy contract + depth sign; Loop 7 One-Euro
+smoothing layer; Loops 8-10 rotation/CLAHE/mirror/reverse candidate passes with
+confusion (target-switch) diagnostics; Codex P0 maintenance package; v3 integrated
+rerun (Loop 8-10 crop outputs -> refine/outlier/export/Blender); stratified
+positional-accuracy verification of accepted re-detections (Codex P1); first
+holdout validation on unseen footage (session_cpu_008, 2026-07-21, passed —
+camera-cut jump correctly broken, Loop 8-10 passes generalized).
 ```
 
 ## Core Principle

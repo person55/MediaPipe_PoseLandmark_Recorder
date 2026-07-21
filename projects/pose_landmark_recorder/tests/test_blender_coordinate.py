@@ -38,7 +38,9 @@ def test_depth_mode_none_sets_blender_y_to_zero():
     assert result["blender_y"] == 0.0
 
 
-def test_depth_mode_pose_z_uses_negative_z_scaled():
+def test_depth_mode_pose_z_keeps_z_sign_scaled():
+    # z < 0 is closer to the camera; the Blender camera looks from -Y, so a
+    # closer landmark must map to a smaller blender_y.
     result = to_screen_bottom_origin_position(_row(z=0.5), depth_mode="pose_z", depth_scale=2.0)
 
-    assert result["blender_y"] == -1.0
+    assert result["blender_y"] == 1.0

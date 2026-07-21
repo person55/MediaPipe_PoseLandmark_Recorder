@@ -70,7 +70,17 @@ def landmark_group(landmark_name: str) -> str:
     return "other"
 
 
+# Hips are the most stable landmarks, so a short hip spike is almost always a
+# measurement glitch; breaking instead of correcting inverts that reliability.
+CORRECTABLE_TORSO_LANDMARKS = {
+    "left_hip",
+    "right_hip",
+}
+
+
 def is_correctable_landmark(landmark_name: str) -> bool:
+    if landmark_name in CORRECTABLE_TORSO_LANDMARKS:
+        return True
     return landmark_group(landmark_name) in {"arms", "legs", "feet"}
 
 

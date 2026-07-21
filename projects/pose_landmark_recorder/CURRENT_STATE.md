@@ -1,6 +1,6 @@
 # Current State
 
-Last updated: 2026-07-10
+Last updated: 2026-07-21 (merge-ready: exhaustive acceptance verification across all four sessions — 2,216 rows, zero errors; v3 layouts promoted to standard; PyInstaller dist rebuilt with all loop improvements; see docs/acceptance_exhaustive_verification.md)
 
 ## Project
 
@@ -17,6 +17,8 @@ scripts/minimize_pose_outliers.py
 scripts/export_trajectory.py
 scripts/open_blender_trajectory.py
 scripts/optimize_pose_skeleton.py
+scripts/build_motion_profile.py
+scripts/report_crosspass_agreement.py
 scripts/run_full_pipeline.py
 scripts/build_pipeline_app.py
 src/dance_pose_recorder/pipeline_runner.py
@@ -61,16 +63,43 @@ crop_full_body_margin_ratio: 1.45
 crop_min_size: 480 px
 crop_target_segment_types: mixed_problem_segment
 crop_max_segment_length: 100 frames
-crop_accept_score_margin: 0.06
-segment_refine_accept_score_margin: 0.08
+crop_accept_score_margin: 0.04
+segment_refine_accept_score_margin: 0.05
+temporal_scoring: per-frame rate (anchor distance normalized by frame gap)
+crop_z_restore: z scaled by bbox.w / frame_width
+outlier_spike_scale: max(median + 1.4826 * MAD, floor)
+outlier_spike_floors: velocity 0.48 m/s / acceleration 11.5 m/s^2 / jerk 414 m/s^3 (converted to per-frame units by metadata fps; 23.976fps equivalents of the Loop 2 per-frame values)
+outlier_accel_jerk: vector 2nd/3rd difference norms
+outlier_echo_trimming: true (velocity-spike runs only)
+outlier_baseline_excludes: interpolated_short_gap
+outlier_correctable_hips: true
+outlier_sync_sources: true (pose_world decisions propagated to pose source)
 trajectory_coordinate_mode: screen_bottom_origin
 trajectory_origin: screen bottom center (x=0.5, y=1.0)
+trajectory_apply_aspect_ratio: true (screen_width_scale = height_scale * W/H)
 blender_auto_import_camera: location 0,-5,3.4 / rotation 90,0,0
-blender_auto_import_scale: x_factor 2.2 / y_factor 0.36
+blender_auto_import_scale: x_factor 1.0 (aspect applied at export) / y_factor 0.36
 blender_auto_import_scene_reset: load fresh startup scene, remove default Cube, then import CSV trajectory
 blender_metadata_labels: hidden by default, optional camera lower-left summary
 macos_gpu_sandbox_policy: crop/refine/Blender stages may require sandbox escalation for GPU/Metal context
 ```
+
+## Claude Loop improvements (2026-07-19, branch feat/claude-loop-pose-landmark-improvement)
+
+Three verified loops fixed stage-wiring defects found in the structural review. Full records: `docs/claude_loop_progress.md` and the Notion page "Claude Loop — Pose Landmark 개선".
+
+- Loop 1: outlier minimizer decisions (corrections/breaks) now propagate to the `pose` source that export reads (`sync_sources`); export applies the 16:9 aspect ratio (X/Z span ratio increase exactly 1.778).
+- Loop 2: spike thresholds rebuilt as median + 1.4826*MAD with absolute floors, vector-based acceleration/jerk, echo trimming, hips correctable. False spike breaks on hip/ankle reduced 90-97% while real glitches (5-7 m/s) stayed detected; confirmed by visual frame comparison.
+- Loop 3: temporal scoring normalized to per-frame rate so re-detected candidates compete fairly with interpolation; crop candidate z restored to frame scale; margins recalibrated (crop 0.04, full-frame 0.05). First crop acceptances occurred (session 006: 11, all in target categories).
+- Loop 4 (2026-07-20): spike floors redefined in physical per-second units (0.48 m/s / 11.5 m/s^2 / 414 m/s^3) and converted to per-frame values by metadata fps, making spike judgments fps-invariant. Baseline decisions preserved (007_v2 byte-identical; 006_v2 4 borderline rows of 219,384).
+- Loops 8-10 (2026-07-20): crop re-detection gained rotation-augmented candidates for inverted poses, a CLAHE low-light rescue pass, and mirror/reverse passes — all real detections competing under the unchanged scorer/guards on isolated per-pass trackers (zero regression; acceptances 11→1,284 on 006_v2 and 0→789 on 007_v2 with full crop_pass/rotation/enhanced provenance). Forward/mirror disagreement now feeds `crop_confusion_diagnostics.csv` (target-switch indicator; flags the known cartwheel confusion, metadata only). Codex P0 items done: export-integrity regression tests, per-session reproducibility manifest, overlay review of the 267 changed points / 662 removed segments (all judged correct).
+- Loop 7 (2026-07-20): One-Euro visualization smoothing layer at export — separate `*_smooth` columns (raw kept byte-identical), filters reset at breaks/gaps, importer prefers smoothed. Depth jitter −88%; fast-motion lag ~1-2 frames. Defaults: x/z 1.2Hz/beta 1.5, depth 0.4Hz/beta 0.4.
+- Loop 6 (2026-07-20): export depth sign corrected (`blender_y = z`, verified against MediaPipe convention and video frames) and the Blender importer now consumes the exporter's trajectory_alpha/trajectory_width fade policy (0.1 buckets, tiered curve objects) instead of rendering everything at fixed alpha. Loop 5 (holdout) is on hold until third-video footage exists.
+- Cleanup: `quality_flags.py` and `stage_schema.py` single sources; merge/accept logic moved from scripts to `src/crop_apply.py` / `src/refine_apply.py` with contract tests (123 tests passing).
+- Final integrated rerun (`session_cpu_006_v2` / `session_cpu_007_v2`) reproduced all loop numbers end to end and produced `.blend` files.
+- v3 integrated rerun (2026-07-20): Loop 8-10 crop outputs carried through refine→outlier→export→Blender (`refined_v3`, `outlier_minimized_v3`, `trajectory_export_v3`, `blender_*_v3.blend` on both sessions). Full-frame refine acceptances fell naturally (76→28 / 93→32) as the crop stage improved; spike segments rose slightly (664→676 / 308→324, mostly handled as corrected boundary transitions); final connected export segments increased (58,408→58,657 / 25,434→25,591). Of the 412 accepted crop pose rows exposed to export, 93% (382) reach the final output with coordinates intact; the rest were legitimately re-competed downstream.
+- Stratified positional-accuracy verification (Codex P1, 2026-07-20): cross-pass agreement over all acceptances — 007 median nearest-independent-pass distance 0.0086 (≈16px) with 77% within 0.02; 006 median 0.0233 with 45% agreement (hard inverted/confusion segments). Both sessions' accepted coordinates sit closer to independent detections than the cleaned values they replaced. All 12 stratified visual samples per session were on-body and valid; zero off-body or wrong-side acceptances observed.
+- First holdout validation passed (session_cpu_008, 2026-07-21): unseen footage (1920×1080, 23.976fps, 3,254 frames, different stage) ran the full pipeline with unchanged defaults — all stages completed, layers row-consistent (214,764), detection 91.3%. A user-disclosed camera-cut position jump (f2096→f2139, 43-frame gap, hip displacement ~44% of screen) was handled exactly per principle: zero interpolation, zero export segments bridging the cut, One-Euro filter reset at the cut. Loop 8-10 passes generalized (crop accept 1,560 rows; rotation 232 / CLAHE 8 / confusion flags 84 frames). Cross-pass agreement median 0.0111 with 72.1% within 0.02; 11/11 stratified visual samples on-body, zero off-body or wrong-side. Residuals: fps generalization still untested (same 23.976fps), heel/foot acceptance quality weakest (right_heel agreement 43.8%, one borderline heel sample). Records: `docs/claude_loop_progress.md` holdout section, `session_cpu_008/verification_samples/`, `crop_refine/crosspass_agreement.csv`.
 
 ## Findings
 
@@ -89,6 +118,18 @@ macos_gpu_sandbox_policy: crop/refine/Blender stages may require sandbox escalat
 - Blender auto import now keeps metadata/debug text hidden by default. Use the optional camera summary only when a compact lower-left camera-view label is needed.
 
 ## Latest session reference
+
+Latest verified sessions (Windows 11, CPU delegate, Blender 5.2), v3 layers: `session_cpu_006_v2` (3,324 frames, crop accept 1,284, full-frame accept 28, spike segments 676, export segments 58,657, `blender_session_cpu_006_v2_trajectory` v3 .blend) and `session_cpu_007_v2` (1,570 frames, crop accept 789, full-frame accept 32, spike segments 324, export segments 25,591, v3 .blend). All layers row-consistent (219,384 / 103,620). Earlier v2 layers (crop accept 11/0, full-frame 76/93) remain on disk as the pre-Loop-8-10 baseline.
+
+Holdout session: `session_cpu_008` (3,254 frames, detection 91.3%, crop accept 1,560, full-frame accept 15, spike segments 612, export points 80,481 / segments 54,802, .blend 5.6MB, rows 214,764) — first unseen-footage validation, passed 2026-07-21; includes a correctly-handled camera-cut jump at f2096→f2139.
+
+60fps holdout session: `session_cpu_009` (dance_take_009.mov, 1920×1080 @ 60.0fps, 8,394 frames, different projection-mapped stage, detection 81.0%, crop accept 540, full-frame accept 38, spike segments 3,716 with median duration 0.017s, corrected 2,370, cross-pass agreement 78.8%, rows 554,004, .blend 13.2MB) — fps-generalization holdout, passed 2026-07-21: floors convert exactly (0.008 / 0.0031944 / 0.00191667 per-frame), flagged-row physical velocity distributions match the 23.976fps sessions (no 60/24 distortion).
+
+Third holdout (easy/short confirmation run): `session_cpu_010` (585 frames @ 59.969fps, ~9.8s) — passed 2026-07-21: detection 100%, zero hidden rows, zero re-detection attempts (honest no-op on clean footage; Loop 12 empty-input contract exercised in production), non-integer fps floor conversion exact (0.0080041/frame), spike rate per 1,000 frames (448) and median duration (0.017s) reproduce the 009 60fps micro-glitch pattern, rows 38,610, .blend 1.2MB.
+
+Fourth holdout (camera movement): `session_cpu_011` (376 frames @ 60fps, ballet, camera pans confirmed via background shift) — passed 2026-07-21: detection 100%, crop accept 123 with cross-pass agreement 95.1% (best of all sessions), spike rate 447/1,000 frames (third reproduction of the 60fps family), hip-relative spike judgment robust to pans (spike rows concentrate 6x in high-screen-motion frames but visual check shows they land exactly on genuinely invisible parts during jump-turns — legitimate judgments, not coordinate contamination). Known design characteristic recorded: screen_bottom_origin trajectories mix camera pan into subject translation; camera-motion compensation is a separate feature candidate. Motion profile now spans six sessions (3×24fps, 3×60fps, five venues).
+
+## Earlier build reference
 
 Latest local PyInstaller build:
 
@@ -140,8 +181,16 @@ Use `export_trajectory.py` after `outlier_minimized`, which is produced from `re
 
 Use `open_blender_trajectory.py` to open the exported CSV in Blender and save `blender/blender_<session_id>_trajectory.blend`. The importer resets to a fresh startup scene, deletes the default `Cube`, then imports the trajectory. The current default camera is the fixed `-Y` view, marker/halo visibility is tuned for playback, overview trails are shown while paused, progressive trails draw during playback, and metadata labels are hidden unless `--show-camera-summary` is used.
 
-Next: persistent Blender/TouchDesigner importer and Motion Profile Builder.
+Next: persistent Blender/TouchDesigner importer, exhaustive positional verification of 009 acceptances (P1 protocol), Motion Profile guard promotion (only after more sessions + blind-label validation). Done 2026-07-21: Motion Profile Builder (read-only, `configs/motion_profile_default.json`), 60fps holdout passed (session_cpu_009). Done: v3 integrated rerun, stratified accuracy verification (Codex P1), target-switch diagnostics (Loop 10), first holdout validation (session_cpu_008, passed), Loop 12 standardized cross-pass agreement report (crop stage output `crop_crosspass_agreement.csv` + report summary + backfill script; 006_v2/007_v2/008 backfilled), Loop 11 heel/foot guard investigated and held (current proxy metrics do not support a guard), Loop 13 per-frame marker/halo fade (markers/halos consume trajectory_alpha via object-color keyframes; alpha=1 renders unchanged; `--no-marker-frame-fade` opt-out).
 
 ## Known limitations
 
 No Hand Landmarker, persistent Blender add-on, TouchDesigner importer, learned temporal prior, or generated motion layer yet. Long occlusion and frame-out regions are not reconstructable in the current lightweight pipeline.
+
+Open verification reservations (updated 2026-07-21):
+
+- margins/floors passed the first holdout on unseen same-fps footage (session_cpu_008) and the 60fps holdout (session_cpu_009, 2026-07-21): floors convert exactly by metadata fps and flagged-row physical velocity distributions match across frame rates — fps generalization validated on real data; residual: 009's 540 accepted rows have sample-level (not exhaustive) positional verification, and its elevated spike rate is attributed to 81% detection difficulty plus 60fps resolving 1-frame micro-glitches
+- heel/foot acceptance quality was investigated (Loop 11, 2026-07-21, verdict hold): the current proxy metrics (score delta, visibility, presence, displacement) do not support a guard — but per Codex cross-validation this is not a completed "no discriminator" conclusion: foot low-agreement rates differ sharply by pass (forward 51.6% / mirror 42.6% / reverse 14.3%), and any restart should use blind stratified visual labels with segment-level PR/AUC instead of median comparisons; monitored per-session via the standardized cross-pass report
+- cross-pass agreement is a consistency diagnostic, not an accuracy criterion (non-independent passes, optimistic nearest-of-multiple; caveat embedded in the report's note field) — confirmed exhaustively: the lowest-agreement session (006_v2, 44%) shows zero visual errors across all 672 accepted rows
+- exhaustive visual verification of every accepted pose row across all four sessions (2,216 rows): 99.1% correct, 0.9% borderline (within-landmark-size offsets or occluded parts), zero misassignments — no guard or margin change warranted; per-session labels and blind montages in each session's verification_samples/
+- markers/halos now consume the per-frame fade policy (Loop 13); mild fades (alpha 0.85-0.9) remain subtle under emission saturation while strong fades (<=0.5) are clearly visible, and object-color alpha shows in rendered/material-preview modes only; frame-level body depth remains an importer heuristic by design (pose_z carries only hip-relative local depth)
