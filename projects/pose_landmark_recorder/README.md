@@ -58,6 +58,46 @@ frozen baseline):
 | Independent cross-validation | Two Codex rounds reproduced code, numbers and samples (row-level match) |
 | Independent blind re-labeling (round 3) | A fresh Codex session blind-labeled all 2,216 rows from a clean package: 99.05% raw agreement, **both raters found zero errors**; kappa = -0.0009 [-0.0024, 0.0000] is uninformative by prevalence paradox (pre-registered caveat); the borderline class proved rater-subjective with no decision impact |
 
+**Discussion — working around MediaPipe's limits without retraining.**
+The core contribution is not "making MediaPipe better" but circumventing,
+compensating and honestly surfacing its limits at three layers — input,
+time axis, and presentation:
+
+- *Upright training distribution* (left/right confusion in inverted or
+  horizontal poses): rotate crops upright before re-detection (show the
+  model an orientation it has seen) and add a mirrored pass to cancel
+  lateral asymmetry — acceptances grew from 11 to 1,284 on the hardest
+  session with zero errors in exhaustive review.
+- *Video-mode tracking inertia* (an error, once locked, propagates
+  forward): re-detect problem segments in reverse order to enter from the
+  other temporal direction, and break trajectories at physically
+  impossible transitions to stop error propagation.
+- *Proxy confidence* (visibility/presence are not calibrated positional
+  error): standardize cross-pass agreement as an observational diagnostic
+  (explicitly not an acceptance criterion) and use physical kinematics —
+  a 5–7 m/s instantaneous jump is the fingerprint of a detection error,
+  not human motion.
+- *Monocular pseudo-depth noise*: never promote depth to measurement
+  (only fix its sign convention); smooth it in a visualization-only layer
+  (−88% jitter, raw byte-preserved).
+- *Low-light sensitivity*: CLAHE rescue applied to detector input only.
+- *Silent failure*: promote failure to explicit states — quality flags,
+  hiding, trajectory breaks, fades — so "no observation" has a visual
+  language.
+
+**What landmark trajectorization offers.** Markerless motion archiving
+from a single RGB video (retroactive analysis of existing performance
+footage); trajectories reveal what per-frame poses cannot — spatial
+signatures of choreography, per-landmark velocity bands (hip ~0.5 m/s vs
+wrist ~3.5 m/s at p95) consistent across sessions and frame rates;
+temporal derivatives double as a data-quality diagnostic separating
+observation from error by physical law; higher frame rates yield not
+"smoother data" but more honest visibility of one-frame micro-glitches;
+and a trajectory that preserves its uncertainty (fades, breaks) is both
+an artistic artifact and its own quality report. The stack yields
+screen-space motion signatures — suitable for visualization and
+choreographic analysis, not metric 3D measurement.
+
 **Limitations.** Validated on six solo-dance sessions across five venues and
 two frame-rate families only; long occlusions and frame-outs are hidden or
 broken, not reconstructed (by design); pose depth is hip-relative
