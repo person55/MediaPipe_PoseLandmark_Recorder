@@ -24,7 +24,7 @@ Do not use `git add .`.
 
 Push only to `origin`. Never push to `upstream`.
 
-Improvement work happens on feature branches (current: `feat/claude-loop-pose-landmark-improvement`). Do not push to `origin master` directly unless explicitly instructed.
+Improvement work happens on feature branches. Do not push to `origin master` directly unless explicitly instructed.
 
 ## Model policy
 
@@ -40,14 +40,19 @@ the official source URL, model/version, applicable license, and SHA-256.
 ```text
 record_from_video.py
 -> clean_pose_data.py
--> crop_refine_pose.py
+-> crop_refine_pose.py      (multi-pass re-detection + crop_crosspass_agreement.csv diagnostic)
 -> refine_pose_segments.py
--> minimize_pose_outliers.py
--> export_trajectory.py
--> open_blender_trajectory.py
+-> minimize_pose_outliers.py (fps-normalized physical spike floors)
+-> export_trajectory.py      (aspect ratio, One-Euro *_smooth columns)
+-> open_blender_trajectory.py (fade-policy consumption incl. per-frame marker fade)
+-> write_session_manifest.py  (reproducibility manifest)
 ```
 
 One-command runner: `pose-landmark-pipeline` (`src/dance_pose_recorder/pipeline_runner.py`).
+
+Standalone diagnostics: `report_crosspass_agreement.py` (backfill the acceptance
+agreement diagnostic for old sessions), `build_motion_profile.py` (read-only
+statistical motion profile in `configs/`; never wired into thresholds).
 
 Optional diagnostic branch:
 

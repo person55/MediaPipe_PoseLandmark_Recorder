@@ -1,6 +1,6 @@
 # Current State
 
-Last updated: 2026-07-21
+Last updated: 2026-07-21 (merge-ready: exhaustive acceptance verification across all four sessions — 2,216 rows, zero errors; v3 layouts promoted to standard; PyInstaller dist rebuilt with all loop improvements; see docs/acceptance_exhaustive_verification.md)
 
 ## Project
 
@@ -191,5 +191,6 @@ Open verification reservations (updated 2026-07-21):
 
 - margins/floors passed the first holdout on unseen same-fps footage (session_cpu_008) and the 60fps holdout (session_cpu_009, 2026-07-21): floors convert exactly by metadata fps and flagged-row physical velocity distributions match across frame rates — fps generalization validated on real data; residual: 009's 540 accepted rows have sample-level (not exhaustive) positional verification, and its elevated spike rate is attributed to 81% detection difficulty plus 60fps resolving 1-frame micro-glitches
 - heel/foot acceptance quality was investigated (Loop 11, 2026-07-21, verdict hold): the current proxy metrics (score delta, visibility, presence, displacement) do not support a guard — but per Codex cross-validation this is not a completed "no discriminator" conclusion: foot low-agreement rates differ sharply by pass (forward 51.6% / mirror 42.6% / reverse 14.3%), and any restart should use blind stratified visual labels with segment-level PR/AUC instead of median comparisons; monitored per-session via the standardized cross-pass report
-- cross-pass agreement is a biased metric inside left-right-confusion segments (independent passes share cleaned's confusion), shown by holdout samples where low-agreement acceptances were visually correct — it cannot serve as a standalone acceptance criterion there (this caveat is embedded in the report's note field)
+- cross-pass agreement is a consistency diagnostic, not an accuracy criterion (non-independent passes, optimistic nearest-of-multiple; caveat embedded in the report's note field) — confirmed exhaustively: the lowest-agreement session (006_v2, 44%) shows zero visual errors across all 672 accepted rows
+- exhaustive visual verification of every accepted pose row across all four sessions (2,216 rows): 99.1% correct, 0.9% borderline (within-landmark-size offsets or occluded parts), zero misassignments — no guard or margin change warranted; per-session labels and blind montages in each session's verification_samples/
 - markers/halos now consume the per-frame fade policy (Loop 13); mild fades (alpha 0.85-0.9) remain subtle under emission saturation while strong fades (<=0.5) are clearly visible, and object-color alpha shows in rendered/material-preview modes only; frame-level body depth remains an importer heuristic by design (pose_z carries only hip-relative local depth)
