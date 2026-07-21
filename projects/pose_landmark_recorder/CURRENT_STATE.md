@@ -1,6 +1,6 @@
 # Current State
 
-Last updated: 2026-07-20
+Last updated: 2026-07-21
 
 ## Project
 
@@ -95,6 +95,8 @@ Three verified loops fixed stage-wiring defects found in the structural review. 
 - Loop 6 (2026-07-20): export depth sign corrected (`blender_y = z`, verified against MediaPipe convention and video frames) and the Blender importer now consumes the exporter's trajectory_alpha/trajectory_width fade policy (0.1 buckets, tiered curve objects) instead of rendering everything at fixed alpha. Loop 5 (holdout) is on hold until third-video footage exists.
 - Cleanup: `quality_flags.py` and `stage_schema.py` single sources; merge/accept logic moved from scripts to `src/crop_apply.py` / `src/refine_apply.py` with contract tests (123 tests passing).
 - Final integrated rerun (`session_cpu_006_v2` / `session_cpu_007_v2`) reproduced all loop numbers end to end and produced `.blend` files.
+- v3 integrated rerun (2026-07-20): Loop 8-10 crop outputs carried through refine→outlier→export→Blender (`refined_v3`, `outlier_minimized_v3`, `trajectory_export_v3`, `blender_*_v3.blend` on both sessions). Full-frame refine acceptances fell naturally (76→28 / 93→32) as the crop stage improved; spike segments rose slightly (664→676 / 308→324, mostly handled as corrected boundary transitions); final connected export segments increased (58,408→58,657 / 25,434→25,591). Of the 412 accepted crop pose rows exposed to export, 93% (382) reach the final output with coordinates intact; the rest were legitimately re-competed downstream.
+- Stratified positional-accuracy verification (Codex P1, 2026-07-20): cross-pass agreement over all acceptances — 007 median nearest-independent-pass distance 0.0086 (≈16px) with 77% within 0.02; 006 median 0.0233 with 45% agreement (hard inverted/confusion segments). Both sessions' accepted coordinates sit closer to independent detections than the cleaned values they replaced. All 12 stratified visual samples per session were on-body and valid; zero off-body or wrong-side acceptances observed.
 
 ## Findings
 
@@ -114,7 +116,7 @@ Three verified loops fixed stage-wiring defects found in the structural review. 
 
 ## Latest session reference
 
-Latest verified sessions (Windows 11, CPU delegate, Blender 5.2): `session_cpu_006_v2` (3,324 frames, crop accept 11, full-frame accept 76, spike segments 664, .blend 6.1MB) and `session_cpu_007_v2` (1,570 frames, crop accept 0, full-frame accept 93, spike segments 308, .blend 2.6MB). All layers row-consistent (219,384 / 103,620).
+Latest verified sessions (Windows 11, CPU delegate, Blender 5.2), v3 layers: `session_cpu_006_v2` (3,324 frames, crop accept 1,284, full-frame accept 28, spike segments 676, export segments 58,657, `blender_session_cpu_006_v2_trajectory` v3 .blend) and `session_cpu_007_v2` (1,570 frames, crop accept 789, full-frame accept 32, spike segments 324, export segments 25,591, v3 .blend). All layers row-consistent (219,384 / 103,620). Earlier v2 layers (crop accept 11/0, full-frame 76/93) remain on disk as the pre-Loop-8-10 baseline.
 
 ## Earlier build reference
 
@@ -168,14 +170,14 @@ Use `export_trajectory.py` after `outlier_minimized`, which is produced from `re
 
 Use `open_blender_trajectory.py` to open the exported CSV in Blender and save `blender/blender_<session_id>_trajectory.blend`. The importer resets to a fresh startup scene, deletes the default `Cube`, then imports the trajectory. The current default camera is the fixed `-Y` view, marker/halo visibility is tuned for playback, overview trails are shown while paused, progressive trails draw during playback, and metadata labels are hidden unless `--show-camera-summary` is used.
 
-Next (validation-first order): v3 integrated rerun (Loop 8-10 crop outputs through refine→outlier→export→Blender), stratified positional-accuracy verification of accepted re-detections (Codex P1), holdout validation on a third video (awaiting footage). Then: Motion Profile Builder, persistent Blender/TouchDesigner importer, per-frame marker fade. Target-switch diagnostics done in Loop 10.
+Next (validation-first order): holdout validation on a third video (awaiting footage) — margins/floors, smoothing parameters, and the 006 low-agreement acceptances all get re-checked there. Then: Motion Profile Builder, persistent Blender/TouchDesigner importer, per-frame marker/halo fade. Done as of 2026-07-20: v3 integrated rerun, stratified accuracy verification (Codex P1), target-switch diagnostics (Loop 10).
 
 ## Known limitations
 
 No Hand Landmarker, persistent Blender add-on, TouchDesigner importer, learned temporal prior, or generated motion layer yet. Long occlusion and frame-out regions are not reconstructable in the current lightweight pipeline.
 
-Open verification reservations (2026-07-19 assessment):
+Open verification reservations (updated 2026-07-21):
 
 - margins/floors were derived from the same two sessions used for validation (no holdout yet)
-- accepted re-detection candidates passed scores/guards but their positional accuracy was not compared against video
+- positional accuracy of accepted re-detections now has cross-pass agreement metrics plus stratified visual samples (Codex P1, 2026-07-20), but 006's 45% cross-pass agreement means some acceptances sit in segments where independent detections scatter — re-examine alongside the holdout
 - animated markers/halos still render at fixed alpha (only trails consume the fade policy since Loop 6); frame-level body depth remains an importer heuristic by design (pose_z carries only hip-relative local depth)

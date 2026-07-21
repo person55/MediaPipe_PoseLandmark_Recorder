@@ -27,7 +27,17 @@ Done 2026-07-20 (Loop 7): One-Euro visualization smoothing layer in trajectory
 export (the "confidence-aware smoothing" filtering candidate below) — separate
 *_smooth columns, break-aware filter resets, importer consumes them by default.
 
-After that: target-switch diagnostics, Motion Profile Builder (Priority 2 below), persistent importer work (Priority 3 below).
+Done 2026-07-20 (Loops 8-10): rotation-augmented, CLAHE-enhanced, and
+mirror/reverse crop re-detection passes with target-switch confusion
+diagnostics — crop acceptances 11→1,284 (006_v2) and 0→789 (007_v2) with zero
+baseline regression.
+
+Done 2026-07-20: v3 integrated rerun (Loop 8-10 crop outputs through
+refine/outlier/export/Blender) and stratified positional-accuracy verification
+of accepted re-detections (Codex P1) — cross-pass agreement plus stratified
+visual samples, all on-body.
+
+After that: Motion Profile Builder (Priority 2 below), persistent importer work (Priority 3 below), per-frame marker/halo fade.
 
 The default visualization-oriented path should be:
 
@@ -442,19 +452,19 @@ Their outputs must be treated as candidates or generated layers, not measured da
 ## Recommended Next Implementation Order
 
 ```text
-1. v3 integrated rerun (Loop 8-10 crop outputs -> refine/outlier/export)  [next]
-2. Stratified positional-accuracy verification of accepted re-detections  [Codex P1]
-3. Holdout-validate margins/floors on a third video                       [needs new footage]
-4. Add Motion Profile Builder for lightweight statistical prior           [pending]
-5. Persistent Blender add-on / TouchDesigner importer parity              [pending]
-6. Per-frame marker/halo fade in the Blender importer                     [pending]
-7. Consider learned or generated motion backends only as separate research modules
+1. Holdout-validate margins/floors on a third video                       [needs new footage]
+2. Add Motion Profile Builder for lightweight statistical prior           [pending]
+3. Persistent Blender add-on / TouchDesigner importer parity              [pending]
+4. Per-frame marker/halo fade in the Blender importer                     [pending]
+5. Consider learned or generated motion backends only as separate research modules
 
 Done: Skeleton Optimizer kept diagnostic; Outlier Minimizer v2; screen-bottom-origin
 trajectory export; Loop 1-3 wiring/threshold/scoring fixes; Loop 4 fps-normalized
 spike floors; Loop 6 importer fade-policy contract + depth sign; Loop 7 One-Euro
 smoothing layer; Loops 8-10 rotation/CLAHE/mirror/reverse candidate passes with
-confusion (target-switch) diagnostics; Codex P0 maintenance package.
+confusion (target-switch) diagnostics; Codex P0 maintenance package; v3 integrated
+rerun (Loop 8-10 crop outputs -> refine/outlier/export/Blender); stratified
+positional-accuracy verification of accepted re-detections (Codex P1).
 ```
 
 ## Core Principle
