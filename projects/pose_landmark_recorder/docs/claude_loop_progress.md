@@ -469,7 +469,34 @@ Loop 11보다 선행 실행 (Loop 11 검증의 측정 도구가 되므로).
 - **Loop 11 재개 프로토콜**(재개 시 대리 지표 중앙값 비교 대신): ① 블라인드 시각 라벨(정답/경계/오류)을 landmark·패스·난동작 구간별 층화 수집, ② 후보 특징(패스, rotation/enhancement, confusion flag, crop edge risk, 국소 속도·가속·jerk, ankle-heel-foot bone/접지 일관성) 기록, ③ frame/segment 상관을 고려한 구간 단위 신뢰구간·PR/AUC로 판별력 평가.
 - **다음 우선순위 합의**: ① marker/halo 프레임별 fade(exporter alpha 계약 기존재, 관측·수용 정책 무변경의 저위험 시각화 완결), ② 60fps 홀드아웃(fps 일반화), ③ Motion Profile Builder는 **read-only 통계 리포트로 시작** — 현 검증 세션이 전부 23.976fps·소표본이라 acceptance threshold에 연결하면 과적합 위험; 가드 승격은 더 다양한 세션과 라벨 검증 이후.
 
+## Loop 13: marker/halo 프레임별 페이드 — 완료 (2026-07-21, 판정: 유지)
+
+코덱스 교차 검증에서 합의된 다음 우선순위 1번. 관측·수용 정책 무변경의 시각화 완결 작업.
+
+### 관찰한 증상 (Loop 6의 남은 한계)
+트레일은 exporter의 trajectory_alpha/width 페이드 계약을 소비하지만(Loop 6), 애니메이션 마커/halo는 고정 alpha로 렌더 — 불확실 프레임의 마커가 확실 프레임과 동일하게 보임.
+
+### 가설
+마커/halo 머티리얼에 Object Info(alpha) 노드를 추가하고 오브젝트 color alpha를 exporter의 trajectory_alpha로 키프레임하면, 공유 머티리얼을 유지한 채 마커가 프레임별로 페이드되고, alpha=1 프레임은 기존과 동일하게 렌더된다.
+
+### 변경 범위
+- `src/dance_pose_recorder/marker_fade.py` 신설: alpha 파싱(결측/NaN→1.0, [0,1] 클램프) + 변화 지점 압축(`build_marker_alpha_events`, CONSTANT 보간 전제) — bpy 없이 단위 테스트 가능.
+- `open_blender_trajectory.py`: ① marker/halo 머티리얼(그룹·좌우 8종)에 `object_alpha` 노드 경로 추가 — Object Info alpha → Mix Shader(fac)로 Transparent와 혼합 + emission 강도에도 alpha 곱(포화로 인한 약한 페이드 비가독 보완). **alpha=1이면 두 경로 모두 원본 셰이더 통과(수학적 동일)**. ② 마커·halo 오브젝트에 color alpha 키프레임(변화 지점만, CONSTANT). ③ `--no-marker-frame-fade` 플래그(기본 on). ④ JSON 요약에 `marker_frame_fade` 통계. 트레일 머티리얼 무변경.
+- 테스트 5종 추가 (`test_marker_fade.py`), 총 162개 통과.
+
+### 검증 결과 (session_cpu_008, Blender 5.2 헤드리스)
+- 임포트: 페이드 대상 8,419 point 행 → 3,788 alpha 키프레임(변화 지점 압축), min alpha 0.2, `blender_..._loop13.blend` 생성.
+- fcurve 실측: f1985에서 left_knee color alpha **0.25**, 나머지 0.85 — points CSV 값과 정확 일치. `--no-marker-frame-fade` 빌드는 전부 1.0.
+- 렌더 전후 비교(f1985, 27개 랜드마크 페이드): 페이드 마커의 뚜렷한 감광 확인(최대 픽셀 diff 85.3), 마커 배치 동일. emission 강도 스케일 추가 전 40.7 → 추가 후 85.3으로 가독성 2배. 증거: `verification_samples/loop13_f1985_marker_fade_{on,off}.png`.
+- 참고: 2,982 프레임 전부에 페이드 랜드마크가 ≥1개 존재해 whole-frame 픽셀 동일성 검사는 불가 — alpha=1 경로의 무변경은 노드 수학(mix fac=1 통과, strength×1)으로 보장.
+
+### 판정: **유지** — 페이드 계약의 마커 레벨 소비 완성(Loop 6 남은 한계 해소), 모션 데이터·수용 정책 무변경, 기본 상태 시각 회귀 없음.
+
+### 남은 한계
+- emission 포화 특성상 약한 페이드(0.85~0.9)는 여전히 은은함 — 강한 페이드(≤0.5)는 명확. 필요 시 후속에서 alpha의 비선형 매핑 검토 가능(계약 해석 변경이라 별도 판단).
+- 오브젝트 color alpha는 렌더/머티리얼 프리뷰 모드에서 보임 — 솔리드 뷰포트 셰이딩은 반영 안 됨(뷰포트 한계, 기록).
+
 ## 재개 방법 (2026-07-21 갱신)
 1. 이 문서와 노션 페이지 확인
-2. 완료: Loop 1~4, 6~10, 12 + 연구 스파이크 기각·파기 + 코덱스 P0 정비 패키지 + v3 통합 재실행 + 층화 정확도 검증(코덱스 P1) + **홀드아웃 검증 1차(session_cpu_008, 통과)**. Loop 11(heel/foot 가드)은 진단 후 보류(가설 반증 — 세션별 합의 통계로 감시 지속). 다음 후보: 마커·halo 프레임별 페이드, Motion Profile Builder, 임포터 영속화. 잔여 외부 의존: 60fps 영상(fps 일반화 검증)
+2. 완료: Loop 1~4, 6~10, 12, 13 + 연구 스파이크 기각·파기 + 코덱스 P0 정비 패키지 + v3 통합 재실행 + 층화 정확도 검증(코덱스 P1) + **홀드아웃 검증 1차(session_cpu_008, 통과)** + 코덱스 교차 검증 반영. Loop 11(heel/foot 가드)은 진단 후 보류(현 대리 지표로는 가드 미지지 — 세션별 합의 통계로 감시, 재개 시 블라인드 라벨 프로토콜). 다음 후보: Motion Profile Builder(read-only 리포트로 시작), 임포터 영속화. 잔여 외부 의존: 60fps 영상(fps 일반화 검증)
 3. 각 루프: 가설 1개, 최소 변경, 기존 세션으로 전후 비교, 유지/보류/되돌림 판정, 노션 [Loop N] 기록, 커밋

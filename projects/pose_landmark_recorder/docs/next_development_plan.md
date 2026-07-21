@@ -452,13 +452,17 @@ Their outputs must be treated as candidates or generated layers, not measured da
 ## Recommended Next Implementation Order
 
 ```text
-1. Per-frame marker/halo fade in the Blender importer                       [next — Codex-agreed]
-2. fps-generalization holdout on a 60fps video                              [needs footage]
-3. Motion Profile Builder — start as a read-only statistics report only;
+1. fps-generalization holdout on a 60fps video                              [needs footage]
+2. Motion Profile Builder — start as a read-only statistics report only;
    do NOT wire into acceptance thresholds yet (23.976fps-only sessions,
    small sample: overfit risk per Codex cross-validation)                   [pending]
-4. Persistent Blender add-on / TouchDesigner importer parity                [pending]
-5. Consider learned or generated motion backends only as separate research modules
+3. Persistent Blender add-on / TouchDesigner importer parity                [pending]
+4. Consider learned or generated motion backends only as separate research modules
+
+Loop 13 done (2026-07-21): per-frame marker/halo fade — markers/halos now
+consume the exporter's trajectory_alpha via object-color keyframes and
+Object Info shader nodes (emission strength also scaled); alpha=1 frames
+render identically to before; --no-marker-frame-fade restores fixed alpha.
 
 Loop 12 done (2026-07-21): standardized cross-pass agreement report — crop stage
 now writes crop_crosspass_agreement.csv + a crosspass_agreement report summary;

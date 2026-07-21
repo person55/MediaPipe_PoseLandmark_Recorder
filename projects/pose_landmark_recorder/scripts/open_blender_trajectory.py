@@ -23,6 +23,7 @@ SRC_DIR = Path(__file__).resolve().parents[1] / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
+from dance_pose_recorder.marker_fade import alpha_from_value, build_marker_alpha_events  # noqa: E402
 from dance_pose_recorder.output_layout import (  # noqa: E402
     BLENDER_DIR,
     TRAJECTORY_EXPORT_DIR,
@@ -206,6 +207,18 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_false",
         dest="use_smoothed_trajectory",
         help="Render raw blender coordinates even when smoothed columns exist.",
+    )
+    parser.add_argument(
+        "--marker-frame-fade",
+        action="store_true",
+        default=True,
+        help="Animate marker/halo alpha per frame from the exporter's trajectory_alpha.",
+    )
+    parser.add_argument(
+        "--no-marker-frame-fade",
+        action="store_false",
+        dest="marker_frame_fade",
+        help="Render markers/halos at fixed alpha (pre-marker-fade behavior).",
     )
     return parser
 
@@ -559,7 +572,15 @@ def import_in_blender(args: argparse.Namespace) -> None:
             return "right"
         return "center"
 
-    def make_material(name: str, color: tuple[float, float, float, float], *, emission: bool, strength: float, alpha: float | None = None) -> Any:
+    def make_material(
+        name: str,
+        color: tuple[float, float, float, float],
+        *,
+        emission: bool,
+        strength: float,
+        alpha: float | None = None,
+        object_alpha: bool = False,
+    ) -> Any:
         alpha = color[3] if alpha is None else alpha
         material = bpy.data.materials.get(name) or bpy.data.materials.new(name)
         material.diffuse_color = (color[0], color[1], color[2], alpha)
@@ -570,12 +591,34 @@ def import_in_blender(args: argparse.Namespace) -> None:
             node = material.node_tree.nodes.new(type="ShaderNodeEmission")
             node.inputs["Color"].default_value = (color[0], color[1], color[2], alpha)
             node.inputs["Strength"].default_value = strength
-            material.node_tree.links.new(node.outputs["Emission"], output.inputs["Surface"])
+            shader_socket = node.outputs["Emission"]
         else:
             node = material.node_tree.nodes.new(type="ShaderNodeBsdfPrincipled")
             node.inputs["Base Color"].default_value = (color[0], color[1], color[2], alpha)
             node.inputs["Alpha"].default_value = alpha
-            material.node_tree.links.new(node.outputs["BSDF"], output.inputs["Surface"])
+            shader_socket = node.outputs["BSDF"]
+        if object_alpha:
+            # Per-frame marker fade: object color alpha (keyframed from the
+            # exporter's trajectory_alpha) mixes toward transparent, and for
+            # emission shaders also scales the emission strength so fades stay
+            # legible despite emission saturation. At the default object alpha
+            # 1.0 both paths pass the original shader through unchanged, so
+            # non-faded frames render exactly as before.
+            object_info = material.node_tree.nodes.new(type="ShaderNodeObjectInfo")
+            transparent = material.node_tree.nodes.new(type="ShaderNodeBsdfTransparent")
+            mix = material.node_tree.nodes.new(type="ShaderNodeMixShader")
+            material.node_tree.links.new(object_info.outputs["Alpha"], mix.inputs["Fac"])
+            material.node_tree.links.new(transparent.outputs["BSDF"], mix.inputs[1])
+            material.node_tree.links.new(shader_socket, mix.inputs[2])
+            material.node_tree.links.new(mix.outputs["Shader"], output.inputs["Surface"])
+            if emission:
+                strength_scale = material.node_tree.nodes.new(type="ShaderNodeMath")
+                strength_scale.operation = "MULTIPLY"
+                strength_scale.inputs[1].default_value = strength
+                material.node_tree.links.new(object_info.outputs["Alpha"], strength_scale.inputs[0])
+                material.node_tree.links.new(strength_scale.outputs["Value"], node.inputs["Strength"])
+        else:
+            material.node_tree.links.new(shader_socket, output.inputs["Surface"])
         material.blend_method = "BLEND"
         material.show_transparent_back = True
         return material
@@ -587,6 +630,7 @@ def import_in_blender(args: argparse.Namespace) -> None:
             emission=True,
             strength=args.marker_emission_strength,
             alpha=color[3],
+            object_alpha=args.marker_frame_fade,
         )
         for group, color in colors.items()
     }
@@ -597,6 +641,7 @@ def import_in_blender(args: argparse.Namespace) -> None:
             emission=True,
             strength=args.halo_emission_strength,
             alpha=0.22,
+            object_alpha=args.marker_frame_fade,
         )
         for group, color in colors.items()
     }
@@ -657,6 +702,7 @@ def import_in_blender(args: argparse.Namespace) -> None:
             emission=True,
             strength=args.marker_emission_strength if side != "center" else 70.0,
             alpha=color[3],
+            object_alpha=args.marker_frame_fade,
         )
         for side, color in lr_colors.items()
     }
@@ -667,6 +713,7 @@ def import_in_blender(args: argparse.Namespace) -> None:
             emission=True,
             strength=args.halo_emission_strength if side != "center" else 130.0,
             alpha=0.22 if side != "center" else 0.26,
+            object_alpha=args.marker_frame_fade,
         )
         for side, color in lr_colors.items()
     }
@@ -964,8 +1011,30 @@ def import_in_blender(args: argparse.Namespace) -> None:
             obj.keyframe_insert(data_path="hide_viewport", frame=frame)
             obj.keyframe_insert(data_path="hide_render", frame=frame)
 
+    def set_fcurve_interpolation(target: Any) -> None:
+        if not (target.animation_data and target.animation_data.action):
+            return
+        try:
+            for fcurve in target.animation_data.action.fcurves:
+                for keyframe in fcurve.keyframe_points:
+                    keyframe.interpolation = (
+                        "CONSTANT"
+                        if fcurve.data_path in {"hide_viewport", "hide_render", "color"}
+                        else "LINEAR"
+                    )
+        except Exception:
+            pass
+
+    def keyframe_object_alpha(target: Any, alpha_events: list[tuple[int, float]]) -> None:
+        for frame, alpha in alpha_events:
+            target.color = (1.0, 1.0, 1.0, alpha)
+            target.keyframe_insert(data_path="color", frame=frame)
+
     marker_count = 0
     halo_count = 0
+    marker_fade_keyframes = 0
+    marker_fade_faded_rows = 0
+    marker_fade_min_alpha = 1.0
     for landmark, records in sorted(rows_by_lm.items()):
         if landmark in face_marker_names_to_hide:
             continue
@@ -989,17 +1058,6 @@ def import_in_blender(args: argparse.Namespace) -> None:
             obj.location = mapped_location(frame, landmark, x, raw_y, z)
             obj.keyframe_insert(data_path="location", frame=frame)
         marker_visibility(obj, [record[0] for record in records])
-        if obj.animation_data and obj.animation_data.action:
-            try:
-                for fcurve in obj.animation_data.action.fcurves:
-                    for keyframe in fcurve.keyframe_points:
-                        keyframe.interpolation = (
-                            "CONSTANT"
-                            if fcurve.data_path in {"hide_viewport", "hide_render"}
-                            else "LINEAR"
-                        )
-            except Exception:
-                pass
         halo = bpy.data.objects.new(f"MPLR_HALO_{landmark}", get_halo_mesh(group))
         halo.parent = obj
         halo.location = (0.0, 0.0, 0.0)
@@ -1012,6 +1070,22 @@ def import_in_blender(args: argparse.Namespace) -> None:
         )
         halo.show_in_front = True
         halo_col.objects.link(halo)
+        if args.marker_frame_fade:
+            frame_alphas = [
+                (record[0], alpha_from_value(record[7].get("trajectory_alpha")))
+                for record in records
+            ]
+            marker_fade_faded_rows += sum(1 for _, alpha in frame_alphas if alpha < 1.0)
+            if frame_alphas:
+                marker_fade_min_alpha = min(
+                    marker_fade_min_alpha, min(alpha for _, alpha in frame_alphas)
+                )
+            alpha_events = build_marker_alpha_events(frame_alphas)
+            keyframe_object_alpha(obj, alpha_events)
+            keyframe_object_alpha(halo, alpha_events)
+            marker_fade_keyframes += 2 * len(alpha_events)
+        set_fcurve_interpolation(obj)
+        set_fcurve_interpolation(halo)
         marker_count += 1
         halo_count += 1
 
@@ -1163,8 +1237,14 @@ def import_in_blender(args: argparse.Namespace) -> None:
                 "y_factor": args.y_factor,
                 "depth_range_m": [0.0, args.depth_meters * args.y_factor],
                 "use_smoothed_trajectory": args.use_smoothed_trajectory,
-                "fade_policy_source": "exporter trajectory_alpha/trajectory_width (bucketed to 0.1)",
+                "fade_policy_source": "exporter trajectory_alpha/trajectory_width (trails bucketed to 0.1; markers/halos per-frame)",
                 "fade_policy_tiers": dict(sorted(fade_tier_counts.items())),
+                "marker_frame_fade": {
+                    "enabled": args.marker_frame_fade,
+                    "faded_point_rows": marker_fade_faded_rows,
+                    "alpha_keyframes": marker_fade_keyframes,
+                    "min_alpha": round(marker_fade_min_alpha, 3),
+                },
                 "local_depth_sign": "blender_y keeps pose_z sign (closer to camera = smaller y)",
                 "camera_location": args.camera_location,
                 "camera_rotation_degrees": args.camera_rotation,
