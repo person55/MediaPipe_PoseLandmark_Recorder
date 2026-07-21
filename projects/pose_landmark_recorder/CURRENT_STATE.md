@@ -97,6 +97,7 @@ Three verified loops fixed stage-wiring defects found in the structural review. 
 - Final integrated rerun (`session_cpu_006_v2` / `session_cpu_007_v2`) reproduced all loop numbers end to end and produced `.blend` files.
 - v3 integrated rerun (2026-07-20): Loop 8-10 crop outputs carried through refine→outlier→export→Blender (`refined_v3`, `outlier_minimized_v3`, `trajectory_export_v3`, `blender_*_v3.blend` on both sessions). Full-frame refine acceptances fell naturally (76→28 / 93→32) as the crop stage improved; spike segments rose slightly (664→676 / 308→324, mostly handled as corrected boundary transitions); final connected export segments increased (58,408→58,657 / 25,434→25,591). Of the 412 accepted crop pose rows exposed to export, 93% (382) reach the final output with coordinates intact; the rest were legitimately re-competed downstream.
 - Stratified positional-accuracy verification (Codex P1, 2026-07-20): cross-pass agreement over all acceptances — 007 median nearest-independent-pass distance 0.0086 (≈16px) with 77% within 0.02; 006 median 0.0233 with 45% agreement (hard inverted/confusion segments). Both sessions' accepted coordinates sit closer to independent detections than the cleaned values they replaced. All 12 stratified visual samples per session were on-body and valid; zero off-body or wrong-side acceptances observed.
+- First holdout validation passed (session_cpu_008, 2026-07-21): unseen footage (1920×1080, 23.976fps, 3,254 frames, different stage) ran the full pipeline with unchanged defaults — all stages completed, layers row-consistent (214,764), detection 91.3%. A user-disclosed camera-cut position jump (f2096→f2139, 43-frame gap, hip displacement ~44% of screen) was handled exactly per principle: zero interpolation, zero export segments bridging the cut, One-Euro filter reset at the cut. Loop 8-10 passes generalized (crop accept 1,560 rows; rotation 232 / CLAHE 8 / confusion flags 84 frames). Cross-pass agreement median 0.0111 with 72.1% within 0.02; 11/11 stratified visual samples on-body, zero off-body or wrong-side. Residuals: fps generalization still untested (same 23.976fps), heel/foot acceptance quality weakest (right_heel agreement 43.8%, one borderline heel sample). Records: `docs/claude_loop_progress.md` holdout section, `session_cpu_008/verification_samples/`, `crop_refine/crosspass_agreement.csv`.
 
 ## Findings
 
@@ -117,6 +118,8 @@ Three verified loops fixed stage-wiring defects found in the structural review. 
 ## Latest session reference
 
 Latest verified sessions (Windows 11, CPU delegate, Blender 5.2), v3 layers: `session_cpu_006_v2` (3,324 frames, crop accept 1,284, full-frame accept 28, spike segments 676, export segments 58,657, `blender_session_cpu_006_v2_trajectory` v3 .blend) and `session_cpu_007_v2` (1,570 frames, crop accept 789, full-frame accept 32, spike segments 324, export segments 25,591, v3 .blend). All layers row-consistent (219,384 / 103,620). Earlier v2 layers (crop accept 11/0, full-frame 76/93) remain on disk as the pre-Loop-8-10 baseline.
+
+Holdout session: `session_cpu_008` (3,254 frames, detection 91.3%, crop accept 1,560, full-frame accept 15, spike segments 612, export points 80,481 / segments 54,802, .blend 5.6MB, rows 214,764) — first unseen-footage validation, passed 2026-07-21; includes a correctly-handled camera-cut jump at f2096→f2139.
 
 ## Earlier build reference
 
@@ -170,7 +173,7 @@ Use `export_trajectory.py` after `outlier_minimized`, which is produced from `re
 
 Use `open_blender_trajectory.py` to open the exported CSV in Blender and save `blender/blender_<session_id>_trajectory.blend`. The importer resets to a fresh startup scene, deletes the default `Cube`, then imports the trajectory. The current default camera is the fixed `-Y` view, marker/halo visibility is tuned for playback, overview trails are shown while paused, progressive trails draw during playback, and metadata labels are hidden unless `--show-camera-summary` is used.
 
-Next (validation-first order): holdout validation on a third video (awaiting footage) — margins/floors, smoothing parameters, and the 006 low-agreement acceptances all get re-checked there. Then: Motion Profile Builder, persistent Blender/TouchDesigner importer, per-frame marker/halo fade. Done as of 2026-07-20: v3 integrated rerun, stratified accuracy verification (Codex P1), target-switch diagnostics (Loop 10).
+Next: proposed loop candidates — heel/foot acceptance guard (Loop 11), standardized cross-pass agreement report in the crop stage (Loop 12), per-frame marker/halo fade. Remaining external dependency: a 60fps video for fps-generalization holdout. Then: Motion Profile Builder, persistent Blender/TouchDesigner importer. Done: v3 integrated rerun, stratified accuracy verification (Codex P1), target-switch diagnostics (Loop 10), first holdout validation on unseen footage (session_cpu_008, 2026-07-21, passed).
 
 ## Known limitations
 
@@ -178,6 +181,7 @@ No Hand Landmarker, persistent Blender add-on, TouchDesigner importer, learned t
 
 Open verification reservations (updated 2026-07-21):
 
-- margins/floors were derived from the same two sessions used for validation (no holdout yet)
-- positional accuracy of accepted re-detections now has cross-pass agreement metrics plus stratified visual samples (Codex P1, 2026-07-20), but 006's 45% cross-pass agreement means some acceptances sit in segments where independent detections scatter — re-examine alongside the holdout
+- margins/floors passed the first holdout on unseen same-fps footage (session_cpu_008), but fps generalization remains untested — all validated sessions are 23.976fps; a 60fps video is still needed
+- heel/foot acceptances are the weakest group: right_heel cross-pass agreement 43.8% (vs 62-91% elsewhere) and one borderline heel visual sample in the holdout — Loop 11 candidate
+- cross-pass agreement is a biased metric inside left-right-confusion segments (independent passes share cleaned's confusion), shown by holdout samples where low-agreement acceptances were visually correct — it cannot serve as a standalone acceptance criterion there
 - animated markers/halos still render at fixed alpha (only trails consume the fade policy since Loop 6); frame-level body depth remains an importer heuristic by design (pose_z carries only hip-relative local depth)

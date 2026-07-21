@@ -452,11 +452,13 @@ Their outputs must be treated as candidates or generated layers, not measured da
 ## Recommended Next Implementation Order
 
 ```text
-1. Holdout-validate margins/floors on a third video                       [needs new footage]
-2. Add Motion Profile Builder for lightweight statistical prior           [pending]
-3. Persistent Blender add-on / TouchDesigner importer parity              [pending]
-4. Per-frame marker/halo fade in the Blender importer                     [pending]
-5. Consider learned or generated motion backends only as separate research modules
+1. Loop 11: heel/foot acceptance guard (weakest cross-pass agreement group) [proposed]
+2. Loop 12: standardized cross-pass agreement report in crop refine stage   [proposed]
+3. Per-frame marker/halo fade in the Blender importer                       [pending]
+4. fps-generalization holdout on a 60fps video                              [needs footage]
+5. Add Motion Profile Builder for lightweight statistical prior             [pending]
+6. Persistent Blender add-on / TouchDesigner importer parity                [pending]
+7. Consider learned or generated motion backends only as separate research modules
 
 Done: Skeleton Optimizer kept diagnostic; Outlier Minimizer v2; screen-bottom-origin
 trajectory export; Loop 1-3 wiring/threshold/scoring fixes; Loop 4 fps-normalized
@@ -464,7 +466,9 @@ spike floors; Loop 6 importer fade-policy contract + depth sign; Loop 7 One-Euro
 smoothing layer; Loops 8-10 rotation/CLAHE/mirror/reverse candidate passes with
 confusion (target-switch) diagnostics; Codex P0 maintenance package; v3 integrated
 rerun (Loop 8-10 crop outputs -> refine/outlier/export/Blender); stratified
-positional-accuracy verification of accepted re-detections (Codex P1).
+positional-accuracy verification of accepted re-detections (Codex P1); first
+holdout validation on unseen footage (session_cpu_008, 2026-07-21, passed —
+camera-cut jump correctly broken, Loop 8-10 passes generalized).
 ```
 
 ## Core Principle
